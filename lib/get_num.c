@@ -14,27 +14,26 @@
 
    Functions to process numeric command-line arguments.
 */
+#include "get_num.h"
+#include <errno.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
-#include <errno.h>
-#include "get_num.h"
 
 /* Print a diagnostic message that contains a function name ('fname'),
    the value of a command-line argument ('arg'), the name of that
    command-line argument ('name'), and a diagnostic error message ('msg'). */
-static void
-gnFail(const char *fname, const char *msg, const char *arg, const char *name)
-{
-    fprintf(stderr, "%s error", fname);
-    if (name != NULL)
-        fprintf(stderr, " (in %s)", name);
-    fprintf(stderr, ": %s\n", msg);
-    if (arg != NULL && *arg != '\0')
-        fprintf(stderr, "        offending text: %s\n", arg);
+static void gnFail(const char *fname, const char *msg, const char *arg,
+                   const char *name) {
+  fprintf(stderr, "%s error", fname);
+  if (name != NULL)
+    fprintf(stderr, " (in %s)", name);
+  fprintf(stderr, ": %s\n", msg);
+  if (arg != NULL && *arg != '\0')
+    fprintf(stderr, "        offending text: %s\n", arg);
 
-    exit(EXIT_FAILURE);
+  exit(EXIT_FAILURE);
 }
 
 /* Convert a numeric command-line argument ('arg') into a long integer,
@@ -46,57 +45,54 @@ gnFail(const char *fname, const char *msg, const char *arg, const char *name)
    the command-line argument 'arg'. 'fname' and 'name' are used to print a
    diagnostic message in case an error is detected when processing 'arg'. */
 
-static long
-getNum(const char *fname, const char *arg, int flags, const char *name)
-{
-    long res;
-    char *endptr;
-    int base;
+static long getNum(const char *fname, const char *arg, int flags,
+                   const char *name) {
+  long res;
+  char *endptr;
+  int base;
 
-    if (arg == NULL || *arg == '\0')
-        gnFail(fname, "null or empty string", arg, name);
+  if (arg == NULL || *arg == '\0')
+    gnFail(fname, "null or empty string", arg, name);
 
-    base = (flags & GN_ANY_BASE) ? 0 : (flags & GN_BASE_8) ? 8 :
-                        (flags & GN_BASE_16) ? 16 : 10;
+  base = (flags & GN_ANY_BASE)  ? 0
+         : (flags & GN_BASE_8)  ? 8
+         : (flags & GN_BASE_16) ? 16
+                                : 10;
 
-    errno = 0;
-    res = strtol(arg, &endptr, base);
-    if (errno != 0)
-        gnFail(fname, "strtol() failed", arg, name);
+  errno = 0;
+  res = strtol(arg, &endptr, base);
+  if (errno != 0)
+    gnFail(fname, "strtol() failed", arg, name);
 
-    if (*endptr != '\0')
-        gnFail(fname, "nonnumeric characters", arg, name);
+  if (*endptr != '\0')
+    gnFail(fname, "nonnumeric characters", arg, name);
 
-    if ((flags & GN_NONNEG) && res < 0)
-        gnFail(fname, "negative value not allowed", arg, name);
+  if ((flags & GN_NONNEG) && res < 0)
+    gnFail(fname, "negative value not allowed", arg, name);
 
-    if ((flags & GN_GT_0) && res <= 0)
-        gnFail(fname, "value must be > 0", arg, name);
+  if ((flags & GN_GT_0) && res <= 0)
+    gnFail(fname, "value must be > 0", arg, name);
 
-    return res;
+  return res;
 }
 
 /* Convert a numeric command-line argument string to a long integer. See the
    comments for getNum() for a description of the arguments to this function. */
 
-long
-getLong(const char *arg, int flags, const char *name)
-{
-    return getNum("getLong", arg, flags, name);
+long getLong(const char *arg, int flags, const char *name) {
+  return getNum("getLong", arg, flags, name);
 }
 
 /* Convert a numeric command-line argument string to an integer. See the
    comments for getNum() for a description of the arguments to this function. */
 
-int
-getInt(const char *arg, int flags, const char *name)
-{
-    long res;
+int getInt(const char *arg, int flags, const char *name) {
+  long res;
 
-    res = getNum("getInt", arg, flags, name);
+  res = getNum("getInt", arg, flags, name);
 
-    if (res > INT_MAX || res < INT_MIN)
-        gnFail("getInt", "integer out of range", arg, name);
+  if (res > INT_MAX || res < INT_MIN)
+    gnFail("getInt", "integer out of range", arg, name);
 
-    return res;
+  return res;
 }

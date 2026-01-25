@@ -1,0 +1,17 @@
+# Ignore any file without extension (common TLPI pattern)
+
+# Ignore absolutely everything
+*
+
+# Except...
+!*/
+!*.*
+!Makefile
+!makefile
+
+# Redundant exception for documentation purposes
+!*.c
+!*.h
+!*.sh
+!*.py
+!*.md

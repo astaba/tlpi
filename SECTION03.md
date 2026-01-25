@@ -1,0 +1,443 @@
+# System Programming Concepts
+
+## `errno` and Threads (3.5.2)
+
+> **Page: 53**
+
+This is one of those sentences that sounds like "Computer Science word
+salad" until you see the memory layout. Let's break it down into plain
+English and then look at the C implementation.
+
+### 1. What is an `lvalue`?
+
+In C, an **`lvalue`** (locator value) is simply an expression that refers
+to a specific memory location.
+
+- **A variable** `x` is an `lvalue` because you can find where it lives
+  in RAM.
+- **The number `5`** is **not** an `lvalue`; it's just a value. You can't
+  say "the address of 5."
+
+### 2. What is a "Modifiable lvalue"?
+
+It’s a memory location that you are allowed to change.
+
+- `int x = 10;` — `x` is a modifiable `lvalue`. You can do `x = 20;`.
+- `const int y = 10;` — `y` is an `lvalue` (it has an address), but
+  it is **not modifiable**.
+
+### 3. The "The Problem" with `errno` and Threads
+
+In the old days (before threads), `errno` was just a global `int`.
+
+```c
+extern int errno; // Simple, fast, but dangerous for threads!
+
+```
+
+If two threads fail at the same time, they would both overwrite the same
+global `int`, and you’d get the wrong error.
+
+To solve this, POSIX requires that every thread has its **own private**
+version of `errno`. But you can't have a variable name that points to
+different memory for different threads using standard C.
+
+### 4. The "Macro" Solution
+
+To make `errno` thread-safe, the library redefines it as a **function
+call**. On a modern Linux system, if you look at `errno.h`, it looks
+something like this:
+
+```c
+extern int * __errno_location (void);
+#define errno (*__errno_location())
+
+```
+
+### 5. The "Leftover" Error (The logic bug)
+
+Unlike many system calls, POSIX threads functions **never set `errno`**.
+
+- Standard system calls (like `open()` or `read()`) return `-1` on
+  failure and set the global `errno` variable.
+- Pthread functions **return the error code directly** as their integer
+  return value and **leave `errno` untouched**.
+
+If you do this:
+
+```c
+// Assume some previous unrelated function failed and set errno to 5
+int s = pthread_create(&t, NULL, func, NULL); // Returns 0 (Success)
+if (errno != 0) // errno is STILL 5 from earlier!
+    errExit("pthread_create"); // Your program crashes incorrectly
+
+```
+
+Your program would trigger the error handler because it's looking at
+"old news" sitting in the `errno` memory location.
+
+### 6. The "Hidden Function" Overhead (The efficiency bug)
+
+As Kerrisk noted, because `errno` is a macro `(*__errno_location())`:
+
+1. The CPU has to jump to a function.
+2. The function has to look up the "Thread Local Storage" (TLS) to find
+   where _this_ thread's `errno` lives.
+3. The CPU has to dereference that pointer.
+
+If you are calling `pthread` functions in a loop, doing that lookup every
+time is like driving to the post office just to check if you have mail,
+when the mailman already handed you the letter (the return value `s`).
+
+### The "Correct" Pthread Pattern
+
+This is why the "TLPI style" is mandatory for threads:
+
+```c
+int s;
+s = pthread_create(&thread, NULL, func, &arg);
+// We don't use perror() or errExit() because they look at errno.
+// We use Kerrisk's errExitEN() which takes the integer 's' we just got.
+if (s != 0)
+    errExitEN(s, "pthread_create");
+
+```
+
+### Summary of the "Modifiable Lvalue"
+
+Think of it this way:
+
+- **Old C:** `errno` is a **Box**. You just look inside.
+- **Threaded C:** `errno` is a **GPS Coordinate**. To get the value,
+  you have to ask the GPS (`__errno_location()`) where the Box is, walk
+  to that coordinate, and then look inside.
+
+Kerrisk is telling you: "The `pthread` function just handed you the value
+in your hand (`s`). Don't waste time asking the GPS where the Box is,
+especially since that Box might still contain a letter from yesterday!"
+
+---
+
+## The `.inc` extension (3.5.2)
+
+The `.inc` extension stands for **"Include"**.
+
+When you see a file named `ename.c.inc`, it indicates that the file is
+**not** a standalone C file that you should compile on its own. Instead,
+it is a **fragment of C code** designed to be pulled into another `.c`
+file using the `#include` preprocessor directive.
+
+### Why use `.c.inc` instead of just `.h`?
+
+In standard C convention:
+
+- **`.h` files** usually contain **declarations** (function prototypes,
+  struct definitions, macros). You include them to tell the compiler
+  "what things look like."
+- **`.inc` files** usually contain **definitions/data** (actual arrays,
+  long strings, or logic). You include them to "paste" actual code into
+  a specific spot.
+
+### How it's used in "The Linux Programming Interface"
+
+The `awk` script you just looked at generates the `ename.c.inc`
+file. Michael Kerrisk (the author) then uses it inside a library file
+(like `error_functions.c`) like this:
+
+### Why is this done?
+
+1. **Automation:** The list of error names (`EPERM`, `ENOENT`) changes
+   depending on which version of Linux or which architecture (x86 vs ARM)
+   you are on.
+2. **Cleanliness:** If the author put that giant 150-line array directly
+   into the main `.c` file, the file would be hard to read. By putting
+   it in a `.c.inc` file, he keeps the main logic separate from the
+   auto-generated data.
+3. **Safety:** By naming it `.c.inc` instead of just `.c`, he prevents the
+   `Makefile` (or the programmer) from accidentally trying to compile it as
+   a separate program, which would fail because it's just an array with no
+   `main()` function.
+
+### Summary
+
+It is a **"Generated Code Fragment."** The `.c` tells you it contains
+C code, and the `.inc` tells you it’s a "partial" file meant to be
+included elsewhere.
+
+---
+
+## Capabilities
+
+This error means you are missing the **development headers** for Linux
+Capabilities on your system.
+
+While the Linux kernel supports capabilities by default, the C headers
+and the library (`libcap`) required to compile programs that use them
+(common in TLPI Chapters 20 and 39) are usually not installed in a base
+Linux distribution.
+
+### The Fix
+
+You need to install the `libcap` development package using your
+distribution's package manager:
+
+**For Ubuntu, Debian, Linux Mint, or Kali:**
+
+```bash
+sudo apt-get update
+sudo apt-get install libcap-dev
+
+```
+
+**For Fedora, RHEL, or CentOS:**
+
+```bash
+sudo dnf install libcap-devel
+
+```
+
+**For Arch Linux:**
+
+```bash
+sudo pacman -S libcap
+
+```
+
+### Why TLPI needs this
+
+Michael Kerrisk (the author) wrote the **`libcap`** library. Many
+exercises in the "Capabilities" chapter use functions like
+`cap_get_proc()` or `cap_set_flag()`.
+
+Once you install the package, two things happen:
+
+1. The file `/usr/include/sys/capability.h` will appear (fixing your
+   "not found" error).
+2. A static/shared library named `libcap.so` is added to your system.
+
+### A Critical "Makefile" Hint
+
+Simply fixing the header error is only step one. When you compile code
+that includes `<sys/capability.h>`, you **must** also link against
+the library, or you will get "undefined reference" errors during the
+linking phase.
+
+If you are writing your own command to compile:
+
+```bash
+gcc my_cap_prog.c -o my_cap_prog -lcap
+
+```
+
+_(The `-lcap` flag tells the linker to look for `libcap`.)_
+
+If you are using the **TLPI provided Makefiles**, they usually have
+a logic check to see if `libcap` is installed, but sometimes you need
+to ensure the library is present before the first time you run `make`
+in the root directory.
+
+---
+
+## Compiler extenson: `__attribute__`
+
+### 1. The `NORETURN` Logic
+
+`__attribute__((__noreturn__))` is a **GCC/Clang hint**, not standard
+C. It informs the compiler that a function (like `exit` or `errExit`)
+never returns to its caller. This allows the compiler to:
+
+- **Silence warnings:** Prevents "control reaches end of non-void
+  function" errors when a function ends with a call to `errExit` rather
+  than a `return`.
+- **Optimize:** Removes unreachable code paths and avoids generating
+  unnecessary function epilogues.
+
+### 2. Syntax & Placement
+
+The `NORETURN` macro allows for flexible, portable placement:
+
+- **In Prototypes (Suffix):** `void errExit(...) NORETURN;` tells
+  _external callers_ that execution stops here.
+- **In Definitions (Prefix):** `NORETURN static void terminate(...)`
+  tells the compiler _generating the body_ that it doesn't need to return.
+
+### 3. The Identifier Namespace (The `__` Rule)
+
+Identifiers starting with `__` (or `_` + uppercase) are **reserved for
+the implementation** (compiler/libc).
+
+- **Why?** It prevents collisions. The compiler can safely define
+  `__GNUC__` or `__attribute__` knowing a legal user program will never
+  use those names.
+- **The Philosophy:** If it starts with `__`, it is "not yours." Use
+  them to talk to the compiler, but never define them yourself.
+
+### 4. Crucial Distinction: Compiler vs. Feature Test Macros
+
+It is vital to distinguish between **where** these macros come from and
+**what** they control:
+
+| Type                    | Examples                         | Source                   | Purpose                                                                                                              |
+| ----------------------- | -------------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| **Compiler Macros**     | `__GNUC__`, `__llvm__`           | Built-in to the compiler | Identifies the compiler and its specific extensions (like attributes).                                               |
+| **Feature Test Macros** | `_POSIX_C_SOURCE`, `_GNU_SOURCE` | Defined by the **User**  | Tells the **Header files** which APIs to expose (e.g., "Give me the Linux-specific functions, not just standard C"). |
+
+### Final Takeaway
+
+Think of `__attribute__` as **address(speech) comments to the compiler.**
+No code generated but compilation choices reoriented accordingly.
+
+Kerrisk uses `NORETURN` to bridge these worlds. He uses a **Compiler
+Macro** (`__GNUC__`) to detect if he can use a specific **Attribute**
+to satisfy the compiler's flow analysis. Meanwhile, he uses **Feature
+Test Macros** elsewhere to unlock the system APIs that `errExit`
+actually calls.
+
+**Summary:** `NORETURN` is a contract. It informs the compiler's internal
+logic, ensures silent `-Wall` builds, and follows strict ISO naming
+conventions to remain portable
+
+---
+
+## Printing system data type values (3.6.2)
+
+You have just peered into the "Unsafe" heart of C. The fact is
+`printf` (and all variadic functions) are essentially **blind**.
+
+Here is the breakdown of why this is such a dangerous, silent trap in
+systems programming.
+
+### 1. The "Variadic Erasure"
+
+When you call a normal function like `void foo(int x)`, the compiler
+knows exactly what type to provide. But for `printf(const char *format,
+...)`, the compiler has no "prototype" for the variadic `...` part.
+
+As a result, C follows the **Default Argument Promotions**:
+
+- `char` and `short` are promoted to `int`.
+- `float` is promoted to `double`.
+- `int`, `long`, and `long long` are passed **as they are**.
+
+### 2. The "Blind" Stack
+
+Imagine the CPU's memory (the stack) when you call `printf`:
+`printf("%d %ld", my_int, my_long);`
+
+1. The caller pushes `my_int` (4 bytes) onto the stack.
+2. The caller pushes `my_long` (8 bytes) onto the stack.
+3. `printf` looks at the **string**.
+
+- It sees `%d`. It reaches into the stack and grabs **4 bytes**.
+- It sees `%ld`. It reaches into the stack and grabs **8 bytes**.
+
+**The Trap:** If you provide `%d` but pass a `long` (8 bytes), `printf`
+only grabs the first 4 bytes of that number. If you provide `%ld` but
+pass an `int`, `printf` grabs 4 bytes of your number **plus 4 bytes of
+random "junk"** sitting next to it in memory!
+
+### 3. Why `pid_t` is a "Moving Target"
+
+POSIX defines `pid_t` as a "signed integer type." It doesn't say _which_
+one.
+
+- On 32-bit Linux, `pid_t` might be an `int` (4 bytes).
+- On a different architecture, it might be a `long` (8 bytes).
+
+If you write `printf("%d", getpid())`:
+
+- It works on 32-bit Linux.
+- It **breaks and prints garbage** on a system where `pid_t` is a `long`,
+  because `printf` will only read half the bits.
+
+### 4. The Kerrisk "Shield" (Cast to the Largest Type)
+
+Kerrisk’s solution is a defensive "Contract":
+
+1. **Cast to `long`**: By writing `(long) mypid`, you force the compiler
+   to convert the number to the largest standard integer type _before_
+   it hits the stack.
+2. **Use `%ld`**: You tell `printf` exactly how much to read.
+
+Because a `long` can always hold a `pid_t` without losing data (on almost
+all systems), this code becomes **portable**. It works regardless of
+how the specific OS defines the underlying type.
+
+### 5. The `off_t` Exception (`long long`)
+
+The reason he mentions `off_t` (file offsets) is even more
+extreme. Because disks got so huge (Terabytes), a 32-bit `long` (max
+2GB file size) wasn't enough. Many systems redefined `off_t` as a 64-bit
+`long long`.
+
+- If you cast `off_t` to `long` on a 32-bit system, you might "truncate"
+  a 10GB offset into a tiny number (corrupting your data).
+- Therefore, for file sizes, we cast to `(long long)` and use `%lld`.
+
+### Summary: The Golden Rule of `printf`
+
+In C systems programming, **never trust the compiler to guess the type
+of a system variable.**
+
+> 💡**One mental rule that saves you forever:**
+>
+> If a type is implementation-defined and goes through variadic `...`,
+> cast it explicitly and match the format exactly.
+>
+> **No exceptions.**
+
+- **Variable is a count/ID?** Cast to `(long)` and use `%ld`.
+- **Variable is a file size/offset?** Cast to `(long long)` and use
+  `%lld`.
+- **Variable is a memory address?** Use `%p` (the only type-safe specifier
+  for pointers).
+
+**Welcome to the world of "Defensive C"—where we treat every function
+call like the compiler is trying to misunderstand us!**
+
+---
+
+## 3.8 Exercise
+
+```c
+   int syscall(SYS_reboot, int magic, int magic2, int op, void *arg);
+   int reboot(int op);
+```
+
+> What is the significance of the magic number arguments:
+> Example: `LINUX_REBOOT_MAGIC2`?
+
+When you look at the **precise** hex values mentioned in the man page,
+the "significance" becomes even more specific to Linus Torvalds' daughters
+and his own life.
+
+### The Corrected "Significance" Table
+
+| Constant               | Hexadecimal  | Significance (The Dates)                                    |
+| ---------------------- | ------------ | ----------------------------------------------------------- |
+| `LINUX_REBOOT_MAGIC1`  | `0xFEE1DEAD` | "Feel Dead" (A mnemonic, not a date).                       |
+| `LINUX_REBOOT_MAGIC2`  | `0x28121969` | **28-12-1969**: Linus Torvalds' Birthday.                   |
+| `LINUX_REBOOT_MAGIC2A` | `0x05121996` | **05-12-1996**: Birth of his first daughter, **Linni**.     |
+| `LINUX_REBOOT_MAGIC2B` | `0x16041998` | **16-04-1998**: Birth of his second daughter, **Patricia**. |
+| `LINUX_REBOOT_MAGIC2C` | `0x20112000` | **20-11-2000**: Birth of his third daughter, **Celeste**.   |
+
+### Why this matters for the TLPI Exercise
+
+The "Clue" Kerrisk is pointing toward is that these aren't random numbers
+generated by a computer; they are **Little Endian** (or human-readable
+hex) representations of **DD-MM-YYYY**.
+
+### Logic Check: Why so many Magic2s?
+
+Every time Linus had a child, he added a new valid "password" to the
+`reboot` system call.
+
+- It serves as a timeline of the Kernel's history.
+- It reinforces the "Safety Handshake": To reboot, you must provide the
+  "Magic 1" (`0xFEE1DEAD`) AND one of the "Family Dates."
+
+**Final Takeaway:** In C, when you see a "Magic Number" that looks like
+a large, nonsensical integer (like `672274793`), **always convert it to
+Hex.** If it looks like a date or a word (LEET speak), it was put there
+by a human to ensure that a random memory corruption doesn't accidentally
+trigger a "Deadly" function like `reboot()`.

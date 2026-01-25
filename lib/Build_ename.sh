@@ -4,8 +4,8 @@
 # error names defined in errno.h
 #
 echo '#include <errno.h>' | cpp -dM |
-sed -n -e '/#define  *E/s/#define  *//p' |sort -k2n |
-awk '
+	sed -n -e '/#define  *E/s/#define  *//p' | sort -k2n |
+	awk '
 BEGIN {
         entries_per_line = 4
         line_len = 68;
@@ -24,7 +24,7 @@ BEGIN {
             line = line ", ";
             if (length(line ename) > line_len || last == 1) {
                 print line;
-                line = "    /* " last " */ ";
+                line = "    /* " last " */ "; # Fallback: sprintf unsupported
                 line = sprintf("    /* %3d */ ", last);
             }
             line = line "\"" "\"" ;
@@ -37,7 +37,7 @@ BEGIN {
             line = line ", ";
             if (length(line ename) > line_len || last == 1) {
                 print line;
-                line = "    /* " last " */ ";
+                line = "    /* " last " */ "; # Fallback: sprintf unsupported
                 line = sprintf("    /* %3d */ ", last);;
             }
             line = line "\"" ename "\"" ;
@@ -50,4 +50,3 @@ END {
     print "#define MAX_ENAME " last;
 }
 ' | sed 's/  *$//'
-
