@@ -1,17 +1,68 @@
-# Ignore any file without extension (common TLPI pattern)
+.vscode/
 
-# Ignore absolutely everything
-*
+# Prerequisites
+*.d
+*.i
 
-# Except...
-!*/
-!*.*
-!Makefile
-!makefile
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
 
-# Redundant exception for documentation purposes
-!*.c
-!*.h
-!*.sh
-!*.py
-!*.md
+# Linker output
+*.ilk
+# *.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+bin/
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+# Temporary Files
+tmp/
+tmp_pic/
+temp/
+*.tmp
+*.bak
+*.old
+*.swp
+*~
+
+make-p.*
