@@ -45,9 +45,9 @@ static void gnFail(const char *fname, const char *msg, const char *arg,
    the command-line argument 'arg'. 'fname' and 'name' are used to print a
    diagnostic message in case an error is detected when processing 'arg'. */
 
-static long getNum(const char *fname, const char *arg, int flags,
-                   const char *name) {
-  long res;
+static long long getNum(const char *fname, const char *arg, int flags,
+                        const char *name) {
+  long long res;
   char *endptr;
   int base;
 
@@ -60,7 +60,7 @@ static long getNum(const char *fname, const char *arg, int flags,
                                 : 10;
 
   errno = 0;
-  res = strtol(arg, &endptr, base);
+  res = strtoll(arg, &endptr, base);
   if (errno != 0)
     gnFail(fname, "strtol() failed", arg, name);
 
@@ -76,18 +76,33 @@ static long getNum(const char *fname, const char *arg, int flags,
   return res;
 }
 
+/* Convert a numeric command-line argument string to a long long integer. See
+   the comments for getNum() for a description of the arguments to this
+   function. */
+
+long long getLLong(const char *arg, int flags, const char *name) {
+  return getNum("getLLong", arg, flags, name);
+}
+
 /* Convert a numeric command-line argument string to a long integer. See the
    comments for getNum() for a description of the arguments to this function. */
 
 long getLong(const char *arg, int flags, const char *name) {
-  return getNum("getLong", arg, flags, name);
+  long long res;
+
+  res = getNum("getLong", arg, flags, name);
+
+  if (res > LONG_MAX || res < LONG_MIN)
+    gnFail("getLong", "long integer out of range", arg, name);
+
+  return res;
 }
 
 /* Convert a numeric command-line argument string to an integer. See the
    comments for getNum() for a description of the arguments to this function. */
 
 int getInt(const char *arg, int flags, const char *name) {
-  long res;
+  long long res;
 
   res = getNum("getInt", arg, flags, name);
 
