@@ -1,0 +1,270 @@
+#+TITLE: File I\O
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Notes on Chapters 04 and 05 from "The Linux Programming Interface" A Linux and UNIX® System Programming by Handbook Michael Kerrisk.
+#+STARTUP: showeverything
+
+* Table Of Contents                                                   :toc_2:
+- [[#kerrisks-makefile-chain][Kerrisk's ~Makefile~ chain]]
+  - [[#first-build][First build]]
+  - [[#kerrisks-portability-shield][Kerrisk's portability shield]]
+- [[#43-opening-a-file][4.3 Opening a file]]
+  - [[#listing-42][Listing 4.2]]
+- [[#44-reading-from-a-file-read][4.4 Reading from a File: ~read()~]]
+  - [[#only-sees-binary-data][Only sees binary data]]
+
+* Kerrisk's ~Makefile~ chain
+** First build
+*** Trace ~Makefile~ rules
+It all started with this convoluted ~Makefile~ rule.
+#+begin_example sh
+make copy
+cc -std=c99 -D_XOPEN_SOURCE=600 -D_DEFAULT_SOURCE -g -I../lib -pedantic -Wall -W -Wmissing-prototypes -Wimplicit-fallthrough -Wno-unused-parameter    copy.c ../libtlpi.a   -o copy
+#+end_example
+
+/From the actual state of both ~./Makefile.inc~ and ~./fileio/Makefile~
+tracing the usage of ~TLPI_DIR~ and the misleading ~LDLIBS~ variables
+was an educative journey./
+
+**** The mystery
+/How on earth did ~"copy.c ../libtlpi.a"~ output got there?/
+
+The starting point is the following rule from ~./fileio/Makefile~:
+
+#+begin_src makefile
+${EXE} : ${TLPI_LIB}        # True as a rough approximation
+#+end_src
+
+It does not seem like much but if this *pattern rule* (in ~make~ lingo)
+produces such an effective and verbose output it must have been provided
+*prerequisites and recipe* from somewhere.
+
+**** ~Makefile~: The Deep-State
+
+To coerce ~make~ into revealing the secrets of its magic on your system
+run the following command in a directory with no ~makefile~:
+
+#+begin_src sh
+make -p
+#+end_src
+
+A thousand-line output, a trove of all the variables (both build command
+and flags), implicit rules and pattern rules. For ease of reading with
+syntax highlighting:
+
+#+begin_src sh
+make -p > foo && mv foo makefile.md
+# Then enclose into mark-down bash code-block.
+#+end_src
+
+After peeking for a while I spotted:
+
+#+begin_src makefile
+# makefile (from 'Makefile', line 147)
+LINK.c = $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+
+# ...
+
+%: %.c
+#  recipe to execute (from 'Makefile', line 331):
+    $(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+#+end_src
+
+The first 3 empty spaces in between ~"-Wno-unused-parameter    copy.c"~
+matches the 3 empty variables ~$(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)~.
+
+The first 2 empty spaces in between ~"../libtlpi.a   -o"~ match the 2
+empty variables ~$(LOADLIBES) $(LDLIBS)~.
+
+*** The Verdict: The Power of the Automatic Variable ~$^~
+You are telling =make= that every executable in your ~${EXE}~ list
+(including ~copy~) has ~../libtlpi.a~ as a formal prerequisite.
+Simultaneously, the implicit pattern rule ~% : %.c~ tells =make= that
+~copy~ also depends on ~copy.c~.
+
+1. ~$(LINK.c)~: Expands to the compiler and all your ~IMPL_CFLAGS~,
+   leaving behind those "whitespace ghosts" where the empty ~CPPFLAGS~,
+   ~LDFLAGS~, and ~TARGET_ARCH~ used to be.
+2. ~$^~: This is where the "mystery" is solved. Since the target
+   ~copy~ has two prerequisites (~copy.c~ and ~../libtlpi.a~), =make=
+   joins them with a space and injects them directly into the heart of
+   the command.
+3. ~$(LOADLIBES) $(LDLIBS)~: These expand to empty strings, adding
+   more tell-tale whitespace before the final ~-o $@~.
+
+*The proof is undeniable:* The command isn't being built by a complex
+script, but by a simple, elegant template where your prerequisites are
+literally "plugged in" to the center of the compilation string. The
+extra spaces aren't just a formatting quirk; they are the *physical
+footprint* of the variables you chose /not/ to define.
+
+** Kerrisk's portability shield
+Kerrisk's configuration here is a masterclass in *Defensive Systems
+Programming*. He is essentially building a "suit of armor" around the
+code so it can survive different ages of Linux, different compilers, and
+different header standards.
+
+Here is the breakdown of why these specific flags exist and how they
+affect your ~draft01.c~.
+
+*** 1. The "Feature Test" Macros (The time-travelers)
+#+begin_src makefile
+-D_XOPEN_SOURCE=600 -D_DEFAULT_SOURCE
+#+end_src
+
+These are not compiler settings; they are *switches for the Header Files
+(~<stdio.h>~, etc.)*.
+
+- ~_XOPEN_SOURCE~600~: Tells the system, "I am writing code for
+  POSIX.1-2001 / SUSv3." This ensures that functions like ~fchmod~ or
+  specific ~open()~ flags are visible.
+- ~_DEFAULT_SOURCE~: As Kerrisk notes, this is the "modern" way to
+  tell Glibc to include standard BSD and System V definitions. Without
+  this, on a modern Ubuntu or Fedora machine, you might get a "function
+  not declared" warning for functions that have been around since the
+  80s!
+
+*** 2. The Pedantic Warning Suite
+#+begin_src makefile
+-pedantic -Wall -W -Wmissing-prototypes
+#+end_src
+
+Kerrisk wants the compiler to be *annoying*.
+
+- ~-pedantic~: Rejects code that uses "compiler extensions" not
+  strictly in the C99 standard.
+- ~-Wmissing-prototypes~: This is a great one for you! It would have
+  caught your ~help()~ function issue earlier if you had defined the
+  function without a declaration.
+- ~-Wimplicit-fallthrough~: This prevents a common "C disaster" where
+  you forget a ~break;~ in a ~switch~ statement and the code "falls
+  through" to the next case by accident.
+
+*** 3. The ~ifeq~ Clang Logic
+#+begin_src makefile
+ifeq ($(CC),clang)
+    IMPL_CFLAGS += -Wno-uninitialized ...
+endif
+#+end_src
+
+This is a "peace treaty" between compilers. =clang= is famously more
+"talkative" than =gcc=. It might complain about things that are
+technically legal but look suspicious. Kerrisk is basically saying, "I
+know the code is safe here; be quiet, Clang."
+
+*** 4. Why the "Verbose" form is usually better
+Kerrisk calls the generally compatible form "verbose" because it lists
+every possible flag to cover all bases. If you are just working on
+your own local machine (e.g., a modern x86_64 Linux), you could get
+away with just ~-Wall -D_DEFAULT_SOURCE~.
+
+*However*, keeping the verbose flags is like keeping a detailed
+logbook: it tells anyone reading your code exactly which standards you
+are adhering to.
+
+*Since you're looking at the TLPI build system, would you like to see
+how to create a "debug" vs "release" build mode in your Makefile so
+you can switch between ~-g~ (debugging) and ~-O2~ (optimization) with
+a single command?
+
+* 4.3 Opening a file
+** Listing 4.2
+‘Listing 4-2’ shows examples of the use of ~open()~, some of which
+employ additional flags bits that we describe shortly.
+
+*** Code Snippet
+#+begin_src C
+  /* Listing 4-2 */
+  int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
+    /* Opening a file for read only */
+    char *report = "report.txt";
+    int report_fd = open(report, O_RDONLY);
+    if (report_fd == -1)
+      systmErr(systmErr(
+
+    /* Opening a personal file for read and write */
+    char *journal = "journal.md";
+    int journal_fd =
+          open(journal, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR, S_IWUSR);
+    if (journal_fd == -1)
+      systmErr(systmErr(
+
+    /* Opening a new or existing file for update */
+    char *log = "system.log";
+    int log_fd =
+        open(log, O_WRONLY | O_CREAT | O_APPEND | O_TRUNC, S_IRUSR, S_IWUSR);
+    if (log_fd == -1)
+      systmErr(systmErr(
+
+    return 0;
+  }
+#+end_src
+
+*** Notice on ~open()~ behavior
+1. =open()= return a file descriptor which is guaranteed to be the lowest
+in use. The advantage of this feature is we can ensure a file is
+available on a specific file descriptor.
+#+begin_src C
+if(close(STDIN_FILENO)==-1) /* Release file descriptor 0 */
+    systmErr(systmErr(
+
+int fd = open(pathname, O_RDONLY);
+if(fd == -1)
+    systmErr(systmErr(
+#+end_src
+
+2. Truncation occurred whether the file opened for reading or writing.
+#+begin_src sh
+echo "Hello Sunshine!" > test.txt
+cat test.txt
+# output -> Hello Sunshine!
+python3 -c "import os; os.open('test.txt, os.O_RDONLY | os.O_TRUNC)"
+cat test.txt # NO OUTPUT
+#+end_src
+
+--------------
+
+* 4.4 Reading from a File: ~read()~
+** Only sees binary data
+Using the next snippet to input a series of characters fro, say, a
+terminal would not work as expected. The reason is ~read()~ does not
+cater to C convention for string termination.
+
+*** Using ~read()~ the wrong way
+#+begin_src C
+#define MAX_READ 20
+char buffer[MAX_READ];
+if (read(STDIN_FILENO, buffer, MAX_READ) == -1)
+  systmErr(systmErr(
+printf("The input data was: %s\n", buffer);
+#+end_src
+
+The string must be standardize by adding the null-terminator munually.
+
+*** Kerrisk's Fix
+*From Kerrisk's:* His snippet is intended to test ~read(2)~ on the
+assumption the user never input more than ~MAX_READ~.
+
+#+begin_src C
+  char buffer[MAX_READ + 1];
+  ssize_t numRead;
+  numRead = read(STDIN_FILENO, buffer, MAX_READ);
+  if (numRead == -1)
+    systmErr(systmErr(
+  buffer[numRead] = '\0';
+  printf("The input data was: %s\n", buffer);
+#+end_src
+
+*** My improvement
+Reference: [[/home/owner/coding/c_prog/tlpi/fileio/yread.c][yread.c]].
+
+I have successfully performed a "security audit" on a snippet that
+Kerrisk likely kept simple for pedagogical reasons, but which fails my
+"User Input Stress Test."
+
+My stabilized version handles the *three Horsemen of Terminal I/O*:
+
+1. *EOF (numRead == 0)*: prevent writing to ~buffer[-1]~.
+2. *The Newline Nuisance*: strip the ~\n~ to keep the ~printf~
+   output clean.
+3. *The "Crumb" Problem*: drain the TTY buffer so the shell doesn't
+   execute your leftovers.
