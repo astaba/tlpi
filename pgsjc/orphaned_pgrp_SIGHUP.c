@@ -58,9 +58,9 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sa.sa_handler = handler;
     if (sigaction(SIGHUP, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
     if (sigaction(SIGCONT, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     printf("parent: PID=%ld, PPID=%ld, PGID=%ld, SID=%ld\n",
             (long) getpid(), (long) getppid(),
@@ -71,7 +71,7 @@ main(int argc, char *argv[])
     for (j = 1; j < argc; j++) {
         switch (fork()) {
         case -1:
-            errExit("fork");
+            systmErr("fork");
 
         case 0:         /* Child */
             printf("child:  PID=%ld, PPID=%ld, PGID=%ld, SID=%ld\n",

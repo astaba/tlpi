@@ -35,18 +35,18 @@ displayProcessTimes(const char *msg)
     if (clockTicks == 0) {      /* Fetch clock ticks on first call */
         clockTicks = sysconf(_SC_CLK_TCK);
         if (clockTicks == -1)
-            errExit("sysconf");
+            systmErr("sysconf");
     }
 
     clockTime = clock();
     if (clockTime == -1)
-        errExit("clock");
+        systmErr("clock");
 
     printf("        clock() returns: %ld clocks-per-sec (%.2f secs)\n",
             (long) clockTime, (double) clockTime / CLOCKS_PER_SEC);
 
     if (times(&t) == -1)
-        errExit("times");
+        systmErr("times");
     printf("        times() yields: user CPU=%.2f; system CPU: %.2f\n",
             (double) t.tms_utime / clockTicks,
             (double) t.tms_stime / clockTicks);

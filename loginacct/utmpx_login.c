@@ -49,9 +49,9 @@ main(int argc, char *argv[])
 
     devName = ttyname(STDIN_FILENO);
     if (devName == NULL)
-        errExit("ttyname");
+        systmErr("ttyname");
     if (strlen(devName) <= 8)           /* Should never happen */
-        fatal("Terminal name is too short: %s", devName);
+        custmErr("Terminal name is too short: %s", devName);
 
     strncpy(ut.ut_line, devName + 5, sizeof(ut.ut_line));
     strncpy(ut.ut_id, devName + 8, sizeof(ut.ut_id));
@@ -63,7 +63,7 @@ main(int argc, char *argv[])
 
     setutxent();                        /* Rewind to start of utmp file */
     if (pututxline(&ut) == NULL)        /* Write login record to utmp */
-        errExit("pututxline");
+        systmErr("pututxline");
     updwtmpx(_PATH_WTMP, &ut);          /* Append login record to wtmp */
 
     /* Sleep a while, so we can examine utmp and wtmp files */
@@ -81,7 +81,7 @@ main(int argc, char *argv[])
     printf("Creating logout entries in utmp and wtmp\n");
     setutxent();                        /* Rewind to start of utmp file */
     if (pututxline(&ut) == NULL)        /* Overwrite previous utmp record */
-        errExit("pututxline");
+        systmErr("pututxline");
     updwtmpx(_PATH_WTMP, &ut);          /* Append logout record to wtmp */
 
     endutxent();

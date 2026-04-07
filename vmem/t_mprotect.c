@@ -37,7 +37,7 @@ main(int argc, char *argv[])
 
     addr = mmap(NULL, LEN, PROT_NONE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     if (addr == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     /* Display line from /proc/self/maps corresponding to mapping */
 
@@ -48,7 +48,7 @@ main(int argc, char *argv[])
     /* Change protection on memory to allow read and write access */
 
     if (mprotect(addr, LEN, PROT_READ | PROT_WRITE) == -1)
-        errExit("mprotect");
+        systmErr("mprotect");
 
     printf("After mprotect()\n");
     system(cmd);                /* Review protection via /proc/self/maps */

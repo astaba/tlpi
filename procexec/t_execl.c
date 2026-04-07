@@ -22,10 +22,10 @@ main(int argc, char *argv[])
 {
     printf("Initial value of USER: %s\n", getenv("USER"));
     if (putenv("USER=britta") != 0)
-        errExit("putenv");
+        systmErr("putenv");
 
     /* exec printenv to display the USER and SHELL environment vars */
 
     execl("/usr/bin/printenv", "printenv", "USER", "SHELL", (char *) NULL);
-    errExit("execl");           /* If we get here, something went wrong */
+    systmErr("execl");           /* If we get here, something went wrong */
 }

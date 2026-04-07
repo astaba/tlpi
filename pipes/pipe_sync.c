@@ -41,16 +41,16 @@ main(int argc, char *argv[])
     printf("%s  Parent started\n", currTime("%T"));
 
     if (pipe(pfd) == -1)
-        errExit("pipe");
+        systmErr("pipe");
 
     for (j = 1; j < argc; j++) {
         switch (fork()) {
         case -1:
-            errExit("fork %d", j);
+            systmErr("fork %d", j);
 
         case 0: /* Child */
             if (close(pfd[0]) == -1)        /* Read end is unused */
-                errExit("close");
+                systmErr("close");
 
             /* Child does some work, and lets parent know it's done */
 
@@ -59,7 +59,7 @@ main(int argc, char *argv[])
             printf("%s  Child %d (PID=%ld) closing pipe\n",
                     currTime("%T"), j, (long) getpid());
             if (close(pfd[1]) == -1)
-                errExit("close");
+                systmErr("close");
 
             /* Child now carries on to do other things... */
 
@@ -73,12 +73,12 @@ main(int argc, char *argv[])
     /* Parent comes here; close write end of pipe so we can see EOF */
 
     if (close(pfd[1]) == -1)                /* Write end is unused */
-        errExit("close");
+        systmErr("close");
 
     /* Parent may do other work, then synchronizes with children */
 
     if (read(pfd[0], &dummy, 1) != 0)
-        fatal("parent didn't get EOF");
+        custmErr("parent didn't get EOF");
     printf("%s  Parent ready to go\n", currTime("%T"));
 
     /* Parent can now carry on to do other things... */

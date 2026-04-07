@@ -85,7 +85,7 @@ main(int argc, char *argv[])
     for (int j = 2; j < argc; j++) {
         int fd = open(argv[j], O_RDONLY);
         if (fd == -1) {         /* Most likely error is nonexistent file */
-            errMsg("open: %s", argv[j]);
+            systmWrn("open: %s", argv[j]);
             continue;
         }
 
@@ -95,14 +95,14 @@ main(int argc, char *argv[])
         if (argv[1][0] == '+' || argv[1][0] == '-') {
             int oldAttr;
             if (ioctl(fd, FS_IOC_GETFLAGS, &oldAttr) == -1)
-                errExit("ioctl1: %s", argv[j]);
+                systmErr("ioctl1: %s", argv[j]);
             attr = (*argv[1] == '-') ? (oldAttr & ~attr) : (oldAttr | attr);
         }
 
         if (ioctl(fd, FS_IOC_SETFLAGS, &attr) == -1)
-            errExit("ioctl2: %s", argv[j]);
+            systmErr("ioctl2: %s", argv[j]);
         if (close(fd) == -1)
-            errExit("close");
+            systmErr("close");
     }
 
     exit(EXIT_SUCCESS);

@@ -37,12 +37,12 @@ main(int argc, char *argv[])
 
     for (j = 1; j < argc; j++)
         if (putenv(argv[j]) != 0)
-            errExit("putenv: %s", argv[j]);
+            systmErr("putenv: %s", argv[j]);
 
     /* Add a definition for GREET if one does not already exist */
 
     if (setenv("GREET", "Hello world", 0) == -1)
-        errExit("setenv");
+        systmErr("setenv");
 
     /* Remove any existing definition of BYE */
 

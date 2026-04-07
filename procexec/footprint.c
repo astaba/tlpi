@@ -33,7 +33,7 @@ func(int arg)
 
     for (j = 0; j < 0x100; j++)
         if (malloc(0x8000) == NULL)
-            errExit("malloc");
+            systmErr("malloc");
     printf("Program break in child:  %10p\n", sbrk(0));
 
     return arg;
@@ -52,7 +52,7 @@ main(int argc, char *argv[])
 
     childPid = fork();
     if (childPid == -1)
-        errExit("fork");
+        systmErr("fork");
 
     if (childPid == 0)              /* Child calls func() and */
         exit(func(arg));            /* uses return value as exit status */
@@ -61,7 +61,7 @@ main(int argc, char *argv[])
        result of func() by inspecting 'status' */
 
     if (wait(&status) == -1)
-        errExit("wait");
+        systmErr("wait");
 
     printf("Program break in parent: %10p\n", sbrk(0));
 

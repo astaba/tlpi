@@ -51,7 +51,7 @@ allocMem(int numAllocs, size_t blockSize, int sleepUsecs)
     for (int j = 0; (numAllocs == -1) || (j < numAllocs); j++) {
         char *p = malloc(blockSize);
         if (p == NULL)
-            errExit("malloc %d", j);
+            systmErr("malloc %d", j);
 
         /* Make sure virtual memory is actually allocated by touching
            every page */
@@ -133,11 +133,11 @@ main(int argc, char *argv[])
 
             doAlloc = argv[j][0] == '+';
             if (doAlloc && allocated)
-                fatal("Can only specify one '+' argument");
+                custmErr("Can only specify one '+' argument");
 
             int s = pthread_create(&thr, NULL, threadFunc, (void *) doAlloc);
             if (s != 0)
-                errExitEN(s, "pthread_create");
+                nmsetErr(s, "pthread_create");
 
             if (doAlloc)
                 allocated = true;

@@ -46,7 +46,7 @@ main(int argc, char *argv[])
     for (j = 0; j < numSigs; j++) {
         sv.sival_int = sigData + j;
         if (sigqueue(getLong(argv[1], 0, "pid"), sig, sv) == -1)
-            errExit("sigqueue %d", j);
+            systmErr("sigqueue %d", j);
     }
 
     exit(EXIT_SUCCESS);

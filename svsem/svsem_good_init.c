@@ -44,7 +44,7 @@ main(int argc, char *argv[])
 
         arg.val = 0;                    /* So initialize it to 0 */
         if (semctl(semid, 0, SETVAL, arg) == -1)
-            errExit("semctl 1");
+            systmErr("semctl 1");
         printf("%ld: initialized semaphore\n", (long) getpid());
 
         /* Perform a "no-op" semaphore operation - changes sem_otime
@@ -54,13 +54,13 @@ main(int argc, char *argv[])
         sop.sem_op = 0;                 /* Wait for value to equal 0 */
         sop.sem_flg = 0;
         if (semop(semid, &sop, 1) == -1)
-            errExit("semop");
+            systmErr("semop");
         printf("%ld: completed dummy semop()\n", (long) getpid());
 
     } else {                            /* We didn't create the semaphore set */
 
         if (errno != EEXIST) {          /* Unexpected error from semget() */
-            errExit("semget 1");
+            systmErr("semget 1");
 
         } else {                        /* Someone else already created it */
             const int MAX_TRIES = 10;
@@ -70,7 +70,7 @@ main(int argc, char *argv[])
 
             semid = semget(key, 1, perms);      /* So just get ID */
             if (semid == -1)
-                errExit("semget 2");
+                systmErr("semget 2");
 
             printf("%ld: got semaphore key\n", (long) getpid());
             /* Wait until another process has called semop() */
@@ -79,7 +79,7 @@ main(int argc, char *argv[])
             for (j = 0; j < MAX_TRIES; j++) {
                 printf("Try %d\n", j);
                 if (semctl(semid, 0, IPC_STAT, arg) == -1)
-                    errExit("semctl 2");
+                    systmErr("semctl 2");
 
                 if (ds.sem_otime != 0)          /* Semop() performed? */
                     break;                      /* Yes, quit loop */
@@ -87,7 +87,7 @@ main(int argc, char *argv[])
             }
 
             if (ds.sem_otime == 0)              /* Loop ran to completion! */
-                fatal("Existing semaphore not initialized");
+                custmErr("Existing semaphore not initialized");
         }
     }
 
@@ -97,7 +97,7 @@ main(int argc, char *argv[])
     sops[0].sem_op = getInt(argv[1], 0, "sem-op");
     sops[0].sem_flg = 0;
     if (semop(semid, sops, 1) == -1)
-        errExit("semop");
+        systmErr("semop");
 
     exit(EXIT_SUCCESS);
 }

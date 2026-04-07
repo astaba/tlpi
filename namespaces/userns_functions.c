@@ -36,11 +36,11 @@ display_creds_and_caps(char *str)
 
     cap_t caps = cap_get_proc();
     if (caps == NULL)
-        errExit("cap_get_proc");
+        systmErr("cap_get_proc");
 
     char *s = cap_to_text(caps, NULL);
     if (s == NULL)
-        errExit("cap_to_text");
+        systmErr("cap_to_text");
     printf("capabilities: %s\n", s);
 
     cap_free(caps);

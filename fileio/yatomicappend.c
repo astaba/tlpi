@@ -1,23 +1,8 @@
 /* Created on: Fri Jan 30 14:29:46 +01 2026 */
 /* Description: Practice draft for atomic_append.c */
 /* Demonstrate the difference between using of nonatomic lseek(2)+write(2) and
- * the atomic open(2) with O_APPEND */
-/* Test: $ ./draft04 f1 1000000 & ./draft04 f1 1000000
-         $ ./draft04 f2 1000000 x & ./draft04 f2 1000000 x  */
-/* NOTE:: The RACE CONDITION */
-/* First looking at file content it does not seem like much until checking the
- * massive difference in file size. When writing in two function calls using
- * lseek()+write it causes a race-condition: */
-/* 1. Process_A calls lseek() and set the offset at 1000 before being preempted
-      by scheduler fairness.
-   2. Process_B resumes, calls lseek(), sets offset at 1000 and calls write()
-   which let the offset at 1001 before scheduler preemption.
-   3. Process_A resumes only aware of the offset it set itself at 1000 and
-      overwrites Process_B byte at offset 1001.
-   4. Process_B takes on from offset at 1001 and so on and so forth. */
-/* The Consequence:
-For two writes only one byte is actual input. Over a million of iterations the
-phenomenon adds up to a massive data deficit. */
+ * the atomic open(2) with O_APPEND. More explanations at end of file.
+ * */
 
 #include "../lib/tlpi_hdr.h" // IWYU pragma: keep
 #include <fcntl.h>
@@ -60,3 +45,21 @@ int main(int argc, char *argv[argc + 1]) {
   printf("%ld: done.\n", (long)getpid());
   return EXIT_SUCCESS;
 }
+
+/* Test: $ ./draft04 f1 1000000 & ./draft04 f1 1000000
+         $ ./draft04 f2 1000000 x & ./draft04 f2 1000000 x  */
+
+/* NOTE:: The RACE CONDITION */
+/* First looking at file content it does not seem like much until checking the
+ * massive difference in file size. When writing in two function calls using
+ * lseek()+write it causes a race-condition: */
+/* 1. Process_A calls lseek() and set the offset at 1000 before being preempted
+      by scheduler fairness.
+   2. Process_B resumes, calls lseek(), sets offset at 1000 and calls write()
+   which let the offset at 1001 before scheduler preemption.
+   3. Process_A resumes only aware of the offset it set itself at 1000 and
+      overwrites Process_B byte at offset 1001.
+   4. Process_B takes on from offset at 1001 and so on and so forth. */
+/* The Consequence:
+For two writes only one byte is actual input. Over a million of iterations the
+phenomenon adds up to a massive data deficit. */

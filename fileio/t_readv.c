@@ -37,9 +37,9 @@ main(int argc, char *argv[])
     if (argc != 2 || strcmp(argv[1], "--help") == 0)
         usageErr("%s file\n", argv[0]);
 
-    fd = open(argv[1], O_RDONLY);
-    if (fd == -1)
-        errExit("open");
+  fd = open(argv[1], O_RDONLY);
+  if (fd == -1)
+    systmErr("open");
 
     totRequired = 0;
 
@@ -55,9 +55,9 @@ main(int argc, char *argv[])
     iov[2].iov_len = STR_SIZE;
     totRequired += iov[2].iov_len;
 
-    numRead = readv(fd, iov, 3);
-    if (numRead == -1)
-        errExit("readv");
+  numRead = readv(fd, iov, 3);
+  if (numRead == -1)
+    systmErr("readv");
 
     if (numRead < totRequired)
         printf("Read fewer bytes than requested\n");

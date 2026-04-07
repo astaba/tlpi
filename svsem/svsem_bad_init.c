@@ -39,15 +39,15 @@ main(int argc, char *argv[])
 
         arg.val = 0;                    /* So initialize it */
         if (semctl(semid, 0, SETVAL, arg) == -1)
-            errExit("semctl");
+            systmErr("semctl");
 
     } else {                            /* We didn't create semaphore set */
         if (errno != EEXIST) {          /* Unexpected error from semget() */
-            errExit("semget 1");
+            systmErr("semget 1");
         } else {                        /* Someone else already created it */
             semid = semget(key, 1, perms);      /* So just get ID */
             if (semid == -1)
-                errExit("semget 2");
+                systmErr("semget 2");
         }
     }
 
@@ -57,7 +57,7 @@ main(int argc, char *argv[])
     sops[0].sem_num = 0;        /* ... to semaphore 0 */
     sops[0].sem_flg = 0;
     if (semop(semid, sops, 1) == -1)
-        errExit("semop");
+        systmErr("semop");
 
     exit(EXIT_SUCCESS);
 }

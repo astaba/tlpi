@@ -36,12 +36,12 @@ main(int argc, char *argv[])
 
     s = pthread_create(&t1, NULL, threadFunc, "Hello world\n");
     if (s != 0)
-        errExitEN(s, "pthread_create");
+        nmsetErr(s, "pthread_create");
 
     printf("Message from main()\n");
     s = pthread_join(t1, &res);
     if (s != 0)
-        errExitEN(s, "pthread_join");
+        nmsetErr(s, "pthread_join");
 
     printf("Thread returned %ld\n", (long) res);
 

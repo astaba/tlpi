@@ -44,7 +44,7 @@ capIsSet(cap_t capSets, cap_value_t cap, cap_flag_t set)
     cap_flag_value_t value;
 
     if (cap_get_flag(capSets, cap, set, &value) == -1)
-        errExit("cap_get_flag");
+        systmErr("cap_get_flag");
 
     return value == CAP_SET;
 }
@@ -165,18 +165,18 @@ main(int argc, char *argv[])
 
     cap_t capSets = cap_from_text(argv[1]);
     if (capSets == NULL)
-        errExit("cap_from_text");
+        systmErr("cap_from_text");
 
     char *textCaps = cap_to_text(capSets, NULL);
     if (textCaps == NULL)
-        errExit("cap_to_text");
+        systmErr("cap_to_text");
 
     printf("caps_to_text() returned \"%s\"\n\n", textCaps);
 
     printAllCaps(capSets, PRCAP_SHOW_ALL);
 
     if (cap_free(textCaps) != 0 || cap_free(capSets) != 0)
-        errExit("cap_free");
+        systmErr("cap_free");
 
     exit(EXIT_SUCCESS);
 }

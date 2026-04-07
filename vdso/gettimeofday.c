@@ -72,10 +72,10 @@ main(int argc, char *argv[])
 
 #ifdef USE_SYSCALL
         if (syscall(__NR_gettimeofday, &curr, NULL) == -1)
-            errExit("gettimeofday");
+            systmErr("gettimeofday");
 #else
         if (gettimeofday(&curr, NULL) == -1)
-            errExit("gettimeofday");
+            systmErr("gettimeofday");
 #endif
     }
 

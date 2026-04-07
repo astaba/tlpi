@@ -103,7 +103,7 @@ main(int argc, char *argv[])
                      CMSG_SPACE(sizeof(struct ucred));
     char *controlMsg = malloc(controlMsgSize);
     if (controlMsg == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     /* The control message buffer must be zero-initialized in order for the
        CMSG_NXTHDR() macro to work correctly. */
@@ -161,7 +161,7 @@ main(int argc, char *argv[])
 
     int *fdList = malloc(fdAllocSize);
     if (fdList == NULL)
-        errExit("calloc");
+        systmErr("calloc");
 
     /* Open the files named on the command line, placing the returned file
        descriptors into the ancillary data. */
@@ -169,7 +169,7 @@ main(int argc, char *argv[])
     for (int j = 0; j < fdCnt; j++) {
          fdList[j] = open(argv[optind + j], O_RDONLY);
          if (fdList[j] == -1)
-             errExit("open");
+             systmErr("open");
     }
 
     memcpy(CMSG_DATA(cmsgp), fdList, fdAllocSize);
@@ -203,13 +203,13 @@ main(int argc, char *argv[])
     int sfd = unixConnect(SOCK_PATH,
                           useDatagramSocket ? SOCK_DGRAM : SOCK_STREAM);
     if (sfd == -1)
-        errExit("unixConnect");
+        systmErr("unixConnect");
 
     /* Send the data plus ancillary data. */
 
     ssize_t ns = sendmsg(sfd, &msgh, 0);
     if (ns == -1)
-        errExit("sendmsg");
+        systmErr("sendmsg");
 
     printf("sendmsg() returned %zd\n", ns);
 

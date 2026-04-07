@@ -29,14 +29,14 @@ main(int argc, char *argv[])
 
     int fdSrc = open(argv[1], O_RDONLY);
     if (fdSrc == -1)
-        errExit("open");
+        systmErr("open");
 
     /* Use fstat() to obtain size of file: we use this to specify the
        size of the two mappings */
 
     struct stat sb;
     if (fstat(fdSrc, &sb) == -1)
-        errExit("fstat");
+        systmErr("fstat");
 
     /* Handle zero-length file specially, since specifying a size of
        zero to mmap() will fail with the error EINVAL */
@@ -46,24 +46,24 @@ main(int argc, char *argv[])
 
     char *src = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fdSrc, 0);
     if (src == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     int fdDst = open(argv[2], O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
     if (fdDst == -1)
-        errExit("open");
+        systmErr("open");
 
     if (ftruncate(fdDst, sb.st_size) == -1)
-        errExit("ftruncate");
+        systmErr("ftruncate");
 
     char *dst = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE,
                      MAP_SHARED, fdDst, 0);
     if (dst == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     memcpy(dst, src, sb.st_size);       /* Copy bytes between mappings */
 
     if (msync(dst, sb.st_size, MS_SYNC) == -1)
-        errExit("msync");
+        systmErr("msync");
 
     exit(EXIT_SUCCESS);
 }

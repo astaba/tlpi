@@ -30,7 +30,7 @@ fpathconfPrint(const char *msg, int fd, int name)
         if (errno == 0)     /* Call succeeded, limit indeterminate */
             printf("%s (indeterminate)\n", msg);
         else                /* Call failed */
-            errExit("fpathconf %s", msg);
+            systmErr("fpathconf %s", msg);
     }
 }
 

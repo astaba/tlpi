@@ -38,13 +38,13 @@ main(int argc, char *argv[])
     printf(" (about %6.3f years)\n", t / SECONDS_IN_TROPICAL_YEAR);
 
     if (gettimeofday(&tv, NULL) == -1)
-        errExit("gettimeofday");
+        systmErr("gettimeofday");
     printf("  gettimeofday() returned %ld secs, %ld microsecs\n",
             (long) tv.tv_sec, (long) tv.tv_usec);
 
     gmp = gmtime(&t);
     if (gmp == NULL)
-        errExit("gmtime");
+        systmErr("gmtime");
 
     gm = *gmp;          /* Save local copy, since *gmp may be modified
                            by asctime() or gmtime() */
@@ -61,7 +61,7 @@ main(int argc, char *argv[])
 
     locp = localtime(&t);
     if (locp == NULL)
-        errExit("localtime");
+        systmErr("localtime");
 
     loc = *locp;        /* Save local copy */
 

@@ -41,11 +41,11 @@ threadFunc(union sigval sv)
        of that size */
 
     if (mq_getattr(*mqdp, &attr) == -1)
-        errExit("mq_getattr");
+        systmErr("mq_getattr");
 
     buffer = malloc(attr.mq_msgsize);
     if (buffer == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     /* Reregister for message notification */
 
@@ -55,7 +55,7 @@ threadFunc(union sigval sv)
         printf("Read %ld bytes\n", (long) numRead);
 
     if (errno != EAGAIN)                        /* Unexpected error */
-        errExit("mq_receive");
+        systmErr("mq_receive");
 
     free(buffer);
 }
@@ -72,7 +72,7 @@ notifySetup(mqd_t *mqdp)
     sev.sigev_value.sival_ptr = mqdp;           /* Argument to threadFunc() */
 
     if (mq_notify(*mqdp, &sev) == -1)
-        errExit("mq_notify");
+        systmErr("mq_notify");
 }
 
 int
@@ -85,7 +85,7 @@ main(int argc, char *argv[])
 
     mqd = mq_open(argv[1], O_RDONLY | O_NONBLOCK);
     if (mqd == (mqd_t) -1)
-        errExit("mq_open");
+        systmErr("mq_open");
 
     notifySetup(&mqd);
     pause();                    /* Wait for notifications via thread function */

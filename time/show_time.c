@@ -36,7 +36,7 @@ main(int argc, char *argv[])
     char buf[BUF_SIZE];
 
     if (setlocale(LC_ALL, "") == NULL)
-        errExit("setlocale");   /* Use locale settings in conversions */
+        systmErr("setlocale");   /* Use locale settings in conversions */
 
     t = time(NULL);
 
@@ -44,12 +44,12 @@ main(int argc, char *argv[])
 
     loc = localtime(&t);
     if (loc == NULL)
-        errExit("localtime");
+        systmErr("localtime");
 
     printf("asctime() of local time is:  %s", asctime(loc));
 
     if (strftime(buf, BUF_SIZE, "%A, %d %B %Y, %H:%M:%S %Z", loc) == 0)
-        fatal("strftime returned 0");
+        custmErr("strftime returned 0");
     printf("strftime() of local time is: %s\n", buf);
 
     exit(EXIT_SUCCESS);

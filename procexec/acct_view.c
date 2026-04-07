@@ -53,7 +53,7 @@ main(int argc, char *argv[])
 
     acctFile = open(argv[1], O_RDONLY);
     if (acctFile == -1)
-        errExit("open");
+        systmErr("open");
 
     printf("command  flags   term.  user     "
             "start time            CPU   elapsed\n");
@@ -62,7 +62,7 @@ main(int argc, char *argv[])
 
     while ((numRead = read(acctFile, &ac, sizeof(struct acct))) > 0) {
         if (numRead != sizeof(struct acct))
-            fatal("partial read");
+            custmErr("partial read");
 
         printf("%-8.8s  ", ac.ac_comm);
 
@@ -113,7 +113,7 @@ main(int argc, char *argv[])
     }
 
     if (numRead == -1)
-        errExit("read");
+        systmErr("read");
 
     exit(EXIT_SUCCESS);
 }

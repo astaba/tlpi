@@ -27,14 +27,14 @@ main(int argc, char *argv[])
     size_t bufSize = sysconf(_SC_GETPW_R_SIZE_MAX);
     char *buf = malloc(bufSize);
     if (buf == NULL)
-        errExit("malloc %zu", bufSize);
+        systmErr("malloc %zu", bufSize);
 
     struct passwd *result;
     struct passwd pwd;
 
     int s = getpwnam_r(argv[1], &pwd, buf, bufSize, &result);
     if (s != 0)
-        errExitEN(s, "getpwnam_r");
+        nmsetErr(s, "getpwnam_r");
 
     if (result != NULL)
         printf("Name: %s\n", pwd.pw_gecos);

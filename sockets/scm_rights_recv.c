@@ -76,25 +76,25 @@ main(int argc, char *argv[])
        a connection on the socket. */
 
     if (remove(SOCK_PATH) == -1 && errno != ENOENT)
-        errExit("remove-%s", SOCK_PATH);
+        systmErr("remove-%s", SOCK_PATH);
 
     int sfd;
     if (useDatagramSocket) {
         sfd = unixBind(SOCK_PATH, SOCK_DGRAM);
         if (sfd == -1)
-            errExit("unixBind");
+            systmErr("unixBind");
 
     } else {
         int lfd = unixBind(SOCK_PATH, SOCK_STREAM);
         if (lfd == -1)
-            errExit("unixBind");
+            systmErr("unixBind");
 
         if (listen(lfd, 5) == -1)
-            errExit("listen");
+            systmErr("listen");
 
         sfd = accept(lfd, NULL, NULL);
         if (sfd == -1)
-            errExit("accept");
+            systmErr("accept");
     }
 
     /* The 'msg_name' field can be set to point to a buffer where the kernel
@@ -125,7 +125,7 @@ main(int argc, char *argv[])
 
     ssize_t nr = recvmsg(sfd, &msgh, 0);
     if (nr == -1)
-        errExit("recvmsg");
+        systmErr("recvmsg");
 
     if (verbose)
         printf("recvmsg() returned %zd\n", nr);
@@ -140,11 +140,11 @@ main(int argc, char *argv[])
     /* Check the validity of the 'cmsghdr'. */
 
     if (cmsgp == NULL || cmsgp->cmsg_len != CMSG_LEN(sizeof(int)))
-        fatal("bad cmsg header / message length");
+        custmErr("bad cmsg header / message length");
     if (cmsgp->cmsg_level != SOL_SOCKET)
-        fatal("cmsg_level != SOL_SOCKET");
+        custmErr("cmsg_level != SOL_SOCKET");
     if (cmsgp->cmsg_type != SCM_RIGHTS)
-        fatal("cmsg_type != SCM_RIGHTS");
+        custmErr("cmsg_type != SCM_RIGHTS");
 
     /* The data area of the 'cmsghdr' is an 'int' (a file descriptor); copy
        that integer to a local variable. (The received file descriptor is
@@ -164,7 +164,7 @@ main(int argc, char *argv[])
 
         numRead = read(fd, buf, BUF_SIZE);
         if (numRead == -1)
-            errExit("read");
+            systmErr("read");
 
         if (numRead == 0)
             break;

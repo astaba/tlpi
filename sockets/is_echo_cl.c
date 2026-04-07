@@ -57,11 +57,11 @@ main(int argc, char *argv[])
 
     sfd = inetConnect(argv[1], "echo", SOCK_STREAM);
     if (sfd == -1)
-        errExit("inetConnect");
+        systmErr("inetConnect");
 
     switch (fork()) {
     case -1:
-        errExit("fork");
+        systmErr("fork");
 
     case 0:             /* Child: read server's response, echo on stdout */
         for (;;) {
@@ -78,13 +78,13 @@ main(int argc, char *argv[])
             if (numRead <= 0)                   /* Exit loop on EOF or error */
                 break;
             if (write(sfd, buf, numRead) != numRead)
-                fatal("write() failed");
+                custmErr("write() failed");
         }
 
         /* Close writing channel, so server sees EOF */
 
         if (shutdown(sfd, SHUT_WR) == -1)
-            errExit("shutdown");
+            systmErr("shutdown");
         exit(EXIT_SUCCESS);
     }
 }

@@ -32,7 +32,7 @@ main(int argc, char *argv[])
 
     int s = semctl(0, 0, SEM_INFO, arg);
     if (s == -1)
-        errExit("semctl");
+        systmErr("semctl");
 
     printf("Maximum ID index = %d\n", s);
     printf("sets in_use      = %ld\n", (long) info.semusz);

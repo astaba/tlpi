@@ -26,7 +26,7 @@ static void
 removeQueue(void)
 {
     if (msgctl(clientId, IPC_RMID, NULL) == -1)
-        errExit("msgctl");
+        systmErr("msgctl");
 }
 
 int
@@ -48,14 +48,14 @@ main(int argc, char *argv[])
 
     serverId = msgget(SERVER_KEY, S_IWUSR);
     if (serverId == -1)
-        errExit("msgget - server message queue");
+        systmErr("msgget - server message queue");
 
     clientId = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | S_IWGRP);
     if (clientId == -1)
-        errExit("msgget - client message queue");
+        systmErr("msgget - client message queue");
 
     if (atexit(removeQueue) != 0)
-        errExit("atexit");
+        systmErr("atexit");
 
     /* Send message asking for file named in argv[1] */
 
@@ -66,13 +66,13 @@ main(int argc, char *argv[])
                                         /* Ensure string is terminated */
 
     if (msgsnd(serverId, &req, REQ_MSG_SIZE, 0) == -1)
-        errExit("msgsnd");
+        systmErr("msgsnd");
 
     /* Get first response, which may be failure notification */
 
     msgLen = msgrcv(clientId, &resp, RESP_MSG_SIZE, 0, 0);
     if (msgLen == -1)
-        errExit("msgrcv");
+        systmErr("msgrcv");
 
     if (resp.mtype == RESP_MT_FAILURE) {
         printf("%s\n", resp.data);      /* Display msg from server */
@@ -86,7 +86,7 @@ main(int argc, char *argv[])
     for (numMsgs = 1; resp.mtype == RESP_MT_DATA; numMsgs++) {
         msgLen = msgrcv(clientId, &resp, RESP_MSG_SIZE, 0, 0);
         if (msgLen == -1)
-            errExit("msgrcv");
+            systmErr("msgrcv");
 
         totBytes += msgLen;
     }

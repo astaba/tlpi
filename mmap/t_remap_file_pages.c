@@ -30,11 +30,11 @@ main(int argc, char *argv[])
 {
     int fd = open("/tmp/tfile", O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     long pageSize = sysconf(_SC_PAGESIZE);
     if (pageSize == -1)
-        fatal("Couldn't determine page size");
+        custmErr("Couldn't determine page size");
 
     for (char ch = 'a'; ch < 'd'; ch++)
         for (int j = 0; j < pageSize; j++)
@@ -45,7 +45,7 @@ main(int argc, char *argv[])
     char *addr = mmap(NULL, 3 * pageSize, PROT_READ | PROT_WRITE,
                         MAP_SHARED, fd, 0);
     if (addr == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     printf("Mapped at address %p\n", addr);
 
@@ -53,9 +53,9 @@ main(int argc, char *argv[])
        linearly. Now we rearrange the mapping to 2 1 0. */
 
     if (remap_file_pages(addr, pageSize, 0, 2, 0) == -1)
-        errExit("remap_file_pages");
+        systmErr("remap_file_pages");
     if (remap_file_pages(addr + 2 * pageSize, pageSize, 0, 0, 0) == -1)
-        errExit("remap_file_pages");
+        systmErr("remap_file_pages");
 
     /* Now we modify the contents of the mapping */
 

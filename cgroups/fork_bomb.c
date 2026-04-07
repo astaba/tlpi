@@ -54,7 +54,7 @@ main(int argc, char *argv[])
         pid_t childPid = fork();
         switch (childPid) {
         case -1:
-            errMsg("fork");
+            systmWrn("fork");
             failed = 1;
             break;
         case 0:

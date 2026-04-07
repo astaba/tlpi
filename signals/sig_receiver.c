@@ -61,20 +61,20 @@ main(int argc, char *argv[])
 
         sigfillset(&blockingMask);
         if (sigprocmask(SIG_SETMASK, &blockingMask, NULL) == -1)
-            errExit("sigprocmask");
+            systmErr("sigprocmask");
 
         printf("%s: sleeping for %d seconds\n", argv[0], numSecs);
         sleep(numSecs);
 
         if (sigpending(&pendingMask) == -1)
-            errExit("sigpending");
+            systmErr("sigpending");
 
         printf("%s: pending signals are: \n", argv[0]);
         printSigset(stdout, "\t\t", &pendingMask);
 
         sigemptyset(&emptyMask);        /* Unblock all signals */
         if (sigprocmask(SIG_SETMASK, &emptyMask, NULL) == -1)
-            errExit("sigprocmask");
+            systmErr("sigprocmask");
     }
 
     while (!gotSigint)                  /* Loop until SIGINT caught */

@@ -58,7 +58,7 @@ main(int argc, char *argv[])
         case 'f':               /* -f pathname */
             key = ftok(optarg, 1);
             if (key == -1)
-                errExit("ftok");
+                systmErr("ftok");
             numKeyFlags++;
             break;
 
@@ -97,7 +97,7 @@ main(int argc, char *argv[])
 
     int shmid = shmget(key, segSize, flags | perms);
     if (shmid == -1)
-        errExit("shmget");
+        systmErr("shmget");
 
     printf("%d\n", shmid);      /* On success, display shared memory ID */
     exit(EXIT_SUCCESS);

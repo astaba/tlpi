@@ -27,7 +27,7 @@ main(int argc, char *argv[])
 
     struct servent *s = getservbyname(argv[1], argv[2]);
     if (s == NULL)
-        fatal("getservbyname() could not find a matching record");
+        custmErr("getservbyname() could not find a matching record");
 
     printf("Official name: %s\n", s->s_name);
     printf("Aliases:      ");

@@ -38,7 +38,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); } while (0)
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
 static int
 seccomp(unsigned int operation, unsigned int flags, void *args)
@@ -53,7 +53,7 @@ loadFilter(char *filterPathname)
 
     if (!noNewPrivsAlreadySet) {        /* Only need to do this once */
         if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0))
-            errExit("prctl");
+            systmErr("prctl");
         noNewPrivsAlreadySet = true;
     }
 
@@ -62,11 +62,11 @@ loadFilter(char *filterPathname)
 
     int fd = open(filterPathname, O_RDONLY);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     struct stat sb;
     if (fstat(fd, &sb) == -1)
-        errExit("fstat");
+        systmErr("fstat");
 
     int filterSize = sb.st_size;
     if (filterSize % sizeof(struct sock_filter) != 0) {
@@ -76,7 +76,7 @@ loadFilter(char *filterPathname)
 
     struct sock_filter *filter = malloc(filterSize);
     if (filter == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     if (read(fd, filter, filterSize) != filterSize) {
         fprintf(stderr, "Failure reading filter\n");
@@ -84,7 +84,7 @@ loadFilter(char *filterPathname)
     }
 
     if (close(fd) == -1)
-        errExit("close");
+        systmErr("close");
 
     /* Install the BPF filter blob */
 
@@ -93,7 +93,7 @@ loadFilter(char *filterPathname)
     fprog.filter = filter;
 
     if (seccomp(SECCOMP_SET_MODE_FILTER, 0, &fprog) == -1)
-        errExit("seccomp");
+        systmErr("seccomp");
 }
 
 static void
@@ -128,5 +128,5 @@ main(int argc, char *argv[])
     /* Execute program named on command line */
 
     execvp(argv[optind], &argv[optind]);
-    errExit("execve");
+    systmErr("execve");
 }

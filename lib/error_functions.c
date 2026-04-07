@@ -54,13 +54,11 @@ static void terminate(Boolean useExit3) {
 }
 
 /* Diagnose 'errno' error by:
-
-  * outputting a string containing the error name (if available
-    in 'ename' array) corresponding to the value in 'err', along
-    with the corresponding error message from strerror(), and
-
-  * outputting the caller-supplied error message specified in
-    'format' and 'ap'. */
+ * Outputting a string containing the error name (if available in
+ * 'ename' array) corresponding to the value in 'err', along with the
+ * corresponding error message from strerror().
+ * Outputting the caller-supplied error message specified in 'format'
+ * and 'ap'. */
 static void outputError(Boolean useErr, int err, Boolean flushStdout,
                         const char *format, va_list ap) {
 #define BUF_SIZE 500
@@ -91,8 +89,9 @@ static void outputError(Boolean useErr, int err, Boolean flushStdout,
 }
 
 /* Print WARNING diagnostic: errno-based and custom error messages.
-Preserve errno value and let the control flow. */
-void errMsg(const char *format, ...) {
+Preserve errno value and let the control flow.
+NOTE: suggested name: sysWarn */
+void systmWrn(const char *format, ...) {
   va_list argList;
   int savedErrno;
 
@@ -107,8 +106,9 @@ void errMsg(const char *format, ...) {
 
 /* Print EXCEPTION diagnostic: errno-based and custom error messages.
 If EF_DUMPCORE set: abort with SIGABRT and potential core dump.
-Otherwise Cleanup and terminate: using exit(3). */
-void errExit(const char *format, ...) {
+Otherwise Cleanup and terminate: using exit(3).
+NOTE: suggested name: sysErr */
+void systmErr(const char *format, ...) {
   va_list argList;
 
   va_start(argList, format);
@@ -122,8 +122,8 @@ void errExit(const char *format, ...) {
   If EF_DUMPCORE set: abort with SIGABRT and potential core dump.
   Otherwise Terminate without cleanup: using _exit(2).
 
-  The relationship between this function and errExit() is analogous
-  to that between _exit(2) and exit(3): unlike errExit(), this
+  The relationship between this function and systmErr() is analogous
+  to that between _exit(2) and exit(3): unlike systmErr(), this
   function does not flush stdout and calls _exit(2) to terminate the
   process (rather than exit(3), which would cause exit handlers to be
   invoked).
@@ -132,8 +132,9 @@ void errExit(const char *format, ...) {
   function that creates a child process that must then terminate
   because of an error: the child must terminate without flushing
   stdio buffers that were partially filled by the caller and without
-  invoking exit handlers that were established by the caller. */
-void err_exit(const char *format, ...) {
+  invoking exit handlers that were established by the caller.
+ NOTE: suggested name: _sysErr */
+void _systmerr(const char *format, ...) {
   va_list argList;
 
   va_start(argList, format);
@@ -145,8 +146,9 @@ void err_exit(const char *format, ...) {
 
 /* Print EXCEPTION diagnostic: user-provided-errnum and custom error messages.
 If EF_DUMPCORE set: abort with SIGABRT and potential core dump.
-Otherwise Cleanup and terminate: using exit(3). */
-void errExitEN(int errnum, const char *format, ...) {
+Otherwise Cleanup and terminate: using exit(3).
+NOTE: suggested name: syscusErr */
+void nmsetErr(int errnum, const char *format, ...) {
   va_list argList;
 
   va_start(argList, format);
@@ -158,8 +160,9 @@ void errExitEN(int errnum, const char *format, ...) {
 
 /* Print EXCEPTION diagnostic: custom error message only.
 If EF_DUMPCORE set: abort with SIGABRT and potential core dump.
-Otherwise Cleanup and terminate: using exit(3). */
-void fatal(const char *format, ...) {
+Otherwise Cleanup and terminate: using exit(3).
+NOTE: suggested name: cusErr */
+void custmErr(const char *format, ...) {
   va_list argList;
 
   va_start(argList, format);

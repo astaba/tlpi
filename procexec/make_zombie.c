@@ -35,7 +35,7 @@ main(int argc, char *argv[])
 
     switch (childPid = fork()) {
     case -1:
-        errExit("fork");
+        systmErr("fork");
 
     case 0:     /* Child: immediately exits to become zombie */
         printf("Child (PID=%ld) exiting\n", (long) getpid());
@@ -49,7 +49,7 @@ main(int argc, char *argv[])
         /* Now send the "sure kill" signal to the zombie */
 
         if (kill(childPid, SIGKILL) == -1)
-            errMsg("kill");
+            systmWrn("kill");
         sleep(3);               /* Give child a chance to react to signal */
         printf("After sending SIGKILL to zombie (PID=%ld):\n", (long) childPid);
         system(cmd);            /* View zombie child again */

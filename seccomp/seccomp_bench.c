@@ -55,7 +55,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 static int
@@ -106,7 +106,7 @@ create_filter(char instr, int icnt)
     int fsize = icnt + 1;
     struct sock_filter *filter = calloc(fsize, sizeof(struct sock_filter));
     if (filter == NULL)
-        errExit("calloc");
+        systmErr("calloc");
 
     for (int j = 0; j < icnt; j++)
         filter[j] = instruction;
@@ -119,7 +119,7 @@ create_filter(char instr, int icnt)
 
     struct sock_fprog *prog = malloc(sizeof(struct sock_fprog));
     if (prog == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     prog->len = fsize;
     prog->filter = filter;
@@ -144,13 +144,13 @@ main(int argc, char *argv[])
         int nfilters = (argc > 4) ? atoi(argv[4]) : 1;
 
         if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0))
-            errExit("prctl");
+            systmErr("prctl");
 
         struct sock_fprog *prog = create_filter(instr, icnt);
 
         for (int j = 0; j < nfilters; j++) {
             if (seccomp(SECCOMP_SET_MODE_FILTER, 0, prog) == -1)
-                errExit("seccomp");
+                systmErr("seccomp");
         }
 
         printf("Total number of filters added: %d\n", nfilters);

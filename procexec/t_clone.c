@@ -30,7 +30,7 @@ static int                      /* Startup function for cloned child */
 childFunc(void *arg)
 {
     if (close(*((int *) arg)) == -1)
-        errExit("close");
+        systmErr("close");
 
     return 0;                           /* Child terminates now */
 }
@@ -45,7 +45,7 @@ main(int argc, char *argv[])
 
     fd = open("/dev/null", O_RDWR);     /* Child will close this fd */
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     /* If argc > 1, child shares file descriptor table with parent */
 
@@ -55,7 +55,7 @@ main(int argc, char *argv[])
 
     stack = malloc(STACK_SIZE);
     if (stack == NULL)
-        errExit("malloc");
+        systmErr("malloc");
     stackTop = stack + STACK_SIZE;      /* Assume stack grows downward */
 
     /* Ignore CHILD_SIG, in case it is a signal whose default is to
@@ -63,18 +63,18 @@ main(int argc, char *argv[])
        by default), since that would prevent the creation of a zombie. */
 
     if (CHILD_SIG != 0 && CHILD_SIG != SIGCHLD)
-        if (signal(CHILD_SIG, SIG_IGN) == SIG_ERR)          errExit("signal");
+        if (signal(CHILD_SIG, SIG_IGN) == SIG_ERR)          systmErr("signal");
 
     /* Create child; child commences execution in childFunc() */
 
     if (clone(childFunc, stackTop, flags | CHILD_SIG, (void *) &fd) == -1)
-        errExit("clone");
+        systmErr("clone");
 
     /* Parent falls through to here. Wait for child; __WCLONE is
        needed for child notifying with signal other than SIGCHLD. */
 
     if (waitpid(-1, NULL, (CHILD_SIG != SIGCHLD) ? __WCLONE : 0) == -1)
-        errExit("waitpid");
+        systmErr("waitpid");
     printf("child has terminated\n");
 
     /* Did close() of file descriptor in child affect parent? */

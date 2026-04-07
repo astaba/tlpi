@@ -39,7 +39,7 @@ main(int argc, char *argv[])
 
     arg.buf = &ds;
     if (semctl(semid, 0, IPC_STAT, arg) == -1)
-        errExit("semctl");
+        systmErr("semctl");
 
     printf("Semaphore changed: %s", ctime(&ds.sem_ctime));
     printf("Last semop():      %s", ctime(&ds.sem_otime));
@@ -48,9 +48,9 @@ main(int argc, char *argv[])
 
     arg.array = calloc(ds.sem_nsems, sizeof(arg.array[0]));
     if (arg.array == NULL)
-        errExit("calloc");
+        systmErr("calloc");
     if (semctl(semid, 0, GETALL, arg) == -1)
-        errExit("semctl-GETALL");
+        systmErr("semctl-GETALL");
 
     printf("Sem #  Value  SEMPID  SEMNCNT  SEMZCNT\n");
 

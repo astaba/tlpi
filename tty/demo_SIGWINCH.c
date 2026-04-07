@@ -36,13 +36,13 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sa.sa_handler = sigwinchHandler;
     if (sigaction(SIGWINCH, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     for (;;) {
         pause();                        /* Wait for SIGWINCH signal */
 
         if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == -1)
-            errExit("ioctl");
+            systmErr("ioctl");
         printf("Caught SIGWINCH, new window size: "
                 "%d rows * %d columns\n", ws.ws_row, ws.ws_col);
     }

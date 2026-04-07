@@ -34,11 +34,11 @@ drainQueue(mqd_t mqd)
 
     struct mq_attr attr;
     if (mq_getattr(mqd, &attr) == -1)
-        errExit("mq_getattr");
+        systmErr("mq_getattr");
 
     char *msg = malloc(attr.mq_msgsize);
     if (msg == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     ssize_t numRead;
     while ((numRead = mq_receive(mqd, msg, attr.mq_msgsize, NULL)) >= 0) {
@@ -49,7 +49,7 @@ drainQueue(mqd_t mqd)
     }
 
     if (errno != EAGAIN)                /* Unexpected error */
-        errExit("mq_receive");
+        systmErr("mq_receive");
 
     free(msg);
 }
@@ -77,7 +77,7 @@ notifySetup(mqd_t *mqdp)
     sev.sigev_value.sival_ptr = mqdp;           /* Argument to threadFunc() */
 
     if (mq_notify(*mqdp, &sev) == -1)
-        errExit("mq_notify");
+        systmErr("mq_notify");
 }
 
 int
@@ -88,7 +88,7 @@ main(int argc, char *argv[])
 
     mqd_t mqd = mq_open(argv[1], O_RDONLY | O_NONBLOCK);
     if (mqd == (mqd_t) -1)
-        errExit("mq_open");
+        systmErr("mq_open");
 
     notifySetup(&mqd);
     drainQueue(mqd);    /* Handle possibility that messages were already

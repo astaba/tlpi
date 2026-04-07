@@ -34,7 +34,7 @@ one_time_init(struct once_struct *once_control, void (*init)(void))
 
     s = pthread_mutex_lock(&(once_control->mtx));
     if (s == -1)
-        errExitEN(s, "pthread_mutex_lock");
+        nmsetErr(s, "pthread_mutex_lock");
 
     if (!once_control->called) {
         (*init)();
@@ -43,7 +43,7 @@ one_time_init(struct once_struct *once_control, void (*init)(void))
 
     s = pthread_mutex_unlock(&(once_control->mtx));
     if (s == -1)
-        errExitEN(s, "pthread_mutex_unlock");
+        nmsetErr(s, "pthread_mutex_unlock");
 
     return 0;
 }
@@ -80,20 +80,20 @@ main(int argc, char *argv[])
 
     s = pthread_create(&t1, NULL, threadFunc, (void *) 1);
     if (s != 0)
-        errExitEN(s, "pthread_create");
+        nmsetErr(s, "pthread_create");
 
     s = pthread_create(&t2, NULL, threadFunc, (void *) 2);
     if (s != 0)
-        errExitEN(s, "pthread_create");
+        nmsetErr(s, "pthread_create");
 
     s = pthread_join(t1, NULL);
     if (s != 0)
-        errExitEN(s, "pthread_join");
+        nmsetErr(s, "pthread_join");
     printf("First thread returned\n");
 
     s = pthread_join(t2, NULL);
     if (s != 0)
-        errExitEN(s, "pthread_join");
+        nmsetErr(s, "pthread_join");
     printf("Second thread returned\n");
 
     exit(EXIT_SUCCESS);

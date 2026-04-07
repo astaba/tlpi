@@ -27,6 +27,6 @@ main(int argc, char *argv[])
         usageErr("%s sem-name\n", argv[0]);
 
     if (sem_unlink(argv[1]) == -1)
-        errExit("sem_unlink");
+        systmErr("sem_unlink");
     exit(EXIT_SUCCESS);
 }

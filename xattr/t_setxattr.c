@@ -29,11 +29,11 @@ main(int argc, char *argv[])
 
     char *value = "The past is not dead.";
     if (setxattr(argv[1], "user.x", value, strlen(value), 0) == -1)
-        errExit("setxattr");
+        systmErr("setxattr");
 
     value = "In fact, it's not even past.";
     if (setxattr(argv[1], "user.y", value, strlen(value), 0) == -1)
-        errExit("setxattr");
+        systmErr("setxattr");
 
     exit(EXIT_SUCCESS);
 }

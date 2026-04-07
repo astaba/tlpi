@@ -49,7 +49,7 @@ sendfile(int out_fd, int in_fd, off_t *offset, size_t count)
         if (numSent == -1)
             return -1;
         if (numSent == 0)               /* Should never happen */
-            fatal("sendfile: write() transferred 0 bytes");
+            custmErr("sendfile: write() transferred 0 bytes");
 
         count -= numSent;
         totSent += numSent;

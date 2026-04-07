@@ -161,13 +161,13 @@ main(int argc, char *argv[])
     int sfd = unixConnect(SOCK_PATH,
                           useDatagramSocket ? SOCK_DGRAM : SOCK_STREAM);
     if (sfd == -1)
-        errExit("unixConnect");
+        systmErr("unixConnect");
 
     /* Send real plus ancillary data. */
 
     ssize_t ns = sendmsg(sfd, &msgh, 0);
     if (ns == -1)
-        errExit("sendmsg");
+        systmErr("sendmsg");
 
     if (verbose)
         printf("sendmsg() returned %zd\n", ns);

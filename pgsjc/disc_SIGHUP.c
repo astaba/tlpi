@@ -56,18 +56,18 @@ main(int argc, char *argv[])
     for (j = 1; j < argc; j++) {        /* Create child processes */
         childPid = fork();
         if (childPid == -1)
-            errExit("fork");
+            systmErr("fork");
 
         if (childPid == 0) {            /* If child... */
             if (argv[j][0] == 'd')      /* 'd' --> to different pgrp */
                 if (setpgid(0, 0) == -1)
-                    errExit("setpgid");
+                    systmErr("setpgid");
 
             sigemptyset(&sa.sa_mask);
             sa.sa_flags = 0;
             sa.sa_handler = handler;
             if (sigaction(SIGHUP, &sa, NULL) == -1)
-                errExit("sigaction");
+                systmErr("sigaction");
             break;                      /* Child exits loop */
         }
     }

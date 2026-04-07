@@ -40,14 +40,14 @@ main(int argc, char *argv[])
     prio = getInt(argv[3], 0, "prio");
 
     if (setpriority(which, who, prio) == -1)
-        errExit("setpriority");
+        systmErr("setpriority");
 
     /* Retrieve nice value to check the change */
 
     errno = 0;                  /* Because successful call may return -1 */
     prio = getpriority(which, who);
     if (prio == -1 && errno != 0)
-        errExit("getpriority");
+        systmErr("getpriority");
 
     printf("Nice value = %d\n", prio);
 

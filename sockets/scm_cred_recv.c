@@ -75,24 +75,24 @@ main(int argc, char *argv[])
        a connection on the socket. */
 
     if (remove(SOCK_PATH) == -1 && errno != ENOENT)
-        errExit("remove-%s", SOCK_PATH);
+        systmErr("remove-%s", SOCK_PATH);
 
     int sfd;
     if (useDatagramSocket) {
         sfd = unixBind(SOCK_PATH, SOCK_DGRAM);
         if (sfd == -1)
-            errExit("unixBind");
+            systmErr("unixBind");
     } else {
         int lfd = unixBind(SOCK_PATH, SOCK_STREAM);
         if (lfd == -1)
-            errExit("unixBind");
+            systmErr("unixBind");
 
         if (listen(lfd, 5) == -1)
-            errExit("listen");
+            systmErr("listen");
 
         sfd = accept(lfd, NULL, NULL);
         if (sfd == -1)
-            errExit("accept");
+            systmErr("accept");
     }
 
     /* We must set the SO_PASSCRED socket option in order to receive
@@ -100,7 +100,7 @@ main(int argc, char *argv[])
 
     int optval = 1;
     if (setsockopt(sfd, SOL_SOCKET, SO_PASSCRED, &optval, sizeof(optval)) == -1)
-        errExit("setsockopt");
+        systmErr("setsockopt");
 
     /* The 'msg_name' field can be set to point to a buffer where the
        kernel will place the address of the peer socket. However, we don't
@@ -129,7 +129,7 @@ main(int argc, char *argv[])
 
     ssize_t nr = recvmsg(sfd, &msgh, 0);
     if (nr == -1)
-        errExit("recvmsg");
+        systmErr("recvmsg");
     if (verbose) {
         printf("recvmsg() returned %zd\n", nr);
 
@@ -145,11 +145,11 @@ main(int argc, char *argv[])
     /* Check the validity of the 'cmsghdr'. */
 
     if (cmsgp == NULL || cmsgp->cmsg_len != CMSG_LEN(sizeof(struct ucred)))
-        fatal("bad cmsg header / message length");
+        custmErr("bad cmsg header / message length");
     if (cmsgp->cmsg_level != SOL_SOCKET)
-        fatal("cmsg_level != SOL_SOCKET");
+        custmErr("cmsg_level != SOL_SOCKET");
     if (cmsgp->cmsg_type != SCM_CREDENTIALS)
-        fatal("cmsg_type != SCM_CREDENTIALS");
+        custmErr("cmsg_type != SCM_CREDENTIALS");
 
     /* Copy the contents of the data field of the 'cmsghdr' to a
        'struct ucred'. */
@@ -170,7 +170,7 @@ main(int argc, char *argv[])
 
     socklen_t len = sizeof(struct ucred);
     if (getsockopt(sfd, SOL_SOCKET, SO_PEERCRED, &scred, &len) == -1)
-        errExit("getsockopt");
+        systmErr("getsockopt");
 
     if (verbose)
         printf("Credentials from SO_PEERCRED: pid=%ld, euid=%ld, egid=%ld\n",

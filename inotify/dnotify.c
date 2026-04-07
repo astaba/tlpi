@@ -65,7 +65,7 @@ main(int argc, char *argv[])
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_SIGINFO;           /* So handler gets siginfo_t arg. */
     if (sigaction(NOTIFY_SIG, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     for (int fnum = 1; fnum < argc; fnum++) {
         int events;
@@ -95,18 +95,18 @@ main(int argc, char *argv[])
 
         int fd = open(argv[fnum], O_RDONLY);
         if (fd == -1)
-            errExit("open");
+            systmErr("open");
         printf("opened '%s' as file descriptor %d\n", argv[fnum], fd);
 
         /* Use alternate signal instead of SIGIO for dnotify events */
 
         if (fcntl(fd, F_SETSIG, NOTIFY_SIG) == -1)
-            errExit("fcntl - F_SETSIG");
+            systmErr("fcntl - F_SETSIG");
 
         /* Enable directory change notifications */
 
         if (fcntl(fd, F_NOTIFY, events) == -1)
-            errExit("fcntl-F_NOTIFY");
+            systmErr("fcntl-F_NOTIFY");
         printf("events: %o\n", (unsigned int) events);
     }
 

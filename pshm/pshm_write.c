@@ -34,19 +34,19 @@ main(int argc, char *argv[])
 
     fd = shm_open(argv[1], O_RDWR, 0);      /* Open existing object */
     if (fd == -1)
-        errExit("shm_open");
+        systmErr("shm_open");
 
     len = strlen(argv[2]);
     if (ftruncate(fd, len) == -1)           /* Resize object to hold string */
-        errExit("ftruncate");
+        systmErr("ftruncate");
     printf("Resized to %ld bytes\n", (long) len);
 
     addr = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (addr == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     if (close(fd) == -1)                    /* 'fd' is no longer needed */
-        errExit("close");
+        systmErr("close");
 
     printf("copying %ld bytes\n", (long) len);
     memcpy(addr, argv[2], len);             /* Copy string to shared memory */

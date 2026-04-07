@@ -32,7 +32,7 @@ main(int argc, char *argv[])
 
     struct stat sb;
     if (stat(argv[1], &sb) == -1)       /* Retrieve current file times */
-        errExit("stat");
+        systmErr("stat");
 
     struct timeval tv[2];
     tv[0].tv_sec = sb.st_atime;         /* Leave atime seconds unchanged */
@@ -41,7 +41,7 @@ main(int argc, char *argv[])
     tv[1].tv_usec = 667788;             /* mtime microseconds */
 
     if (utimes(argv[1], tv) == -1)
-        errExit("utimes");
+        systmErr("utimes");
 
     exit(EXIT_SUCCESS);
 }

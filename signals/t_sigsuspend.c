@@ -76,7 +76,7 @@ main(int argc, char *argv[])
       'origMask' will not contain either of these signals after the call. */
 
     if (sigprocmask(SIG_BLOCK, &blockMask, &origMask) == -1)
-        errExit("sigprocmask - SIG_BLOCK");
+        systmErr("sigprocmask - SIG_BLOCK");
 
     /* Set up handlers for SIGINT and SIGQUIT */
 
@@ -84,9 +84,9 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sa.sa_handler = handler;
     if (sigaction(SIGINT, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
     if (sigaction(SIGQUIT, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* Loop until SIGQUIT received */
 
@@ -106,14 +106,14 @@ main(int argc, char *argv[])
         printPendingSigs(stdout,
                 "Before sigsuspend() - pending signals:\n");
         if (sigsuspend(&origMask) == -1 && errno != EINTR)
-            errExit("sigsuspend");
+            systmErr("sigsuspend");
 #else
 
         /* The wrong way: unblock signal using sigprocmask(),
            then pause() */
 
         if (sigprocmask(SIG_SETMASK, &origMask, NULL) == -1)
-            errExit("sigprocmask - SIG_SETMASK");
+            systmErr("sigprocmask - SIG_SETMASK");
 
         /* At this point, if SIGINT arrives, it will be caught and
            handled before the pause() call and, in consequence,
@@ -143,7 +143,7 @@ main(int argc, char *argv[])
     /* Restore signal mask so that signals are unblocked */
 
     if (sigprocmask(SIG_SETMASK, &origMask, NULL) == -1)
-        errExit("sigprocmask - SIG_SETMASK");
+        systmErr("sigprocmask - SIG_SETMASK");
 
     printSigMask(stdout, "=== Exited loop\nRestored signal mask to:\n");
 

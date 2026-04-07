@@ -56,25 +56,25 @@ main(int argc, char *argv[])
 
     mqd = mq_open(argv[optind], flags);
     if (mqd == (mqd_t) -1)
-        errExit("mq_open");
+        systmErr("mq_open");
 
     /* We need to know the 'mq_msgsize' attribute of the queue in
        order to determine the size of the buffer for mq_receive() */
 
     if (mq_getattr(mqd, &attr) == -1)
-        errExit("mq_getattr");
+        systmErr("mq_getattr");
 
     buffer = malloc(attr.mq_msgsize);
     if (buffer == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     numRead = mq_receive(mqd, buffer, attr.mq_msgsize, &prio);
     if (numRead == -1)
-        errExit("mq_receive");
+        systmErr("mq_receive");
 
     printf("Read %ld bytes; priority = %u\n", (long) numRead, prio);
     if (write(STDOUT_FILENO, buffer, numRead) == -1)
-        errExit("write");
+        systmErr("write");
     write(STDOUT_FILENO, "\n", 1);
 
     exit(EXIT_SUCCESS);

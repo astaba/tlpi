@@ -41,16 +41,16 @@ main(int argc, char *argv[])
         sigaddset(&mask, atoi(argv[j]));
 
     if (sigprocmask(SIG_BLOCK, &mask, NULL) == -1)
-        errExit("sigprocmask");
+        systmErr("sigprocmask");
 
     sfd = signalfd(-1, &mask, 0);
     if (sfd == -1)
-        errExit("signalfd");
+        systmErr("signalfd");
 
     for (;;) {
         s = read(sfd, &fdsi, sizeof(struct signalfd_siginfo));
         if (s != sizeof(struct signalfd_siginfo))
-            errExit("read");
+            systmErr("read");
 
         printf("%s: got signal %d", argv[0], fdsi.ssi_signo);
         if (fdsi.ssi_code == SI_QUEUE) {

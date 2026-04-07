@@ -44,7 +44,7 @@ main(int argc, char *argv[])
     sigemptyset(&sa.sa_mask);
     sa.sa_handler = handler;
     if (sigaction(SIGALRM, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     alarm((argc > 1) ? getInt(argv[1], GN_NONNEG, "num-secs") : 10);
 
@@ -60,7 +60,7 @@ main(int argc, char *argv[])
         if (errno == EINTR)
             printf("Read timed out\n");
         else
-            errMsg("read");
+            systmWrn("read");
     } else {
         printf("Successful read (%ld bytes): %.*s",
                 (long) numRead, (int) numRead, buf);

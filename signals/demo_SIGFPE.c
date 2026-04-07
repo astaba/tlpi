@@ -48,7 +48,7 @@ main(int argc, char *argv[])
 
     if (argc > 1 && strchr(argv[1], 'i') != NULL) {
         printf("Ignoring SIGFPE\n");
-        if (signal(SIGFPE, SIG_IGN) == SIG_ERR)     errExit("signal");
+        if (signal(SIGFPE, SIG_IGN) == SIG_ERR)     systmErr("signal");
     } else {
         printf("Catching SIGFPE\n");
 
@@ -57,7 +57,7 @@ main(int argc, char *argv[])
         sa.sa_flags = SA_RESTART;
         sa.sa_handler = sigfpeCatcher;
         if (sigaction(SIGFPE, &sa, NULL) == -1)
-            errExit("sigaction");
+            systmErr("sigaction");
     }
 
     bool blocking = argc > 1 && strchr(argv[1], 'b') != NULL;
@@ -69,7 +69,7 @@ main(int argc, char *argv[])
         sigemptyset(&blockSet);
         sigaddset(&blockSet, SIGFPE);
         if (sigprocmask(SIG_BLOCK, &blockSet, &prevMask) == -1)
-            errExit("sigprocmask");
+            systmErr("sigprocmask");
     }
 
     printf("About to generate SIGFPE\n");
@@ -83,7 +83,7 @@ main(int argc, char *argv[])
         sleep(2);
         printf("Unblocking SIGFPE\n");
         if (sigprocmask(SIG_SETMASK, &prevMask, NULL) == -1)
-            errExit("sigprocmask");
+            systmErr("sigprocmask");
     }
 
     printf("Shouldn't get here!\n");

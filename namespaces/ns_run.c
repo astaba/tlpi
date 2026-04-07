@@ -31,7 +31,7 @@
 /* A simple error-handling function: print an error message based
    on the value in 'errno' and terminate the calling process */
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 static void
@@ -65,10 +65,10 @@ main(int argc, char *argv[])
 
             fd = open(optarg, O_RDONLY | O_CLOEXEC);  /* Get FD for namespace */
             if (fd == -1)
-                errExit("open");
+                systmErr("open");
 
             if (setns(fd, 0) == -1)      /* Join that namespace */
-                errExit("setns");
+                systmErr("setns");
 
             close(fd);
 
@@ -95,11 +95,11 @@ main(int argc, char *argv[])
     if (do_fork) {
         pid_t pid = fork();
         if (pid == -1)
-            errExit("fork");
+            systmErr("fork");
 
         if (pid != 0) {                 /* Parent */
             if (waitpid(pid, NULL, 0) == -1)    /* Wait for child */
-                errExit("waitpid");
+                systmErr("waitpid");
             exit(EXIT_SUCCESS);
         }
 
@@ -107,5 +107,5 @@ main(int argc, char *argv[])
     }
 
     execvp(argv[optind], &argv[optind]);
-    errExit("execvp");
+    systmErr("execvp");
 }

@@ -84,7 +84,7 @@ main(int argc, char *argv[])
     serverId = msgget(SERVER_KEY, IPC_CREAT | IPC_EXCL |
                             S_IRUSR | S_IWUSR | S_IWGRP);
     if (serverId == -1)
-        errExit("msgget");
+        systmErr("msgget");
 
     /* Establish SIGCHLD handler to reap terminated children */
 
@@ -92,7 +92,7 @@ main(int argc, char *argv[])
     sa.sa_flags = SA_RESTART;
     sa.sa_handler = grimReaper;
     if (sigaction(SIGCHLD, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* Read requests, handle each in a separate child process */
 
@@ -101,13 +101,13 @@ main(int argc, char *argv[])
         if (msgLen == -1) {
             if (errno == EINTR)         /* Interrupted by SIGCHLD handler? */
                 continue;               /* ... then restart msgrcv() */
-            errMsg("msgrcv");           /* Some other error */
+            systmWrn("msgrcv");           /* Some other error */
             break;                      /* ... so terminate loop */
         }
 
         pid = fork();                   /* Create child process */
         if (pid == -1) {
-            errMsg("fork");
+            systmWrn("fork");
             break;
         }
 
@@ -122,6 +122,6 @@ main(int argc, char *argv[])
     /* If msgrcv() or fork() fails, remove server MQ and exit */
 
     if (msgctl(serverId, IPC_RMID, NULL) == -1)
-        errExit("msgctl");
+        systmErr("msgctl");
     exit(EXIT_SUCCESS);
 }

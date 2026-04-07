@@ -32,10 +32,10 @@ main(int argc, char *argv[])
     for (j = 1; j < argc; j++)  {
         t1 = strdup(argv[j]);
         if (t1 == NULL)
-            errExit("strdup");
+            systmErr("strdup");
         t2 = strdup(argv[j]);
         if (t2 == NULL)
-            errExit("strdup");
+            systmErr("strdup");
 
         printf("%s ==> %s + %s\n", argv[j], dirname(t1), basename(t2));
 

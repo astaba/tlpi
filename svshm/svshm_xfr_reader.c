@@ -27,42 +27,42 @@ main(int argc, char *argv[])
 
     semid = semget(SEM_KEY, 0, 0);
     if (semid == -1)
-        errExit("semget");
+        systmErr("semget");
 
     shmid  = shmget(SHM_KEY, 0, 0);
     if (shmid == -1)
-        errExit("shmget");
+        systmErr("shmget");
 
     /* Attach shared memory read-only, as we will only read */
 
     shmp = shmat(shmid, NULL, SHM_RDONLY);
     if (shmp == (void *) -1)
-        errExit("shmat");
+        systmErr("shmat");
 
     /* Transfer blocks of data from shared memory to stdout */
 
     for (xfrs = 0, bytes = 0; ; xfrs++) {
         if (reserveSem(semid, READ_SEM) == -1)          /* Wait for our turn */
-            errExit("reserveSem");
+            systmErr("reserveSem");
 
         if (shmp->cnt == 0)                     /* Writer encountered EOF */
             break;
         bytes += shmp->cnt;
 
         if (write(STDOUT_FILENO, shmp->buf, shmp->cnt) != shmp->cnt)
-            fatal("partial/failed write");
+            custmErr("partial/failed write");
 
         if (releaseSem(semid, WRITE_SEM) == -1)         /* Give writer a turn */
-            errExit("releaseSem");
+            systmErr("releaseSem");
     }
 
     if (shmdt(shmp) == -1)
-        errExit("shmdt");
+        systmErr("shmdt");
 
     /* Give writer one more turn, so it can clean up */
 
     if (releaseSem(semid, WRITE_SEM) == -1)
-        errExit("releaseSem");
+        systmErr("releaseSem");
 
     fprintf(stderr, "Received %d bytes (%d xfrs)\n", bytes, xfrs);
     exit(EXIT_SUCCESS);

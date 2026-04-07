@@ -31,20 +31,20 @@ main(int argc, char *argv[])
 
     int cfd = inetConnect(argv[1], PORT_NUM_STR, SOCK_STREAM);
     if (cfd == -1)
-        fatal("inetConnect() failed");
+        custmErr("inetConnect() failed");
 
     char *reqLenStr = (argc > 2) ? argv[2] : "1";
     if (write(cfd, reqLenStr, strlen(reqLenStr)) != (ssize_t) strlen(reqLenStr))
-        fatal("Partial/failed write (reqLenStr)");
+        custmErr("Partial/failed write (reqLenStr)");
     if (write(cfd, "\n", 1) != 1)
-        fatal("Partial/failed write (newline)");
+        custmErr("Partial/failed write (newline)");
 
     char seqNumStr[INT_LEN];            /* Start of granted sequence */
     ssize_t numRead = readLine(cfd, seqNumStr, INT_LEN);
     if (numRead == -1)
-        errExit("readLine");
+        systmErr("readLine");
     if (numRead == 0)
-        fatal("Unexpected EOF from server");
+        custmErr("Unexpected EOF from server");
 
     printf("Sequence number: %s", seqNumStr);   /* Includes '\n' */
 

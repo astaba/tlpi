@@ -31,7 +31,7 @@
 /* A simple error-handling function: print an error message based
    on the value in 'errno' and terminate the calling process */
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 static void
@@ -70,10 +70,10 @@ main(int argc, char *argv[])
 
     int fd = open(argv[optind], O_RDONLY | O_CLOEXEC);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     if (setns(fd, 0) == -1)         /* Join that namespace */
-        errExit("setns");
+        systmErr("setns");
 
     /* If '-f' was specified, fork to create a child that is waited on by
        the parent. This is useful when entering a PID namespaces, since
@@ -84,7 +84,7 @@ main(int argc, char *argv[])
     if (do_fork) {
         pid_t pid = fork();
         if (pid == -1)
-            errExit("fork");
+            systmErr("fork");
 
         if (pid != 0) {         /* Parent lands here; child falls through */
             wait(NULL);
@@ -95,5 +95,5 @@ main(int argc, char *argv[])
     /* Execute a command in namespace */
 
     execvp(argv[optind + 1], &argv[optind + 1]);
-    errExit("execvp");
+    systmErr("execvp");
 }

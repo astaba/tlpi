@@ -28,7 +28,7 @@ main(int argc, char *argv[])
 
     for (j = 1; j < argc; j++)
         if (msgctl(getInt(argv[j], 0, "msqid"), IPC_RMID, NULL) == -1)
-            errExit("msgctl %s", argv[j]);
+            systmErr("msgctl %s", argv[j]);
 
     exit(EXIT_SUCCESS);
 }

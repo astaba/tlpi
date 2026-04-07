@@ -43,11 +43,11 @@ main(int argc, char *argv[])
 
     s = pthread_create(&t, NULL, threadFunc, NULL);
     if (s != 0)
-        errExitEN(s, "pthread_create");
+        nmsetErr(s, "pthread_create");
 
     s = pthread_join(t, NULL);
     if (s != 0)
-        errExitEN(s, "pthread_join");
+        nmsetErr(s, "pthread_join");
 
     /* If strerror() is not thread-safe, then the output of this printf() be
        the same as that produced by the analogous printf() in threadFunc() */

@@ -38,17 +38,17 @@ main(int argc, char *argv[])
     sigemptyset(&blockMask);
     sigaddset(&blockMask, SYNC_SIG);    /* Block signal */
     if (sigprocmask(SIG_BLOCK, &blockMask, &origMask) == -1)
-        errExit("sigprocmask");
+        systmErr("sigprocmask");
 
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
     sa.sa_handler = handler;
     if (sigaction(SYNC_SIG, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     switch (childPid = fork()) {
     case -1:
-        errExit("fork");
+        systmErr("fork");
 
     case 0: /* Child */
 
@@ -63,7 +63,7 @@ main(int argc, char *argv[])
         printf("[%s %ld] Child about to signal parent\n",
                 currTime("%T"), (long) getpid());
         if (kill(getppid(), SYNC_SIG) == -1)
-            errExit("kill");
+            systmErr("kill");
 
         /* Now child can do other things... */
 
@@ -78,13 +78,13 @@ main(int argc, char *argv[])
                 currTime("%T"), (long) getpid());
         sigemptyset(&emptyMask);
         if (sigsuspend(&emptyMask) == -1 && errno != EINTR)
-            errExit("sigsuspend");
+            systmErr("sigsuspend");
         printf("[%s %ld] Parent got signal\n", currTime("%T"), (long) getpid());
 
         /* If required, return signal mask to its original state */
 
         if (sigprocmask(SIG_SETMASK, &origMask, NULL) == -1)
-            errExit("sigprocmask");
+            systmErr("sigprocmask");
 
         /* Parent carries on to do other things... */
 

@@ -32,7 +32,7 @@ threadFunc(void *arg)
     for (j = 0; j < loops; j++) {
         s = pthread_mutex_lock(&mtx);
         if (s != 0)
-            errExitEN(s, "pthread_mutex_lock");
+            nmsetErr(s, "pthread_mutex_lock");
 
         loc = glob;
         loc++;
@@ -40,7 +40,7 @@ threadFunc(void *arg)
 
         s = pthread_mutex_unlock(&mtx);
         if (s != 0)
-            errExitEN(s, "pthread_mutex_unlock");
+            nmsetErr(s, "pthread_mutex_unlock");
     }
 
     return NULL;
@@ -56,17 +56,17 @@ main(int argc, char *argv[])
 
     s = pthread_create(&t1, NULL, threadFunc, &loops);
     if (s != 0)
-        errExitEN(s, "pthread_create");
+        nmsetErr(s, "pthread_create");
     s = pthread_create(&t2, NULL, threadFunc, &loops);
     if (s != 0)
-        errExitEN(s, "pthread_create");
+        nmsetErr(s, "pthread_create");
 
     s = pthread_join(t1, NULL);
     if (s != 0)
-        errExitEN(s, "pthread_join");
+        nmsetErr(s, "pthread_join");
     s = pthread_join(t2, NULL);
     if (s != 0)
-        errExitEN(s, "pthread_join");
+        nmsetErr(s, "pthread_join");
 
     printf("glob = %d\n", glob);
     exit(EXIT_SUCCESS);

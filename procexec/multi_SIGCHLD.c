@@ -48,7 +48,7 @@ sigchldHandler(int sig)
     }
 
     if (childPid == -1 && errno != ECHILD)
-        errMsg("waitpid");
+        systmWrn("waitpid");
 
     sleep(5);           /* Artificially lengthen execution of handler */
     printf("%s handler: returning\n", currTime("%T"));
@@ -75,7 +75,7 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sa.sa_handler = sigchldHandler;
     if (sigaction(SIGCHLD, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* Block SIGCHLD to prevent its delivery if a child terminates
        before the parent commences the sigsuspend() loop below */
@@ -83,14 +83,14 @@ main(int argc, char *argv[])
     sigemptyset(&blockMask);
     sigaddset(&blockMask, SIGCHLD);
     if (sigprocmask(SIG_SETMASK, &blockMask, NULL) == -1)
-        errExit("sigprocmask");
+        systmErr("sigprocmask");
 
     /* Create one child process for each command-line argument */
 
     for (j = 1; j < argc; j++) {
         switch (fork()) {
         case -1:
-            errExit("fork");
+            systmErr("fork");
 
         case 0:         /* Child - sleeps and then exits */
             sleep(getInt(argv[j], GN_NONNEG, "child-sleep-time"));
@@ -108,7 +108,7 @@ main(int argc, char *argv[])
     sigemptyset(&emptyMask);
     while (numLiveChildren > 0) {
         if (sigsuspend(&emptyMask) == -1 && errno != EINTR)
-            errExit("sigsuspend");
+            systmErr("sigsuspend");
         sigCnt++;
     }
 

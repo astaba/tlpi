@@ -131,11 +131,11 @@ allocSeccompNotifBuffers(struct seccomp_notif **req,
        buffers of those sizes. */
 
     if (seccomp(SECCOMP_GET_NOTIF_SIZES, 0, sizes) == -1)
-        errExit("seccomp-SECCOMP_GET_NOTIF_SIZES");
+        systmErr("seccomp-SECCOMP_GET_NOTIF_SIZES");
 
     *req = malloc(sizes->seccomp_notif);
     if (*req == NULL)
-        errExit("malloc-seccomp_notif");
+        systmErr("malloc-seccomp_notif");
 
     /* When allocating the response buffer, we must allow for the fact
        that the user-space binary may have been built with user-space
@@ -152,6 +152,6 @@ allocSeccompNotifBuffers(struct seccomp_notif **req,
 
     *resp = malloc(resp_size);
     if (resp == NULL)
-        errExit("malloc-seccomp_notif_resp");
+        systmErr("malloc-seccomp_notif_resp");
 
 }

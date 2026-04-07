@@ -80,35 +80,35 @@ ptyFork(int *masterFd, char *slaveName, size_t snLen,
     /* Child falls through to here */
 
     if (setsid() == -1)                 /* Start a new session */
-        err_exit("ptyFork:setsid");
+        _systmerr("ptyFork:setsid");
 
     close(mfd);                         /* Not needed in child */
 
     slaveFd = open(slname, O_RDWR);     /* Becomes controlling tty */
     if (slaveFd == -1)
-        err_exit("ptyFork:open-slave");
+        _systmerr("ptyFork:open-slave");
 
 #ifdef TIOCSCTTY                        /* Acquire controlling tty on BSD */
     if (ioctl(slaveFd, TIOCSCTTY, 0) == -1)
-        err_exit("ptyFork:ioctl-TIOCSCTTY");
+        _systmerr("ptyFork:ioctl-TIOCSCTTY");
 #endif
 
     if (slaveTermios != NULL)           /* Set slave tty attributes */
         if (tcsetattr(slaveFd, TCSANOW, slaveTermios) == -1)
-            err_exit("ptyFork:tcsetattr");
+            _systmerr("ptyFork:tcsetattr");
 
     if (slaveWS != NULL)                /* Set slave tty window size */
         if (ioctl(slaveFd, TIOCSWINSZ, slaveWS) == -1)
-            err_exit("ptyFork:ioctl-TIOCSWINSZ");
+            _systmerr("ptyFork:ioctl-TIOCSWINSZ");
 
     /* Duplicate pty slave to be child's stdin, stdout, and stderr */
 
     if (dup2(slaveFd, STDIN_FILENO) != STDIN_FILENO)
-        err_exit("ptyFork:dup2-STDIN_FILENO");
+        _systmerr("ptyFork:dup2-STDIN_FILENO");
     if (dup2(slaveFd, STDOUT_FILENO) != STDOUT_FILENO)
-        err_exit("ptyFork:dup2-STDOUT_FILENO");
+        _systmerr("ptyFork:dup2-STDOUT_FILENO");
     if (dup2(slaveFd, STDERR_FILENO) != STDERR_FILENO)
-        err_exit("ptyFork:dup2-STDERR_FILENO");
+        _systmerr("ptyFork:dup2-STDERR_FILENO");
 
     if (slaveFd > STDERR_FILENO)        /* Safety check */
         close(slaveFd);                 /* No longer need this fd */

@@ -29,7 +29,7 @@ sysconfPrint(const char *msg, int name)
         if (errno == 0)     /* Call succeeded, limit indeterminate */
             printf("%s (indeterminate)\n", msg);
         else                /* Call failed */
-            errExit("sysconf %s", msg);
+            systmErr("sysconf %s", msg);
     }
 }
 

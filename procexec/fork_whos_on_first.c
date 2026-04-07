@@ -39,7 +39,7 @@ main(int argc, char *argv[])
     for (j = 0; j < numChildren; j++) {
         switch (childPid = fork()) {
         case -1:
-            errExit("fork");
+            systmErr("fork");
 
         case 0:
             printf("%d child\n", j);

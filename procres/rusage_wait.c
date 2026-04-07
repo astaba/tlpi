@@ -39,7 +39,7 @@ printChildRusage(const char *msg)
 
     printf("%s", msg);
     if (getrusage(RUSAGE_CHILDREN, &ru) == -1)
-        errExit("getrusage");
+        systmErr("getrusage");
     printf("user CPU=%.2f secs; system CPU=%.2f secs\n",
             ru.ru_utime.tv_sec + ru.ru_utime.tv_usec / 1000000.0,
             ru.ru_stime.tv_sec + ru.ru_stime.tv_usec / 1000000.0);
@@ -55,7 +55,7 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sigemptyset(&sa.sa_mask);
     if (sigaction(SIG, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* Child informs parent of impending termination using a signal;
        block that signal until the parent is ready to catch it. */
@@ -64,11 +64,11 @@ main(int argc, char *argv[])
     sigemptyset(&mask);
     sigaddset(&mask, SIG);
     if (sigprocmask(SIG_BLOCK, &mask, NULL) == -1)
-        errExit("sigprocmask");
+        systmErr("sigprocmask");
 
     switch (fork()) {
     case -1:
-        errExit("fork");
+        systmErr("fork");
 
     case 0:             /* Child */
         for (clock_t start = clock(); clock() - start < NSECS * CLOCKS_PER_SEC;)
@@ -78,7 +78,7 @@ main(int argc, char *argv[])
         /* Tell parent we're nearly done */
 
         if (kill(getppid(), SIG) == -1)
-            errExit("kill");
+            systmErr("kill");
         exit(EXIT_SUCCESS);
 
     default:    /* Parent */
@@ -89,7 +89,7 @@ main(int argc, char *argv[])
 
         printChildRusage("Before wait: ");
         if (wait(NULL) == -1)
-            errExit("wait");
+            systmErr("wait");
         printChildRusage("After wait:  ");
         exit(EXIT_SUCCESS);
     }

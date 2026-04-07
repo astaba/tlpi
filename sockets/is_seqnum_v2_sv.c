@@ -35,18 +35,18 @@ main(int argc, char *argv[])
     /* Ignore the SIGPIPE signal, so that we find out about broken connection
        errors via a failure from write(). */
 
-    if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)    errExit("signal");
+    if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)    systmErr("signal");
 
     socklen_t addrlen;
     int lfd = inetListen(PORT_NUM_STR, 5, &addrlen);
     if (lfd == -1)
-        fatal("inetListen() failed");
+        custmErr("inetListen() failed");
 
     /* Allocate a buffer large enough to hold the client's socket address */
 
     struct sockaddr *claddr = malloc(addrlen);
     if (claddr == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     for (;;) {                  /* Handle clients iteratively */
 
@@ -55,7 +55,7 @@ main(int argc, char *argv[])
         socklen_t alen = addrlen;
         int cfd = accept(lfd, (struct sockaddr *) claddr, &alen);
         if (cfd == -1) {
-            errMsg("accept");
+            systmWrn("accept");
             continue;
         }
 
@@ -86,6 +86,6 @@ main(int argc, char *argv[])
         seqNum += reqLen;               /* Update sequence number */
 
         if (close(cfd) == -1)           /* Close connection */
-            errMsg("close");
+            systmWrn("close");
     }
 }

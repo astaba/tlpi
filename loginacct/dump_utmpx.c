@@ -38,7 +38,7 @@ main(int argc, char *argv[])
 
     if (argc > 1)               /* Use alternate file if supplied */
         if (utmpxname(argv[1]) == -1)
-            errExit("utmpxname");
+            systmErr("utmpxname");
 
     setutxent();
 

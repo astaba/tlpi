@@ -32,10 +32,10 @@ main(int argc, char *argv[])
 
     sem = sem_open(argv[1], 0);
     if (sem == SEM_FAILED)
-        errExit("sem_open");
+        systmErr("sem_open");
 
     if (sem_wait(sem) == -1)
-        errExit("sem_wait");
+        systmErr("sem_wait");
 
     printf("%ld sem_wait() succeeded\n", (long) getpid());
     exit(EXIT_SUCCESS);

@@ -28,7 +28,7 @@ main(int argc, char *argv[])
 
     struct statvfs sb;
     if (statvfs(argv[1], &sb) == -1)
-        errExit("statvfs");
+        systmErr("statvfs");
 
     printf("Block size                       %lu\n", sb.f_bsize);
     printf("Fundamental block size           %lu\n", sb.f_frsize);

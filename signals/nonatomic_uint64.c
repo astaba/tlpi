@@ -44,7 +44,7 @@
 #include <unistd.h>
 #include <signal.h>
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); } while (0)
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
 #define SIG SIGUSR1
 
@@ -70,18 +70,18 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sigemptyset(&sa.sa_mask);
     if (sigaction(SIG, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* Create child that will blast signals at parent. */
 
     pid_t childPid = fork();
     if (childPid == -1)
-        errExit("fork");
+        systmErr("fork");
 
     if (childPid == 0) {
         while (1) {
             if (kill(getppid(), SIG) == -1)
-                errExit("kill() failed in child");
+                systmErr("kill() failed in child");
         }
     }
 

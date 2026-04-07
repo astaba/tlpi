@@ -32,7 +32,7 @@
 #include <string.h>
 #include <fcntl.h>
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 int
@@ -42,11 +42,11 @@ main(int argc, char *argv[])
 
     cap_t caps = cap_get_proc();
     if (caps == NULL)
-        errExit("cap_get_proc");
+        systmErr("cap_get_proc");
 
     char *str = cap_to_text(caps, NULL);
     if (str == NULL)
-        errExit("cap_to_text");
+        systmErr("cap_to_text");
 
     printf("Capabilities: %s\n", str);
 

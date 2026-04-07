@@ -21,7 +21,7 @@ main(int argc, char *argv[])
 {
     int secbits = prctl(PR_GET_SECUREBITS, 0, 0, 0, 0);
     if (secbits == -1)
-        errExit("prctl");
+        systmErr("prctl");
 
     printf("secbits = 0x%x => ", secbits);
 

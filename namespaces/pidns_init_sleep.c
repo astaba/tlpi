@@ -32,7 +32,7 @@
 /* A simple error-handling function: print an error message based
    on the value in 'errno' and terminate the calling process */
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 static int              /* Start function for cloned child */
@@ -46,12 +46,12 @@ childFunc(void *arg)
     if (mount_point != NULL) {
         mkdir(mount_point, 0555);       /* Create directory for mount point */
         if (mount("proc", mount_point, "proc", 0, NULL) == -1)
-            errExit("mount");
+            systmErr("mount");
         printf("Mounting procfs at %s\n", mount_point);
     }
 
     execlp("sleep", "sleep", "600", (char *) NULL);
-    errExit("execlp");  /* Only reached if execlp() fails */
+    systmErr("execlp");  /* Only reached if execlp() fails */
 }
 
 #define STACK_SIZE (1024 * 1024)
@@ -62,21 +62,21 @@ main(int argc, char *argv[])
     char *stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE,
                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
     if (stack == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     pid_t child_pid = clone(childFunc,
                         stack + STACK_SIZE,   /* Assume stack grows downward */
                         CLONE_NEWPID | SIGCHLD, argv[1]);
 
     if (child_pid == -1)
-        errExit("clone");
+        systmErr("clone");
 
     printf("PID returned by clone(): %ld\n", (long) child_pid);
 
     munmap(stack, STACK_SIZE);
 
     if (waitpid(child_pid, NULL, 0) == -1)      /* Wait for child */
-        errExit("waitpid");
+        systmErr("waitpid");
 
     exit(EXIT_SUCCESS);
 }

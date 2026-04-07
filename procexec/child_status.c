@@ -38,7 +38,7 @@ main(int argc, char *argv[])
         usageErr("%s [exit-status]\n", argv[0]);
 
     switch (fork()) {
-    case -1: errExit("fork");
+    case -1: systmErr("fork");
 
     case 0:             /* Child: either exits immediately with given
                            status or loops waiting for signals */
@@ -59,7 +59,7 @@ main(int argc, char *argv[])
 #endif
                     );
             if (childPid == -1)
-                errExit("waitpid");
+                systmErr("waitpid");
 
             /* Print status in hex, and as separate decimal bytes */
 

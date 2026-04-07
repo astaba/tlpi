@@ -39,7 +39,7 @@ main(int argc, char *argv[])
                             CMSG_SPACE(sizeof(struct ucred));
     char *controlMsg = malloc(controlMsgSize);
     if (controlMsg == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     /* Parse command-line options. */
 
@@ -71,25 +71,25 @@ main(int argc, char *argv[])
        a connection on the socket. */
 
     if (remove(SOCK_PATH) == -1 && errno != ENOENT)
-        errExit("remove-%s", SOCK_PATH);
+        systmErr("remove-%s", SOCK_PATH);
 
     int sfd;
     if (useDatagramSocket) {
         sfd = unixBind(SOCK_PATH, SOCK_DGRAM);
         if (sfd == -1)
-            errExit("unixBind");
+            systmErr("unixBind");
 
     } else {
         int lfd = unixBind(SOCK_PATH, SOCK_STREAM);
         if (lfd == -1)
-            errExit("unixBind");
+            systmErr("unixBind");
 
         if (listen(lfd, 5) == -1)
-            errExit("listen");
+            systmErr("listen");
 
         sfd = accept(lfd, NULL, NULL);
         if (sfd == -1)
-            errExit("accept");
+            systmErr("accept");
     }
 
     /* We must set the SO_PASSCRED socket option in order to receive
@@ -97,7 +97,7 @@ main(int argc, char *argv[])
 
     int optval = 1;
     if (setsockopt(sfd, SOL_SOCKET, SO_PASSCRED, &optval, sizeof(optval)) == -1)
-        errExit("setsockopt");
+        systmErr("setsockopt");
 
     /* The 'msg_name' field can be set to point to a buffer where the kernel
        will place the address of the peer socket. However, we don't need the
@@ -134,7 +134,7 @@ main(int argc, char *argv[])
 
     ssize_t nr = recvmsg(sfd, &msgh, 0);
     if (nr == -1)
-        errExit("recvmsg");
+        systmErr("recvmsg");
 
     printf("recvmsg() returned %zd\n", nr);
 
@@ -170,7 +170,7 @@ main(int argc, char *argv[])
         /* Check that 'cmsg_level' is as expected. */
 
         if (cmsgp->cmsg_level != SOL_SOCKET)
-            fatal("cmsg_level != SOL_SOCKET");
+            custmErr("cmsg_level != SOL_SOCKET");
 
         switch (cmsgp->cmsg_type) {
 
@@ -194,7 +194,7 @@ main(int argc, char *argv[])
             size_t fdAllocSize = sizeof(int) * fdCnt;
             fdList = malloc(fdAllocSize);
             if (fdList == NULL)
-                errExit("calloc");
+                systmErr("calloc");
 
             memcpy(fdList, CMSG_DATA(cmsgp), fdAllocSize);
 
@@ -210,7 +210,7 @@ main(int argc, char *argv[])
 
                     numRead = read(fdList[j], buf, BUF_SIZE);
                     if (numRead == -1)
-                        errExit("read");
+                        systmErr("read");
 
                     if (numRead == 0)
                         break;
@@ -219,7 +219,7 @@ main(int argc, char *argv[])
                 }
 
                 if (close(fdList[j]) == -1)
-                    errExit("close");
+                    systmErr("close");
             }
             break;
 
@@ -228,7 +228,7 @@ main(int argc, char *argv[])
             /* Check validity of the 'cmsghdr'. */
 
             if (cmsgp->cmsg_len != CMSG_LEN(sizeof(struct ucred)))
-                fatal("cmsg data has incorrect size");
+                custmErr("cmsg data has incorrect size");
 
             /* The data in this control message block is a 'struct ucred'. */
 
@@ -239,7 +239,7 @@ main(int argc, char *argv[])
             break;
 
         default:
-            fatal("Bad cmsg_type (%d)", cmsgp->cmsg_type);
+            custmErr("Bad cmsg_type (%d)", cmsgp->cmsg_type);
         }
     }
 

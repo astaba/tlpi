@@ -1,0 +1,68 @@
+#+TITLE: Sockets
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Socket Chapters 56-61 The Linux Programming Interface by Michael Kerrisk
+#+STARTUP: showeverything
+
+* Table of Contents                                                   :toc_2:
+- [[#file-naming-convention][File Naming Convention]]
+- [[#571-unix-domain-socket-addresses-struct-sockaddr_un][57.1 Unix Domain Socket Addresses: =struct sockaddr_un=]]
+- [[#572-stream-sockets-in-the-unix-domain][57.2 Stream Sockets in the UNIX Domain]]
+
+* File Naming Convention
+
+Many of the programs in this directory are named according to the
+conventions described below. A prefix identifies the socket domain in
+which the program operates, and the socket type employed. The socket
+domain is indicated by one or two letters:
+
+- =u=  UNIX
+- =i=   Internet (both v4 and v6)
+- =i6=  Internet v6 only
+
+The socket type is one of the following:
+
+- =d=   datagram
+- =s=   stream
+
+A suffix indicates whether the program is a client or server:
+
+- =cl= client
+- =sv= server
+
+Thus, =id_echo_sv.c= is a server program that uses datagram sockets in
+the Internet domain.
+
+* 57.1 Unix Domain Socket Addresses: =struct sockaddr_un=
+
+-Reference: [[file:us_socket.c][Listing 57.1 us_socket]].
+
+* 57.2 Stream Sockets in the UNIX Domain
+:PROPERTIES:
+:CUSTOM_ID: stream-sockets-in-the-unix-domain
+:END:
+
+In the (hypothetical) case that the =SV_SOCK_PATH= pathname is longer
+than =sizeof(addr.sun_path) - 1= bytes, the =remove()= would attempt
+to remove that pathname, but the =bind()= call might nevertheless fail
+because it attempts to bind to a truncated version of the pathname
+that still exists.
+
+#+begin_src C
+  /* The HACK: */
+  if (strlen(SV_SOCK_PATH) > sizeof(addr.sun_path) - 1)
+    fatal("Server socket path too long: %s", SV_SOCK_PATH);
+#+end_src
+
+Since the server socket pathname string in this program is actually
+far smaller than the =sun_path= field, this check is not in practice
+necessary for this program. However, in the general case (where the
+pathname string size may be arbitrary), it is better to have such a
+check, and the program should follow this good practice. (The first,
+white-space change is made simply to allow enough space on the printed
+page to accommodate the second change.)
+
+References: Errata on page 1168 and 1172
+- [[http://www.man7.org/tlpi/errata/]].
+- [[file:us_xfr.h][Listing 57.2 us_xfr.h]]
+- [[file:us_xfr_sv.c][Listing 57.3 us_xfr_sv]]
+- [[file:us_xfr_cl.c][Listing 57.4 us_xfr_cl]]

@@ -104,19 +104,19 @@ install_filter(void)
     };
 
     if (seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog) == -1)
-        errExit("seccomp");
+        systmErr("seccomp");
 }
 
 int
 main(int argc, char *argv[])
 {
     if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0))
-        errExit("prctl");
+        systmErr("prctl");
 
     install_filter();
 
     if (open("/tmp/a", O_RDONLY) == -1)
-        errExit("open");
+        systmErr("open");
 
     printf("We shouldn't see this message\n");
 

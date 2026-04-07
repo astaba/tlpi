@@ -42,10 +42,10 @@
 #define NS_GET_OWNER_UID        _IO(NSIO, 0x4)
 #endif
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
-#define fatal(msg)      do { fprintf(stderr, "%s\n", msg); \
+#define custmErr(msg)      do { fprintf(stderr, "%s\n", msg); \
                              exit(EXIT_FAILURE); } while (0)
 
 /* Display capabilities of the process with the specified PID. */
@@ -55,11 +55,11 @@ display_process_capabilities(pid_t pid)
 {
     cap_t caps = cap_get_pid(pid);
     if (caps == NULL)
-        errExit("cap_get_proc");
+        systmErr("cap_get_proc");
 
     char *cap_string = cap_to_text(caps, NULL);
     if (cap_string == NULL)
-        errExit("cap_to_text");
+        systmErr("cap_to_text");
 
     printf("    Capabilities: %s\n", cap_string);
 
@@ -79,7 +79,7 @@ euid_of_process(pid_t pid)
 
     FILE *fp = fopen(path, "r");
     if (fp == NULL)
-        errExit("fopen-/proc/PID/status");
+        systmErr("fopen-/proc/PID/status");
 
     for (;;) {
         char line[1024];
@@ -111,9 +111,9 @@ ns_equal(int nsfd1, int nsfd2)
     struct stat sb1, sb2;
 
     if (fstat(nsfd1, &sb1) == -1)
-        errExit("fstat-nsfd1");
+        systmErr("fstat-nsfd1");
     if (fstat(nsfd2, &sb2) == -1)
-        errExit("fstat-nsfd2");
+        systmErr("fstat-nsfd2");
 
     /* Namespaces are equal if *both* the device ID and the inode number
        in the 'stat' records match. */
@@ -129,7 +129,7 @@ ns_type(int ns_fd)
 {
     int nstype = ioctl(ns_fd, NS_GET_NSTYPE);
     if (nstype == -1)
-        errExit("ioctl-NS_GET_NSTYPE");
+        systmErr("ioctl-NS_GET_NSTYPE");
 
     return nstype;
 }
@@ -142,7 +142,7 @@ owning_userns_of(int ns_fd)
 {
     int userns_fd = ioctl(ns_fd, NS_GET_USERNS);
     if (userns_fd == -1)
-        errExit("ioctl-NS_GET_USERNS");
+        systmErr("ioctl-NS_GET_USERNS");
 
     return userns_fd;
 }
@@ -199,11 +199,11 @@ is_ancestor_userns(int source_userns, int target_userns)
                terminate. */
 
             if (errno != EPERM)
-                errExit("ioctl-NS_GET_PARENT");
+                systmErr("ioctl-NS_GET_PARENT");
 
             if (child != target_userns) {
                 if (close(child) == -1)
-                    errExit("close(child)");
+                    systmErr("close(child)");
             }
 
             return -1;
@@ -215,7 +215,7 @@ is_ancestor_userns(int source_userns, int target_userns)
 
         if (ns_equal(parent, source_userns)) {
             if (close(parent) == -1)
-                errExit("close(parent)");
+                systmErr("close(parent)");
 
             return child;
         }
@@ -224,7 +224,7 @@ is_ancestor_userns(int source_userns, int target_userns)
 
         if (child != target_userns) {
             if (close(child) == -1)
-                errExit("close(child) [loop]");
+                systmErr("close(child) [loop]");
         }
 
         child = parent;
@@ -242,7 +242,7 @@ userns_from_pid(pid_t pid)
 
     int userns = open(path, O_RDONLY);
     if (userns == -1)
-        errExit("open-pid-userns");
+        systmErr("open-pid-userns");
 
     return userns;
 }
@@ -265,7 +265,7 @@ get_userns_from(char *arg)
 
     int ns = open(arg, O_RDONLY);
     if (ns == -1)
-        errExit("open-ns-file");
+        systmErr("open-ns-file");
 
     /* In order to determine whether the process has capabilities in a
        namespace, we must determine the relevant user namespace,
@@ -278,7 +278,7 @@ get_userns_from(char *arg)
     } else {
         userns = owning_userns_of(ns);
         if (close(ns) == -1)            /* No longer need this FD */
-            errExit("close-ns");
+            systmErr("close-ns");
     }
 
     return userns;
@@ -361,15 +361,15 @@ main(int argc, char *argv[])
 
             if (child_userns != target_userns) {    /* Prevent double close() */
                 if (close(child_userns) == -1)
-                    errExit("close-child_userns");
+                    systmErr("close-child_userns");
             }
         }
     }
 
     if (close(target_userns) == -1)
-        errExit("close-target_userns");
+        systmErr("close-target_userns");
     if (close(source_userns) == -1)
-        errExit("close-source_userns");
+        systmErr("close-source_userns");
 
     exit(EXIT_SUCCESS);
 }

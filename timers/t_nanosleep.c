@@ -49,18 +49,18 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sa.sa_handler = sigintHandler;
     if (sigaction(SIGINT, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     if (gettimeofday(&start, NULL) == -1)
-        errExit("gettimeofday");
+        systmErr("gettimeofday");
 
     for (;;) {
         s = nanosleep(&request, &remain);
         if (s == -1 && errno != EINTR)
-            errExit("nanosleep");
+            systmErr("nanosleep");
 
         if (gettimeofday(&finish, NULL) == -1)
-            errExit("gettimeofday");
+            systmErr("gettimeofday");
         printf("Slept for: %9.6f secs\n", finish.tv_sec - start.tv_sec +
                         (finish.tv_usec - start.tv_usec) / 1000000.0);
 

@@ -47,14 +47,14 @@ int main(int argc, char *argv[]) {
 
   int fd = open(argv[1], O_RDWR | O_CREAT | flags, S_IRUSR | S_IWUSR);
   if (fd == -1)
-    errExit("open");
+    systmErr("open");
 
   for (int j = 0; j < numBytes; j++) {
     if (useLseek)
       if (lseek(fd, 0, SEEK_END) == -1)
-        errExit("lseek");
+        systmErr("lseek");
     if (write(fd, "x", 1) != 1)
-      fatal("write() failed");
+      custmErr("write() failed");
   }
 
   printf("%ld done\n", (long)getpid());

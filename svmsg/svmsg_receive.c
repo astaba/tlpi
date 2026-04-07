@@ -83,7 +83,7 @@ main(int argc, char *argv[])
 
     msgLen = msgrcv(msqid, &msg, maxBytes, type, flags);
     if (msgLen == -1)
-        errExit("msgrcv");
+        systmErr("msgrcv");
 
     printf("Received: type=%ld; length=%ld", msg.mtype, (long) msgLen);
     if (msgLen > 0)

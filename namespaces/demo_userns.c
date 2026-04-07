@@ -28,7 +28,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 static int                      /* Startup function for cloned child */
@@ -41,11 +41,11 @@ childFunc(void *arg)
 
         cap_t caps = cap_get_proc();
         if (caps == NULL)
-            errExit("cap_get_proc");
+            systmErr("cap_get_proc");
 
         char *str = cap_to_text(caps, NULL);
         if (str == NULL)
-            errExit("cap_to_text");
+            systmErr("cap_to_text");
 
         printf("capabilities: %s\n", str);
 
@@ -69,7 +69,7 @@ main(int argc, char *argv[])
     char *stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE,
                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
     if (stack == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     /* Create child; child commences execution in childFunc() */
 
@@ -77,7 +77,7 @@ main(int argc, char *argv[])
                     stack + STACK_SIZE, /* Assume stack grows downward */
                     CLONE_NEWUSER | SIGCHLD, argv[1]);
     if (pid == -1)
-        errExit("clone");
+        systmErr("clone");
 
     printf("PID of child: %ld\n", (long) pid);
 
@@ -86,7 +86,7 @@ main(int argc, char *argv[])
     /* Parent falls through to here.  Wait for child. */
 
     if (waitpid(pid, NULL, 0) == -1)
-        errExit("waitpid");
+        systmErr("waitpid");
 
     exit(EXIT_SUCCESS);
 }

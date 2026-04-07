@@ -52,7 +52,7 @@ main(int argc, char *argv[])
 
     struct shmid_ds ds;
     if (shmctl(getInt(argv[1], 0, "shmid"), IPC_STAT, &ds) == -1)
-        errExit("shmctl");
+        systmErr("shmctl");
 
     printShmDS(&ds);
 

@@ -36,7 +36,7 @@ main(int argc, char *argv[])
 
     sigfillset(&allSigs);
     if (sigprocmask(SIG_SETMASK, &allSigs, NULL) == -1)
-        errExit("sigprocmask");
+        systmErr("sigprocmask");
     printf("%s: signals blocked\n", argv[0]);
 
     if (argc > 1) {             /* Delay so that signals can be sent to us */
@@ -48,7 +48,7 @@ main(int argc, char *argv[])
     for (;;) {                  /* Fetch signals until SIGINT (^C) or SIGTERM */
         sig = sigwaitinfo(&allSigs, &si);
         if (sig == -1)
-            errExit("sigwaitinfo");
+            systmErr("sigwaitinfo");
 
         if (sig == SIGINT || sig == SIGTERM)
             exit(EXIT_SUCCESS);

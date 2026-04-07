@@ -33,7 +33,7 @@ main(int argc, char *argv[])
 
     sfd = socket(AF_INET6, SOCK_DGRAM, 0);
     if (sfd == -1)
-        errExit("socket");
+        systmErr("socket");
 
     memset(&svaddr, 0, sizeof(struct sockaddr_in6));
     svaddr.sin6_family = AF_INET6;
@@ -42,7 +42,7 @@ main(int argc, char *argv[])
 
     if (bind(sfd, (struct sockaddr *) &svaddr,
                 sizeof(struct sockaddr_in6)) == -1)
-        errExit("bind");
+        systmErr("bind");
 
     /* Receive messages, convert to uppercase, and return to client */
 
@@ -51,7 +51,7 @@ main(int argc, char *argv[])
         numBytes = recvfrom(sfd, buf, BUF_SIZE, 0,
                             (struct sockaddr *) &claddr, &len);
         if (numBytes == -1)
-            errExit("recvfrom");
+            systmErr("recvfrom");
 
         /* Display address of client that sent the message */
 
@@ -67,6 +67,6 @@ main(int argc, char *argv[])
 
         if (sendto(sfd, buf, numBytes, 0, (struct sockaddr *) &claddr, len) !=
                 numBytes)
-            fatal("sendto");
+            custmErr("sendto");
     }
 }

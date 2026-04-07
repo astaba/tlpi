@@ -43,16 +43,16 @@ main(int argc, char *argv[])
 
     pfds = calloc(numPipes, sizeof(int [2]));
     if (pfds == NULL)
-        errExit("calloc");
+        systmErr("calloc");
     pollFd = calloc(numPipes, sizeof(struct pollfd));
     if (pollFd == NULL)
-        errExit("calloc");
+        systmErr("calloc");
 
     /* Create the number of pipes specified on command line */
 
     for (j = 0; j < numPipes; j++)
         if (pipe(pfds[j]) == -1)
-            errExit("pipe %d", j);
+            systmErr("pipe %d", j);
 
     /* Perform specified number of writes to random pipes */
 
@@ -62,7 +62,7 @@ main(int argc, char *argv[])
         printf("Writing to fd: %3d (read fd: %3d)\n",
                 pfds[randPipe][1], pfds[randPipe][0]);
         if (write(pfds[randPipe][1], "a", 1) == -1)
-            errExit("write %d", pfds[randPipe][1]);
+            systmErr("write %d", pfds[randPipe][1]);
     }
 
     /* Build the file descriptor list to be supplied to poll(). This list
@@ -76,7 +76,7 @@ main(int argc, char *argv[])
 
     ready = poll(pollFd, numPipes, 0);
     if (ready == -1)
-        errExit("poll");
+        systmErr("poll");
 
     printf("poll() returned: %d\n", ready);
 

@@ -57,7 +57,7 @@ main(int argc, char *argv[])
         case 'f':               /* -f pathname */
             key = ftok(optarg, 1);
             if (key == -1)
-                errExit("ftok");
+                systmErr("ftok");
             numKeyFlags++;
             break;
 
@@ -96,7 +96,7 @@ main(int argc, char *argv[])
 
     int semid = semget(key, numSems, flags | perms);
     if (semid == -1)
-        errExit("semget");
+        systmErr("semget");
 
     printf("%d\n", semid);      /* On success, display semaphore set ID */
     exit(EXIT_SUCCESS);

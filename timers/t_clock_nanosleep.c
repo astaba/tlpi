@@ -46,7 +46,7 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sa.sa_handler = sigintHandler;
     if (sigaction(SIGINT, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* If more than three command-line arguments, use TIMER_ABSTIME flag */
 
@@ -56,7 +56,7 @@ main(int argc, char *argv[])
 
     if (flags == TIMER_ABSTIME) {
         if (clock_gettime(CLOCK_REALTIME, &request) == -1)
-            errExit("clock_gettime");
+            systmErr("clock_gettime");
         printf("Initial CLOCK_REALTIME value: %ld.%09ld\n",
                 (long) request.tv_sec, request.tv_nsec);
 
@@ -74,19 +74,19 @@ main(int argc, char *argv[])
 
     struct timeval start, finish;
     if (gettimeofday(&start, NULL) == -1)
-        errExit("gettimeofday");
+        systmErr("gettimeofday");
 
     for (;;) {
         struct timespec remain;
         int s = clock_nanosleep(CLOCK_REALTIME, flags, &request, &remain);
         if (s != 0 && s != EINTR)
-            errExitEN(s, "clock_nanosleep");
+            nmsetErr(s, "clock_nanosleep");
 
         if (s == EINTR)
             printf("Interrupted... ");
 
         if (gettimeofday(&finish, NULL) == -1)
-            errExit("gettimeofday");
+            systmErr("gettimeofday");
         printf("Slept: %.6f secs", finish.tv_sec - start.tv_sec +
                         (finish.tv_usec - start.tv_usec) / 1000000.0);
 

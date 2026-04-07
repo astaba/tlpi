@@ -32,7 +32,7 @@ main(int argc, char *argv[])
 
     maxind = msgctl(0, MSG_INFO, (struct msqid_ds *) &msginfo);
     if (maxind == -1)
-        errExit("msgctl-MSG_INFO");
+        systmErr("msgctl-MSG_INFO");
 
     printf("maxind: %d\n\n", maxind);
     printf("index     id       key      messages\n");
@@ -43,7 +43,7 @@ main(int argc, char *argv[])
         msqid = msgctl(ind, MSG_STAT, &ds);
         if (msqid == -1) {
             if (errno != EINVAL && errno != EACCES)
-                errMsg("msgctl-MSG_STAT");              /* Unexpected error */
+                systmWrn("msgctl-MSG_STAT");              /* Unexpected error */
             continue;                                   /* Ignore this item */
         }
 

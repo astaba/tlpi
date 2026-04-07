@@ -38,7 +38,7 @@ listFiles(const char *dirpath)
 
     dirp = opendir(dirpath);
     if (dirp  == NULL) {
-        errMsg("opendir failed on '%s'", dirpath);
+        systmWrn("opendir failed on '%s'", dirpath);
         return;
     }
 
@@ -59,10 +59,10 @@ listFiles(const char *dirpath)
     }
 
     if (errno != 0)
-        errExit("readdir");
+        systmErr("readdir");
 
     if (closedir(dirp) == -1)
-        errMsg("closedir");
+        systmWrn("closedir");
 }
 
 int

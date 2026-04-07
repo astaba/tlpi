@@ -53,11 +53,11 @@ main(int argc, char *argv[])
 
     mqd = mq_open(argv[optind], flags);
     if (mqd == (mqd_t) -1)
-        errExit("mq_open");
+        systmErr("mq_open");
 
     prio = (argc > optind + 2) ? atoi(argv[optind + 2]) : 0;
 
     if (mq_send(mqd, argv[optind + 1], strlen(argv[optind + 1]), prio) == -1)
-        errExit("mq_send");
+        systmErr("mq_send");
     exit(EXIT_SUCCESS);
 }

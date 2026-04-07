@@ -42,7 +42,7 @@ main(int argc, char *argv[])
 
     epfd = epoll_create(argc - 1);
     if (epfd == -1)
-        errExit("epoll_create");
+        systmErr("epoll_create");
 
     /* Open each file on command line, and add it to the "interest
        list" for the epoll instance */
@@ -50,13 +50,13 @@ main(int argc, char *argv[])
     for (j = 1; j < argc; j++) {
         fd = open(argv[j], O_RDONLY);
         if (fd == -1)
-            errExit("open");
+            systmErr("open");
         printf("Opened \"%s\" on fd %d\n", argv[j], fd);
 
         ev.events = EPOLLIN;            /* Only interested in input events */
         ev.data.fd = fd;
         if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev) == -1)
-            errExit("epoll_ctl");
+            systmErr("epoll_ctl");
     }
 
     numOpenFds = argc - 1;
@@ -72,7 +72,7 @@ main(int argc, char *argv[])
             if (errno == EINTR)
                 continue;               /* Restart if interrupted by signal */
             else
-                errExit("epoll_wait");
+                systmErr("epoll_wait");
         }
 
         printf("Ready: %d\n", ready);
@@ -88,7 +88,7 @@ main(int argc, char *argv[])
             if (evlist[j].events & EPOLLIN) {
                 s = read(evlist[j].data.fd, buf, MAX_BUF);
                 if (s == -1)
-                    errExit("read");
+                    systmErr("read");
                 printf("    read %d bytes: %.*s\n", s, s, buf);
 
             } else if (evlist[j].events & (EPOLLHUP | EPOLLERR)) {
@@ -102,7 +102,7 @@ main(int argc, char *argv[])
 
                 printf("    closing fd %d\n", evlist[j].data.fd);
                 if (close(evlist[j].data.fd) == -1)
-                    errExit("close");
+                    systmErr("close");
                 numOpenFds--;
             }
         }

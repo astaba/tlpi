@@ -37,7 +37,7 @@ main(int argc, char *argv[])
     char addrStr[IS_ADDR_STR_LEN];
 
     if (becomeDaemon(0) == -1)
-        errExit("becomeDaemon");
+        systmErr("becomeDaemon");
 
     sfd = inetBind(SERVICE, SOCK_DGRAM, NULL);
     if (sfd == -1) {
@@ -52,7 +52,7 @@ main(int argc, char *argv[])
         numRead = recvfrom(sfd, buf, BUF_SIZE, 0,
                            (struct sockaddr *) &claddr, &len);
         if (numRead == -1)
-            errExit("recvfrom");
+            systmErr("recvfrom");
 
         if (sendto(sfd, buf, numRead, 0, (struct sockaddr *) &claddr, len)
                         != numRead)

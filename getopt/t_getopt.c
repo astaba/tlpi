@@ -53,7 +53,7 @@ main(int argc, char *argv[])
         case 'x': xfnd++;               break;
         case ':': usageError(argv[0], "Missing argument", optopt);
         case '?': usageError(argv[0], "Unrecognized option", optopt);
-        default:  fatal("Unexpected case in switch()");
+        default:  custmErr("Unexpected case in switch()");
         }
     }
 

@@ -37,7 +37,7 @@ main(int argc, char *argv[])
     cpu_set_t set;
     int s = sched_getaffinity(pid, sizeof(cpu_set_t), &set);
     if (s == -1)
-        errExit("sched_getaffinity");
+        systmErr("sched_getaffinity");
 
     printf("CPUs:");
     for (int cpu = 0; cpu < CPU_SETSIZE; cpu++)

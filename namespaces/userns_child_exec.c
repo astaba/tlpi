@@ -42,7 +42,7 @@
 /* A simple error-handling function: print an error message based
    on the value in 'errno' and terminate the calling process */
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 static int pipe_fd[2];  /* Pipe used to synchronize parent and child */
@@ -241,7 +241,7 @@ modify_individual_capability(char *optval)
                 exit(EXIT_FAILURE);
             }
             if (prctl(PR_CAPBSET_DROP, cap, 0, 0, 0) == -1)
-                errExit("-X: PR_CAPBSET_DROP");
+                systmErr("-X: PR_CAPBSET_DROP");
             break;
 
         case 'a':
@@ -249,7 +249,7 @@ modify_individual_capability(char *optval)
                         (*op == '+') ? PR_CAP_AMBIENT_RAISE :
                                       PR_CAP_AMBIENT_LOWER,
                         cap, 0, 0) == -1)
-                errExit("-X: PR_CAP_AMBIENT");
+                systmErr("-X: PR_CAP_AMBIENT");
             break;
 
         default:
@@ -284,7 +284,7 @@ set_securebits(char *optval)
     }
 
     if (prctl(PR_SET_SECUREBITS, secbits) == -1)
-        errExit("prctl-PR_SET_SECUREBITS");
+        systmErr("prctl-PR_SET_SECUREBITS");
 }
 
 /* Set process UIDs individually, according to three comma-separated
@@ -304,7 +304,7 @@ set_process_uids(char *optval)
     *comma1 = '\0';
     *comma2 = '\0';
     if (setresuid(atoi(optval), atoi(comma1 + 1), atoi(comma2 + 1)) == -1)
-        errExit("-S failed (setresuid)");
+        systmErr("-S failed (setresuid)");
 }
 
 /* Perform the actions requested in the repeatable options that were
@@ -342,7 +342,7 @@ perform_repeatable_options(struct cmd_options *opts)
         case 's': /* Set real/effective/saved-set UIDs to a single value */
             newuid = atoi(opts->opt_list[j].val);
             if (setresuid(newuid, newuid, newuid) == -1)
-                errExit("setresuid");
+                systmErr("setresuid");
             break;
 
         case 'S': /* Set real/effective/saved-set UIDs individually */
@@ -357,9 +357,9 @@ perform_repeatable_options(struct cmd_options *opts)
                      cap_from_text(3)-style string */
             caps = cap_from_text(opts->opt_list[j].val);
             if (caps == NULL)
-                errExit("-x: cap_from_text");
+                systmErr("-x: cap_from_text");
             if (cap_set_proc(caps) == -1)
-                errExit("-x: cap_set_proc()");
+                systmErr("-x: cap_set_proc()");
             cap_free(caps);
             break;
 
@@ -406,7 +406,7 @@ childFunc(void *arg)
         printf("About to exec: %s\n", opts->argv[0]);
 
     execvp(opts->argv[0], opts->argv);
-    errExit("execvp");
+    systmErr("execvp");
 }
 
 /* Use the information in 'opts' to update the UID and GID map of 'child_pid' */
@@ -427,7 +427,7 @@ update_child_maps(struct cmd_options *opts, pid_t child_pid)
             opts->uid_map = map_buf;
         }
         if (update_map(opts->uid_map, map_path) == -1)
-            errExit("update_map: uid_map");
+            systmErr("update_map: uid_map");
     }
 
     /* GID map */
@@ -435,7 +435,7 @@ update_child_maps(struct cmd_options *opts, pid_t child_pid)
     if (opts->gid_map != NULL || opts->create_root_mappings) {
         if (opts->deny_setgroups) {
             if (proc_setgroups_write(child_pid, "deny") == -1)
-                errExit("proc_setgroups_write");
+                systmErr("proc_setgroups_write");
         }
 
         snprintf(map_path, PATH_MAX, "/proc/%ld/gid_map",
@@ -445,7 +445,7 @@ update_child_maps(struct cmd_options *opts, pid_t child_pid)
             opts->gid_map = map_buf;
         }
         if (update_map(opts->gid_map, map_path) == -1)
-            errExit("update_map: gid_map");
+            systmErr("update_map: gid_map");
     }
 
     /* Project ID map (project IDs are used for disk quotas; see setquota(8),
@@ -454,7 +454,7 @@ update_child_maps(struct cmd_options *opts, pid_t child_pid)
     if (opts->projid_map != NULL) {
         snprintf(map_path, PATH_MAX, "/proc/%ld/projid_map", (long) child_pid);
         if (update_map(opts->projid_map, map_path) == -1)
-            errExit("update_map: projid_map");
+            systmErr("update_map: projid_map");
     }
 
 }
@@ -576,7 +576,7 @@ main(int argc, char *argv[])
        /proc/PID directory to revert to the process's effective UID and GID. */
 
     if (prctl(PR_SET_DUMPABLE, 1, 0, 0, 0) == -1)
-        errExit("prctl-PR_SET_DUMPABLE");
+        systmErr("prctl-PR_SET_DUMPABLE");
 
     /* We use a pipe to synchronize the parent and child, in order to
        ensure that the parent sets the UID and GID maps before the child
@@ -589,19 +589,19 @@ main(int argc, char *argv[])
        transformation of a process's capabilities during execve()). */
 
     if (pipe(pipe_fd) == -1)
-        errExit("pipe");
+        systmErr("pipe");
 
     /* Create the child in new namespace(s) */
 
     char *stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE,
                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
     if (stack == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     pid_t child_pid = clone(childFunc, stack + STACK_SIZE,
                             opts.flags | SIGCHLD, &opts);
     if (child_pid == -1)
-        errExit("clone");
+        systmErr("clone");
 
     munmap(stack, STACK_SIZE);
 
@@ -621,7 +621,7 @@ main(int argc, char *argv[])
     close(pipe_fd[1]);
 
     if (waitpid(child_pid, NULL, 0) == -1)      /* Wait for child */
-        errExit("waitpid");
+        systmErr("waitpid");
 
     if (opts.verbose)
         printf("%s: terminating\n", argv[0]);

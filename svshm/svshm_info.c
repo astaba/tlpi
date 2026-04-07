@@ -28,7 +28,7 @@ main(int argc, char *argv[])
 
     int s = shmctl(0, SHM_INFO, (struct shmid_ds *) &info);
     if (s == -1)
-        errExit("shmctl");
+        systmErr("shmctl");
 
     printf("Maximum ID index = %d\n", s);
     printf("shm_tot          = %ld\n", (long) info.shm_tot);

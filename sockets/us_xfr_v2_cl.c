@@ -26,7 +26,7 @@ main(int argc, char *argv[])
 {
     int sfd = unixConnect(SV_SOCK_PATH, SOCK_STREAM);
     if (sfd == -1)
-        errExit("unixConnect");
+        systmErr("unixConnect");
 
     /* Copy stdin to socket */
 
@@ -35,10 +35,10 @@ main(int argc, char *argv[])
 
     while ((numRead = read(STDIN_FILENO, buf, BUF_SIZE)) > 0)
         if (write(sfd, buf, numRead) != numRead)
-            fatal("partial/failed write");
+            custmErr("partial/failed write");
 
     if (numRead == -1)
-        errExit("read");
+        systmErr("read");
 
     exit(EXIT_SUCCESS);     /* Closes our socket; server sees EOF */
 }

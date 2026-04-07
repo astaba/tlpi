@@ -36,27 +36,27 @@ int main(int argc, char *argv[]) {
 
   inputFd = open(argv[1], O_RDONLY);
   if (inputFd == -1)
-    errExit("opening file %s", argv[1]);
+    systmErr("opening file %s", argv[1]);
 
   openFlags = O_CREAT | O_WRONLY | O_TRUNC;
   filePerms =
       S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH; /* rw-rw-rw- */
   outputFd = open(argv[2], openFlags, filePerms);
   if (outputFd == -1)
-    errExit("opening file %s", argv[2]);
+    systmErr("opening file %s", argv[2]);
 
   /* Transfer data until we encounter end of input or an error */
 
   while ((numRead = read(inputFd, buf, BUF_SIZE)) > 0)
     if (write(outputFd, buf, numRead) != numRead)
-      fatal("write() returned error or partial write occurred");
+      custmErr("write() returned error or partial write occurred");
   if (numRead == -1)
-    errExit("read");
+    systmErr("read");
 
   if (close(inputFd) == -1)
-    errExit("close input");
+    systmErr("close input");
   if (close(outputFd) == -1)
-    errExit("close output");
+    systmErr("close output");
 
   exit(EXIT_SUCCESS);
 }

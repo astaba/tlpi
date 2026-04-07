@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
             S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH |
                 S_IWOTH); /* rw-rw-rw- */
   if (fd == -1)
-    errExit("open");
+    systmErr("open");
 
   for (ap = 2; ap < argc; ap++) {
     switch (argv[ap][0]) {
@@ -62,11 +62,11 @@ int main(int argc, char *argv[]) {
 
       buf = malloc(len);
       if (buf == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
       numRead = read(fd, buf, len);
       if (numRead == -1)
-        errExit("read");
+        systmErr("read");
 
       if (numRead == 0) {
         printf("%s: end-of-file\n", argv[ap]);
@@ -88,14 +88,14 @@ int main(int argc, char *argv[]) {
     case 'w': /* Write string at current offset */
       numWritten = write(fd, &argv[ap][1], strlen(&argv[ap][1]));
       if (numWritten == -1)
-        errExit("write");
+        systmErr("write");
       printf("%s: wrote %ld bytes\n", argv[ap], (long)numWritten);
       break;
 
     case 's': /* Change file offset */
       offset = getLong(&argv[ap][1], GN_ANY_BASE, argv[ap]);
       if (lseek(fd, offset, SEEK_SET) == -1)
-        errExit("lseek");
+        systmErr("lseek");
       printf("%s: seek succeeded\n", argv[ap]);
       break;
 
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
   }
 
   if (close(fd) == -1)
-    errExit("close");
+    systmErr("close");
 
   exit(EXIT_SUCCESS);
 }

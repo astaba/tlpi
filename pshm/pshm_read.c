@@ -36,20 +36,20 @@ main(int argc, char *argv[])
 
     fd = shm_open(argv[1], O_RDONLY, 0);    /* Open existing object */
     if (fd == -1)
-        errExit("shm_open");
+        systmErr("shm_open");
 
     /* Use shared memory object size as length argument for mmap()
        and as number of bytes to write() */
 
     if (fstat(fd, &sb) == -1)
-        errExit("fstat");
+        systmErr("fstat");
 
     addr = mmap(NULL, sb.st_size, PROT_READ, MAP_SHARED, fd, 0);
     if (addr == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     if (close(fd) == -1)                    /* 'fd' is no longer needed */
-        errExit("close");
+        systmErr("close");
 
     write(STDOUT_FILENO, addr, sb.st_size);
     write(STDOUT_FILENO, "\n", 1);

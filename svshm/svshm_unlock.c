@@ -26,7 +26,7 @@ main(int argc, char *argv[])
 {
     for (int j = 1; j < argc; j++)
         if (shmctl(getInt(argv[j], 0, "shmid"), SHM_UNLOCK, NULL) == -1)
-            errExit("shmctl");
+            systmErr("shmctl");
 
     exit(EXIT_SUCCESS);
 }

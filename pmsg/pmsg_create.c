@@ -90,7 +90,7 @@ main(int argc, char *argv[])
 
     mqd = mq_open(argv[optind], flags, perms, attrp);
     if (mqd == (mqd_t) -1)
-        errExit("mq_open");
+        systmErr("mq_open");
 
     exit(EXIT_SUCCESS);
 }

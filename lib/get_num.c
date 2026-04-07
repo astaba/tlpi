@@ -24,7 +24,7 @@
 /* Print a diagnostic message that contains a function name ('fname'),
    the value of a command-line argument ('arg'), the name of that
    command-line argument ('name'), and a diagnostic error message ('msg'). */
-static void gnFail(const char *fname, const char *msg, const char *arg,
+ static void gnFail(const char *fname, const char *msg, const char *arg,
                    const char *name) {
   fprintf(stderr, "%s error", fname);
   if (name != NULL)
@@ -44,7 +44,6 @@ static void gnFail(const char *fname, const char *msg, const char *arg,
    'fname' is the name of our caller, and 'name' is the name associated with
    the command-line argument 'arg'. 'fname' and 'name' are used to print a
    diagnostic message in case an error is detected when processing 'arg'. */
-
 static long long getNum(const char *fname, const char *arg, int flags,
                         const char *name) {
   long long res;
@@ -79,14 +78,12 @@ static long long getNum(const char *fname, const char *arg, int flags,
 /* Convert a numeric command-line argument string to a long long integer. See
    the comments for getNum() for a description of the arguments to this
    function. */
-
 long long getLLong(const char *arg, int flags, const char *name) {
   return getNum("getLLong", arg, flags, name);
 }
 
 /* Convert a numeric command-line argument string to a long integer. See the
    comments for getNum() for a description of the arguments to this function. */
-
 long getLong(const char *arg, int flags, const char *name) {
   long long res;
 
@@ -100,7 +97,6 @@ long getLong(const char *arg, int flags, const char *name) {
 
 /* Convert a numeric command-line argument string to an integer. See the
    comments for getNum() for a description of the arguments to this function. */
-
 int getInt(const char *arg, int flags, const char *name) {
   long long res;
 

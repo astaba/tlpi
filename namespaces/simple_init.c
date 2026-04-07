@@ -29,7 +29,7 @@
 #include <sys/wait.h>
 #include <sys/mount.h>
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 static int verbose = 0;
@@ -81,7 +81,7 @@ expand_words(char *cmd)
 
     char **arg_vec = calloc(pwordexp.we_wordc + 1, sizeof(char *));
     if (arg_vec == NULL)
-        errExit("calloc");
+        systmErr("calloc");
 
     for (unsigned int j = 0; j < pwordexp.we_wordc; j++)
         arg_vec[j] = pwordexp.we_wordv[j];
@@ -119,7 +119,7 @@ main(int argc, char *argv[])
     sigemptyset(&sa.sa_mask);
     sa.sa_handler = child_handler;
     if (sigaction(SIGCHLD, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     if (verbose)
         printf("\tinit: my PID is %ld\n", (long) getpid());
@@ -136,9 +136,9 @@ main(int argc, char *argv[])
        group the foreground process group for the terminal */
 
     if (setpgid(0, 0) == -1)
-        errExit("setpgid");;
+        systmErr("setpgid");;
     if (tcsetpgrp(STDIN_FILENO, getpgrp()) == -1)
-        errExit("tcsetpgrp-child");
+        systmErr("tcsetpgrp-child");
 
     /* If the user asked to mount a procfs, mount it at the specified path */
 
@@ -172,7 +172,7 @@ main(int argc, char *argv[])
             printf("Mounting procfs at %s\n", proc_path);
 
         if (mount("proc", proc_path, "proc", 0, NULL) == -1)
-            errExit("mount-procfs");
+            systmErr("mount-procfs");
     }
 
     /* Loop executing "shell" commands. Note that our shell facility is
@@ -221,14 +221,14 @@ main(int argc, char *argv[])
                group for the terminal */
 
             if (setpgid(0, 0) == -1)
-                errExit("setpgid");;
+                systmErr("setpgid");;
             if (tcsetpgrp(STDIN_FILENO, getpgrp()) == -1)
-                errExit("tcsetpgrp-child");
+                systmErr("tcsetpgrp-child");
 
             /* Child executes shell command and terminates */
 
             execvp(arg_vec[0], arg_vec);
-            errExit("execvp");          /* Only reached if execvp() fails */
+            systmErr("execvp");          /* Only reached if execvp() fails */
         }
 
         /* Parent falls through to here */
@@ -242,7 +242,7 @@ main(int argc, char *argv[])
            is the foreground process group for the terminal */
 
         if (tcsetpgrp(STDIN_FILENO, getpgrp()) == -1)
-            errExit("tcsetpgrp-parent");
+            systmErr("tcsetpgrp-parent");
     }
 
     /* If we mounted a procfs earlier, unmount it before terminating */
@@ -251,7 +251,7 @@ main(int argc, char *argv[])
         if (verbose)
             printf("Unmounting procfs at %s\n", proc_path);
         if (umount(proc_path) == -1)
-            errExit("umount-procfs");
+            systmErr("umount-procfs");
     }
 
     exit(EXIT_SUCCESS);

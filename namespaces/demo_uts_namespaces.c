@@ -29,7 +29,7 @@
 /* A simple error-handling function: print an error message based
    on the value in 'errno' and terminate the calling process */
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 static int              /* Start function for cloned child */
@@ -38,13 +38,13 @@ childFunc(void *arg)
     /* Change hostname in UTS namespace of child */
 
     if (sethostname(arg, strlen(arg)) == -1)
-        errExit("sethostname");
+        systmErr("sethostname");
 
     /* Retrieve and display hostname */
 
     struct utsname uts;
     if (uname(&uts) == -1)
-        errExit("uname");
+        systmErr("uname");
     printf("uts.nodename in child:  %s\n", uts.nodename);
 
     /* Keep the namespace open for a while, by sleeping.
@@ -69,7 +69,7 @@ main(int argc, char *argv[])
     char *stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE,
                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
     if (stack == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     /* Create a child that has its own UTS namespace;
        the child commences execution in childFunc() */
@@ -78,7 +78,7 @@ main(int argc, char *argv[])
                           stack + STACK_SIZE, /* Assume stack grows downward */
                           CLONE_NEWUTS | SIGCHLD, argv[1]);
     if (child_pid == -1)
-        errExit("clone");
+        systmErr("clone");
 
     printf("PID of child created by clone() is %ld\n", (long) child_pid);
 
@@ -93,11 +93,11 @@ main(int argc, char *argv[])
 
     struct utsname uts;
     if (uname(&uts) == -1)
-        errExit("uname");
+        systmErr("uname");
     printf("uts.nodename in parent: %s\n", uts.nodename);
 
     if (waitpid(child_pid, NULL, 0) == -1)      /* Wait for child */
-        errExit("waitpid");
+        systmErr("waitpid");
     printf("child has terminated\n");
 
     exit(EXIT_SUCCESS);

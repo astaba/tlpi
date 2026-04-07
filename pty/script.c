@@ -35,7 +35,7 @@ static void             /* Reset terminal mode on program exit */
 ttyReset(void)
 {
     if (tcsetattr(STDIN_FILENO, TCSANOW, &ttyOrig) == -1)
-        errExit("tcsetattr");
+        systmErr("tcsetattr");
 }
 
 int
@@ -53,9 +53,9 @@ main(int argc, char *argv[])
     /* Retrieve the attributes of terminal on which we are started */
 
     if (tcgetattr(STDIN_FILENO, &ttyOrig) == -1)
-        errExit("tcgetattr");
+        systmErr("tcgetattr");
     if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) < 0)
-        errExit("ioctl-TIOCGWINSZ");
+        systmErr("ioctl-TIOCGWINSZ");
 
     /* Create a child process, with parent and child connected via a
        pty pair. The child is connected to the pty slave and its terminal
@@ -63,7 +63,7 @@ main(int argc, char *argv[])
 
     childPid = ptyFork(&masterFd, slaveName, MAX_SNAME, &ttyOrig, &ws);
     if (childPid == -1)
-        errExit("ptyFork");
+        systmErr("ptyFork");
 
     if (childPid == 0) {        /* Child: execute a shell on pty slave */
 
@@ -75,7 +75,7 @@ main(int argc, char *argv[])
             shell = "/bin/sh";
 
         execlp(shell, shell, (char *) NULL);
-        errExit("execlp");      /* If we get here, something went wrong */
+        systmErr("execlp");      /* If we get here, something went wrong */
     }
 
     /* Parent: relay data between terminal and pty master */
@@ -85,7 +85,7 @@ main(int argc, char *argv[])
                         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP |
                                 S_IROTH | S_IWOTH);
     if (scriptFd == -1)
-        errExit("open typescript");
+        systmErr("open typescript");
 
     /* Place terminal in raw mode so that we can pass all terminal
      input to the pseudoterminal master untouched */
@@ -93,7 +93,7 @@ main(int argc, char *argv[])
     ttySetRaw(STDIN_FILENO, &ttyOrig);
 
     if (atexit(ttyReset) != 0)
-        errExit("atexit");
+        systmErr("atexit");
 
     /* Loop monitoring terminal and pty master for input. If the
        terminal is ready for input, then read some bytes and write
@@ -106,7 +106,7 @@ main(int argc, char *argv[])
         FD_SET(masterFd, &inFds);
 
         if (select(masterFd + 1, &inFds, NULL, NULL, NULL) == -1)
-            errExit("select");
+            systmErr("select");
 
         if (FD_ISSET(STDIN_FILENO, &inFds)) {   /* stdin --> pty */
             numRead = read(STDIN_FILENO, buf, BUF_SIZE);
@@ -114,7 +114,7 @@ main(int argc, char *argv[])
                 exit(EXIT_SUCCESS);
 
             if (write(masterFd, buf, numRead) != numRead)
-                fatal("partial/failed write (masterFd)");
+                custmErr("partial/failed write (masterFd)");
         }
 
         if (FD_ISSET(masterFd, &inFds)) {      /* pty --> stdout+file */
@@ -123,9 +123,9 @@ main(int argc, char *argv[])
                 exit(EXIT_SUCCESS);
 
             if (write(STDOUT_FILENO, buf, numRead) != numRead)
-                fatal("partial/failed write (STDOUT_FILENO)");
+                custmErr("partial/failed write (STDOUT_FILENO)");
             if (write(scriptFd, buf, numRead) != numRead)
-                fatal("partial/failed write (scriptFd)");
+                custmErr("partial/failed write (scriptFd)");
         }
     }
 }

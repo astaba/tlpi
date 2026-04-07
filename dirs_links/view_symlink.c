@@ -36,19 +36,19 @@ main(int argc, char *argv[])
        whether readlink() failed with EINVAL. */
 
     if (lstat(argv[1], &statbuf) == -1)
-        errExit("lstat");
+        systmErr("lstat");
 
     if (!S_ISLNK(statbuf.st_mode))
-        fatal("%s is not a symbolic link", argv[1]);
+        custmErr("%s is not a symbolic link", argv[1]);
 
     numBytes = readlink(argv[1], buf, BUF_SIZE - 1);
     if (numBytes == -1)
-        errExit("readlink");
+        systmErr("readlink");
     buf[numBytes] = '\0';                       /* Add terminating null byte */
     printf("readlink: %s --> %s\n", argv[1], buf);
 
     if (realpath(argv[1], buf) == NULL)
-        errExit("realpath");
+        systmErr("realpath");
     printf("realpath: %s --> %s\n", argv[1], buf);
 
     exit(EXIT_SUCCESS);

@@ -51,7 +51,7 @@ main(int argc, char *argv[])
     /* Ignore the SIGPIPE signal, so that we find out about broken connection
        errors via a failure from write(). */
 
-    if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)    errExit("signal");
+    if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)    systmErr("signal");
 
     /* Call getaddrinfo() to obtain a list of addresses that
        we can try binding to */
@@ -66,7 +66,7 @@ main(int argc, char *argv[])
                         /* Wildcard IP address; service name is numeric */
 
     if (getaddrinfo(NULL, PORT_NUM, &hints, &result) != 0)
-        errExit("getaddrinfo");
+        systmErr("getaddrinfo");
 
     /* Walk through returned list until we find an address structure
        that can be used to successfully create and bind a socket */
@@ -79,7 +79,7 @@ main(int argc, char *argv[])
 
         if (setsockopt(lfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval))
                 == -1)
-             errExit("setsockopt");
+             systmErr("setsockopt");
 
         if (bind(lfd, rp->ai_addr, rp->ai_addrlen) == 0)
             break;                      /* Success */
@@ -90,10 +90,10 @@ main(int argc, char *argv[])
     }
 
     if (rp == NULL)
-        fatal("Could not bind socket to any address");
+        custmErr("Could not bind socket to any address");
 
     if (listen(lfd, BACKLOG) == -1)
-        errExit("listen");
+        systmErr("listen");
 
     freeaddrinfo(result);
 
@@ -104,7 +104,7 @@ main(int argc, char *argv[])
         addrlen = sizeof(struct sockaddr_storage);
         cfd = accept(lfd, (struct sockaddr *) &claddr, &addrlen);
         if (cfd == -1) {
-            errMsg("accept");
+            systmWrn("accept");
             continue;
         }
 
@@ -136,6 +136,6 @@ main(int argc, char *argv[])
         seqNum += reqLen;               /* Update sequence number */
 
         if (close(cfd) == -1)           /* Close connection */
-            errMsg("close");
+            systmWrn("close");
     }
 }

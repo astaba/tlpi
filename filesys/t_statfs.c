@@ -30,7 +30,7 @@ main(int argc, char *argv[])
 
     struct statfs sfs;
     if (statfs(argv[1], &sfs) == -1)
-        errExit("statfs");
+        systmErr("statfs");
 
     printf("File system type:              %#lx\n",
             (unsigned long) sfs.f_type);

@@ -35,9 +35,9 @@ main(int argc, char *argv[])
                         (char *) &cap_data, sizeof(cap_data));
     if (valueLen == -1) {
         if (errno == ENODATA)
-            fatal("\"%s\" has no \"security.capability\" attribute", argv[1]);
+            custmErr("\"%s\" has no \"security.capability\" attribute", argv[1]);
         else
-            errExit("getxattr");
+            systmErr("getxattr");
     }
 
     printf("Capability version: %d",

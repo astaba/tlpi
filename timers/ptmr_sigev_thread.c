@@ -60,17 +60,17 @@ threadFunc(union sigval sv)
 
     s = pthread_mutex_lock(&mtx);
     if (s != 0)
-        errExitEN(s, "pthread_mutex_lock");
+        nmsetErr(s, "pthread_mutex_lock");
 
     expireCnt += 1 + timer_getoverrun(*tidptr);
 
     s = pthread_mutex_unlock(&mtx);
     if (s != 0)
-        errExitEN(s, "pthread_mutex_unlock");
+        nmsetErr(s, "pthread_mutex_unlock");
 
     s = pthread_cond_signal(&cond);
     if (s != 0)
-        errExitEN(s, "pthread_cond_signal");
+        nmsetErr(s, "pthread_cond_signal");
 }
 
 int
@@ -86,7 +86,7 @@ main(int argc, char *argv[])
 
     tidlist = calloc(argc - 1, sizeof(timer_t));
     if (tidlist == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     sev.sigev_notify = SIGEV_THREAD;            /* Notify via thread */
     sev.sigev_notify_function = threadFunc;     /* Thread start function */
@@ -102,11 +102,11 @@ main(int argc, char *argv[])
                 /* Passed as argument to threadFunc() */
 
         if (timer_create(CLOCK_REALTIME, &sev, &tidlist[j]) == -1)
-            errExit("timer_create");
+            systmErr("timer_create");
         printf("Timer ID: %ld (%s)\n", (long) tidlist[j], argv[j + 1]);
 
         if (timer_settime(tidlist[j], 0, &ts, NULL) == -1)
-            errExit("timer_settime");
+            systmErr("timer_settime");
     }
 
     /* The main thread waits on a condition variable that is signaled
@@ -115,12 +115,12 @@ main(int argc, char *argv[])
 
     s = pthread_mutex_lock(&mtx);
     if (s != 0)
-        errExitEN(s, "pthread_mutex_lock");
+        nmsetErr(s, "pthread_mutex_lock");
 
     for (;;) {
         s = pthread_cond_wait(&cond, &mtx);
         if (s != 0)
-            errExitEN(s, "pthread_cond_wait");
+            nmsetErr(s, "pthread_cond_wait");
         printf("main(): expireCnt = %d\n", expireCnt);
     }
 }

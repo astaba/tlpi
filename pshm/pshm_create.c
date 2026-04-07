@@ -58,17 +58,17 @@ main(int argc, char *argv[])
 
     fd = shm_open(argv[optind], flags, perms);
     if (fd == -1)
-        errExit("shm_open");
+        systmErr("shm_open");
 
     if (ftruncate(fd, size) == -1)
-        errExit("ftruncate");
+        systmErr("ftruncate");
 
     /* Map shared memory object */
 
     if (size > 0) {
         addr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
         if (addr == MAP_FAILED)
-            errExit("mmap");
+            systmErr("mmap");
     }
 
     exit(EXIT_SUCCESS);

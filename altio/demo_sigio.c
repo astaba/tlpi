@@ -45,24 +45,24 @@ main(int argc, char *argv[])
     sa.sa_flags = SA_RESTART;
     sa.sa_handler = sigioHandler;
     if (sigaction(SIGIO, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* Set owner process that is to receive "I/O possible" signal */
 
     if (fcntl(STDIN_FILENO, F_SETOWN, getpid()) == -1)
-        errExit("fcntl(F_SETOWN)");
+        systmErr("fcntl(F_SETOWN)");
 
     /* Enable "I/O possible" signaling and make I/O nonblocking
        for file descriptor */
 
     flags = fcntl(STDIN_FILENO, F_GETFL);
     if (fcntl(STDIN_FILENO, F_SETFL, flags | O_ASYNC | O_NONBLOCK) == -1)
-        errExit("fcntl(F_SETFL)");
+        systmErr("fcntl(F_SETFL)");
 
     /* Place terminal in cbreak mode */
 
     if (ttySetCbreak(STDIN_FILENO, &origTermios) == -1)
-        errExit("ttySetCbreak");
+        systmErr("ttySetCbreak");
 
     for (done = FALSE, cnt = 0; !done ; cnt++) {
         for (j = 0; j < 100000000; j++)
@@ -85,6 +85,6 @@ main(int argc, char *argv[])
     /* Restore original terminal settings */
 
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &origTermios) == -1)
-        errExit("tcsetattr");
+        systmErr("tcsetattr");
     exit(EXIT_SUCCESS);
 }

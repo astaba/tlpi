@@ -33,22 +33,22 @@ main(int argc, char *argv[])
     int outbound[2];            /* Pipe to send data from parent to child */
     int inbound[2];             /* Pipe to send data from child to parent */
     if (pipe(outbound) == -1)
-        errExit("pipe");
+        systmErr("pipe");
     if (pipe(inbound) == -1)
-        errExit("pipe");
+        systmErr("pipe");
 
     switch (fork()) {
     case -1:
-        errExit("fork");
+        systmErr("fork");
 
     case 0: /* Child */
 
         /* Close unused pipe descriptors */
 
         if (close(outbound[1]) == -1)
-            errExit("close");
+            systmErr("close");
         if (close(inbound[0]) == -1)
-            errExit("close");
+            systmErr("close");
 
         /* Read data from outbound pipe, convert to uppercase,
            and send back to parent on inbound pipe */
@@ -57,11 +57,11 @@ main(int argc, char *argv[])
             for (int j = 0; j < cnt; j++)
                 buf[j] = toupper((unsigned char) buf[j]);
             if (write(inbound[1], buf, cnt) != cnt)
-                fatal("failed/partial write(): inbound pipe");
+                custmErr("failed/partial write(): inbound pipe");
         }
 
         if (cnt == -1)
-            errExit("read");
+            systmErr("read");
         exit(EXIT_SUCCESS);
 
     default:
@@ -69,9 +69,9 @@ main(int argc, char *argv[])
         /* Close unused pipe descriptors */
 
         if (close(outbound[0]) == -1)
-            errExit("close");
+            systmErr("close");
         if (close(inbound[1]) == -1)
-            errExit("close");
+            systmErr("close");
 
         /* Read data from stdin, send to the child via the
            outbound pipe, read the results back from the child
@@ -79,18 +79,18 @@ main(int argc, char *argv[])
 
         while ((cnt = read(STDIN_FILENO, buf, BUF_SIZE)) > 0) {
             if (write(outbound[1], buf, cnt) != cnt)
-                fatal("failed/partial write(): outbound pipe");
+                custmErr("failed/partial write(): outbound pipe");
 
             cnt = read(inbound[0], buf, BUF_SIZE);
             if (cnt == -1)
-                errExit("read");
+                systmErr("read");
             if (cnt > 0)
                 if (write(STDOUT_FILENO, buf, cnt) != cnt)
-                    fatal("failed/partial write(): STDOUT_FILENO");
+                    custmErr("failed/partial write(): STDOUT_FILENO");
         }
 
         if (cnt == -1)
-            errExit("read");
+            systmErr("read");
 
         /* Exiting will close write end of outbound pipe, so that
            child see EOF */

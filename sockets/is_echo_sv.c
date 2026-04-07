@@ -70,7 +70,7 @@ main(int argc, char *argv[])
     struct sigaction sa;
 
     if (becomeDaemon(0) == -1)
-        errExit("becomeDaemon");
+        systmErr("becomeDaemon");
 
     /* Establish SIGCHLD handler to reap terminated child processes */
 

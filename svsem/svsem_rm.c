@@ -29,7 +29,7 @@ main(int argc, char *argv[])
     union semun dummy;
     for (int j = 1; j < argc; j++)
         if (semctl(getInt(argv[j], 0, "semid"), 0, IPC_RMID, dummy) == -1)
-            errExit("semctl %s", argv[j]);
+            systmErr("semctl %s", argv[j]);
 
     exit(EXIT_SUCCESS);
 }

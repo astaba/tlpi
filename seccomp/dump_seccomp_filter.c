@@ -40,7 +40,7 @@
 #include <stdbool.h>
 #include <fcntl.h>
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); } while (0)
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
 /* Fetch BPF filter with specified index for specified PID. A pointer to a
    dynamically allocated buffer is containing the filter code returned as the
@@ -63,7 +63,7 @@ fetchFilter(pid_t pid, int filterIndex, int *instrCnt, bool quiet)
     }
 
     if (waitpid(pid, NULL, 0) == -1)
-        errExit("waitpid");
+        systmErr("waitpid");
 
     /* Discover the number of instructions in the BPF filter */
 
@@ -84,7 +84,7 @@ fetchFilter(pid_t pid, int filterIndex, int *instrCnt, bool quiet)
                     "run this program as root\n");
             exit(EXIT_FAILURE);
         } else {
-            errExit("ptrace - PTRACE_SECCOMP_GET_FILTER-1");
+            systmErr("ptrace - PTRACE_SECCOMP_GET_FILTER-1");
         }
     }
 
@@ -93,11 +93,11 @@ fetchFilter(pid_t pid, int filterIndex, int *instrCnt, bool quiet)
     struct sock_filter *filterProg;
     filterProg = calloc(icnt, sizeof(struct sock_filter));
     if (filterProg == NULL)
-        errExit("calloc");
+        systmErr("calloc");
 
     icnt = ptrace(PTRACE_SECCOMP_GET_FILTER, pid, filterIndex, filterProg);
     if (icnt == -1)
-        errExit("ptrace - PTRACE_SECCOMP_GET_FILTER-2");
+        systmErr("ptrace - PTRACE_SECCOMP_GET_FILTER-2");
 
     if (instrCnt != NULL)
         *instrCnt = icnt;
@@ -112,13 +112,13 @@ dumpFilter(char *pathname, struct sock_filter *filterProg, int instrCnt)
 {
     int fd = open(pathname, O_CREAT | O_TRUNC | O_WRONLY, S_IRUSR | S_IWUSR);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     if (write(fd, filterProg, instrCnt * sizeof(struct sock_filter)) == -1)
-        errExit("write");
+        systmErr("write");
 
     if (close(fd) == -1)
-        errExit("close");
+        systmErr("close");
 }
 
 static void

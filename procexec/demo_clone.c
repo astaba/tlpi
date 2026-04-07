@@ -57,9 +57,9 @@ childFunc(void *arg)
 
     umask(cp->umask);
     if (close(cp->fd) == -1)
-        errExit("child:close");
+        systmErr("child:close");
     if (signal(cp->signal, SIG_DFL) == SIG_ERR)
-        errExit("child:signal");
+        systmErr("child:signal");
 
     return cp->exitStatus;      /* Child terminates now */
 }
@@ -107,10 +107,10 @@ main(int argc, char *argv[])
 
     cp.fd = open("/dev/null", O_RDWR);  /* Child will close this fd */
     if (cp.fd == -1)
-        errExit("open");
+        systmErr("open");
 
     cp.signal = SIGTERM;                /* Child will change disposition */
-    if (signal(cp.signal, SIG_IGN) == SIG_ERR)  errExit("signal");
+    if (signal(cp.signal, SIG_IGN) == SIG_ERR)  systmErr("signal");
 
     /* Initialize clone flags using command-line argument (if supplied) */
 
@@ -132,7 +132,7 @@ main(int argc, char *argv[])
     char *stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE,
                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
     if (stack == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     char *stackTop = stack + STACK_SIZE;  /* Assume stack grows downward */
 
@@ -144,13 +144,13 @@ main(int argc, char *argv[])
         sa.sa_flags = SA_RESTART;
         sa.sa_handler = grimReaper;
         if (sigaction(CHILD_SIG, &sa, NULL) == -1)
-            errExit("sigaction");
+            systmErr("sigaction");
     }
 
     /* Create child; child commences execution in childFunc() */
 
     if (clone(childFunc, stackTop, flags | CHILD_SIG, &cp) == -1)
-        errExit("clone");
+        systmErr("clone");
 
     /* Now that child has been created, we can deallocate the stack */
 
@@ -162,7 +162,7 @@ main(int argc, char *argv[])
     int status;
     pid_t pid = waitpid(-1, &status, (CHILD_SIG != SIGCHLD) ? __WCLONE : 0);
     if (pid == -1)
-        errExit("waitpid");
+        systmErr("waitpid");
 
     printf("    Child PID=%ld\n", (long) pid);
     printWaitStatus("    Status: ", status);
@@ -185,7 +185,7 @@ main(int argc, char *argv[])
         printf("    write() on file descriptor %d succeeded\n", cp.fd);
 
     if (sigaction(cp.signal, NULL, &sa) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
     if (sa.sa_handler != SIG_IGN)
         printf("    signal disposition has changed\n");
     else

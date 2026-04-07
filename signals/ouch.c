@@ -37,7 +37,7 @@ main(int argc, char *argv[])
        for this task. */
 
     if (signal(SIGINT, sigHandler) == SIG_ERR)
-        errExit("signal");
+        systmErr("signal");
 
     /* Loop continuously waiting for signals to be delivered */
 

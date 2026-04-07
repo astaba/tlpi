@@ -34,5 +34,5 @@ main(int argc, char *argv[])
         filename = argv[1];
 
     execle(argv[1], filename, "hello world", "goodbye", (char *) NULL, envVec);
-    errExit("execle");          /* If we get here, something went wrong */
+    systmErr("execle");          /* If we get here, something went wrong */
 }

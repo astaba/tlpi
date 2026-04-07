@@ -47,20 +47,20 @@ burnCPU(float period)
 
     struct timespec base_real;
     if (clock_gettime(CLOCK_REALTIME, &base_real) == -1)
-        errExit("clock_gettime");
+        systmErr("clock_gettime");
 
     struct timespec prev_real = base_real;
 
     struct timespec prev_cpu;
     if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &prev_cpu) == -1)
-        errExit("clock_gettime");
+        systmErr("clock_gettime");
 
     long nloops = 0;
     while (1) {
         nloops++;
         struct timespec curr_real;
         if (clock_gettime(CLOCK_REALTIME, &curr_real) == -1)
-            errExit("clock_gettime");
+            systmErr("clock_gettime");
 
         long elapsed_real_nsec = timespecDiff(base_real, curr_real);
         long elapsed_real_steps = elapsed_real_nsec / step_size;
@@ -68,7 +68,7 @@ burnCPU(float period)
         if (elapsed_real_steps > prev_step) {
             struct timespec curr_cpu;
             if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &curr_cpu) == -1)
-                errExit("clock_gettime");
+                systmErr("clock_gettime");
 
             long diff_real_nsec = timespecDiff(prev_real, curr_real);
             long diff_cpu_nsec = timespecDiff(prev_cpu, curr_cpu);
@@ -133,7 +133,7 @@ main(int argc, char *argv[])
             exit(EXIT_SUCCESS);         /* NOTREACHED */
 
         case -1:
-            errExit("fork");
+            systmErr("fork");
 
         default:
             break;

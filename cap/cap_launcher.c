@@ -70,7 +70,7 @@ setSupplementaryGroupList(char *user, gid_t gid)
 
     gid_t *groups = calloc(ngroups, sizeof(gid_t));
     if (groups == NULL)
-        errExit("calloc");
+        systmErr("calloc");
 
     /* Get supplementary group list of 'user' from the group database.
        In addition, 'gid' (the user's primary GID, which was obtained
@@ -78,12 +78,12 @@ setSupplementaryGroupList(char *user, gid_t gid)
        present. */
 
     if (getgrouplist(user, gid, groups, &ngroups) == -1)
-        errExit("getgrouplist");
+        systmErr("getgrouplist");
 
     /* Set the supplementary group list */
 
     if (setgroups(ngroups, groups) == -1)
-        errExit("setgroups");
+        systmErr("setgroups");
 }
 
 /* Switch credentials (user ID, group ID, supplementary groups) to
@@ -105,12 +105,12 @@ setCredentials(char *user)
     /* Set all group IDs to GID of this user */
 
     if (setresgid(pwd->pw_gid, pwd->pw_gid, pwd->pw_gid) == -1)
-        errExit("setresgid");
+        systmErr("setresgid");
 
     /* Set all user IDs to UID of this user */
 
     if (setresuid(pwd->pw_uid, pwd->pw_uid, pwd->pw_uid) == -1)
-        errExit("setresuid");
+        systmErr("setresuid");
 }
 
 static cap_value_t
@@ -189,13 +189,13 @@ main(int argc, char *argv[])
         usage(argv[0]);
 
     if (geteuid() != 0)
-        fatal("Must be run as root");
+        custmErr("Must be run as root");
 
     /* Set the "no setuid fixup" securebit, so that when we switch to
        a nonzero UID, we don't lose capabilities */
 
     if (prctl(PR_SET_SECUREBITS, SECBIT_NO_SETUID_FIXUP, 0, 0, 0) == -1)
-        errExit("prctl");
+        systmErr("prctl");
 
     setCredentials(argv[optind]);
 
@@ -205,5 +205,5 @@ main(int argc, char *argv[])
        command-line */
 
     execvp(argv[optind + 2], &argv[optind + 2]);
-    errExit("execvp");
+    systmErr("execvp");
 }

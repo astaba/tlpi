@@ -11,7 +11,6 @@
 /* Listing 3-2 */
 
 /* error_functions.h
-
    Header file for error_functions.c.
 */
 #ifndef ERROR_FUNCTIONS_H
@@ -19,7 +18,7 @@
 
 /* Error diagnostic routines */
 
-void errMsg(const char *format, ...);
+void systmWrn(const char *format, ...);
 
 #ifdef __GNUC__
 
@@ -32,16 +31,11 @@ void errMsg(const char *format, ...);
 #define NORETURN
 #endif
 
-void errExit(const char *format, ...) NORETURN;
-
-void err_exit(const char *format, ...) NORETURN;
-
-void errExitEN(int errnum, const char *format, ...) NORETURN;
-
-void fatal(const char *format, ...) NORETURN;
-
+void systmErr(const char *format, ...) NORETURN;
+void _systmerr(const char *format, ...) NORETURN;
+void nmsetErr(int errnum, const char *format, ...) NORETURN;
+void custmErr(const char *format, ...) NORETURN;
 void usageErr(const char *format, ...) NORETURN;
-
 void cmdLineErr(const char *format, ...) NORETURN;
 
 #endif

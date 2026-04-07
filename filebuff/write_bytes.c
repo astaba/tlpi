@@ -43,7 +43,7 @@ main(int argc, char *argv[])
 
     char *buf = malloc(bufSize);
     if (buf == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     int openFlags = O_CREAT | O_WRONLY;
 
@@ -53,7 +53,7 @@ main(int argc, char *argv[])
 
     int fd = open(argv[1], openFlags, S_IRUSR | S_IWUSR);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     size_t thisWrite, totWritten;
     for (totWritten = 0; totWritten < numBytes;
@@ -61,19 +61,19 @@ main(int argc, char *argv[])
         thisWrite = min(bufSize, numBytes - totWritten);
 
         if (write(fd, buf, thisWrite) != (ssize_t) thisWrite)
-            fatal("partial/failed write");
+            custmErr("partial/failed write");
 
 #ifdef USE_FSYNC
         if (fsync(fd))
-            errExit("fsync");
+            systmErr("fsync");
 #endif
 #ifdef USE_FDATASYNC
         if (fdatasync(fd))
-            errExit("fdatasync");
+            systmErr("fdatasync");
 #endif
     }
 
     if (close(fd) == -1)
-        errExit("close");
+        systmErr("close");
     exit(EXIT_SUCCESS);
 }

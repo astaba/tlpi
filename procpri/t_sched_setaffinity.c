@@ -49,7 +49,7 @@ main(int argc, char *argv[])
             CPU_SET(cpu, &set);
 
     if (sched_setaffinity(pid, sizeof(set), &set) == -1)
-        errExit("sched_setaffinity");
+        systmErr("sched_setaffinity");
 
     exit(EXIT_SUCCESS);
 }

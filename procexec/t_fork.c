@@ -27,7 +27,7 @@ main(int argc, char *argv[])
 
     switch (childPid = fork()) {
     case -1:
-        errExit("fork");
+        systmErr("fork");
 
     case 0:
         idata *= 3;

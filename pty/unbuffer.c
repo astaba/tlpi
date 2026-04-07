@@ -37,7 +37,7 @@ static void             /* Reset terminal mode on program exit */
 ttyReset(void)
 {
     if (tcsetattr(STDIN_FILENO, TCSANOW, &ttyOrig) == -1)
-        errExit("tcsetattr");
+        systmErr("tcsetattr");
 }
 
 int
@@ -53,9 +53,9 @@ main(int argc, char *argv[])
     /* Retrieve the attributes of terminal on which we are started */
 
     if (tcgetattr(STDIN_FILENO, &ttyOrig) == -1)
-        errExit("tcgetattr");
+        systmErr("tcgetattr");
     if (ioctl(STDIN_FILENO, TIOCGWINSZ, (char *) &ws) < 0)
-        errExit("TIOCGWINSZ error");
+        systmErr("TIOCGWINSZ error");
 
     /* Create a child process, with parent and child connected via a
        pty pair. The child is connected to the pty slave and its terminal
@@ -63,11 +63,11 @@ main(int argc, char *argv[])
 
     switch (ptyFork(&masterFd, slaveName, MAX_SNAME, &ttyOrig, &ws)) {
     case -1:
-        errExit("ptyFork");
+        systmErr("ptyFork");
 
     case 0:     /* Child executes command given in argv[1]... */
         execvp(argv[1], &argv[1]);
-        errExit("execvp");
+        systmErr("execvp");
 
     default:    /* Parent relays data between terminal and pty master */
 
@@ -76,7 +76,7 @@ main(int argc, char *argv[])
 
         ttySetRaw(STDIN_FILENO, &ttyOrig);
         if (atexit(ttyReset) != 0)
-            errExit("atexit");
+            systmErr("atexit");
 
         /* Loop monitoring terminal and pty master for input. If the
            terminal is ready for input, read some bytes and write
@@ -88,7 +88,7 @@ main(int argc, char *argv[])
             FD_SET(STDIN_FILENO, &inFds);
             FD_SET(masterFd, &inFds);
             if (select(masterFd + 1, &inFds, NULL, NULL, NULL) == -1)
-                errExit("select");
+                systmErr("select");
 
             if (FD_ISSET(STDIN_FILENO, &inFds)) {
                 numRead = read(STDIN_FILENO, buf, BUF_SIZE);
@@ -96,7 +96,7 @@ main(int argc, char *argv[])
                     exit(EXIT_SUCCESS);
 
                 if (write(masterFd, buf, numRead) != numRead)
-                    fatal("partial/failed write (masterFd)");
+                    custmErr("partial/failed write (masterFd)");
             }
 
             if (FD_ISSET(masterFd, &inFds)) {
@@ -105,7 +105,7 @@ main(int argc, char *argv[])
                     exit(EXIT_SUCCESS);
 
                 if (write(STDOUT_FILENO, buf, numRead) != numRead)
-                    fatal("partial/failed write (STDOUT_FILENO)");
+                    custmErr("partial/failed write (STDOUT_FILENO)");
             }
         }
     }

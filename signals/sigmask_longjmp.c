@@ -67,7 +67,7 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sa.sa_handler = handler;
     if (sigaction(SIGINT, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
 #ifdef USE_SIGSETJMP
     printf("Calling sigsetjmp()\n");

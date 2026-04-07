@@ -43,7 +43,7 @@ main(int argc, char *argv[])
 
     DIR *dirp = opendir("/proc");
     if (dirp == NULL)
-        errExit("opendir");
+        systmErr("opendir");
 
     /* Scan entries under /proc directory */
 
@@ -52,7 +52,7 @@ main(int argc, char *argv[])
         struct dirent *dp = readdir(dirp);
         if (dp == NULL) {
             if (errno != 0)
-                errExit("readdir");
+                systmErr("readdir");
             else
                 break;
         }

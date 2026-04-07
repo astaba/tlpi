@@ -28,6 +28,6 @@ main(int argc, char *argv[])
         usageErr("%s mq-name\n", argv[0]);
 
     if (mq_unlink(argv[1]) == -1)
-        errExit("mq_unlink");
+        systmErr("mq_unlink");
     exit(EXIT_SUCCESS);
 }

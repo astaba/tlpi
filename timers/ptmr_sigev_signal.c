@@ -64,7 +64,7 @@ main(int argc, char *argv[])
 
     tidlist = calloc(argc - 1, sizeof(timer_t));
     if (tidlist == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     /* Establish handler for notification signal */
 
@@ -72,7 +72,7 @@ main(int argc, char *argv[])
     sa.sa_sigaction = handler;
     sigemptyset(&sa.sa_mask);
     if (sigaction(TIMER_SIG, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* Create and start one timer for each command-line argument */
 
@@ -86,11 +86,11 @@ main(int argc, char *argv[])
                 /* Allows handler to get ID of this timer */
 
         if (timer_create(CLOCK_REALTIME, &sev, &tidlist[j]) == -1)
-            errExit("timer_create");
+            systmErr("timer_create");
         printf("Timer ID: %ld (%s)\n", (long) tidlist[j], argv[j + 1]);
 
         if (timer_settime(tidlist[j], 0, &ts, NULL) == -1)
-            errExit("timer_settime");
+            systmErr("timer_settime");
     }
 
     for (;;)                            /* Wait for incoming timer signals */

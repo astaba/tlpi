@@ -48,11 +48,11 @@ main(int argc, char *argv[])
     sa.sa_sigaction = handler;
     sigemptyset(&sa.sa_mask);
     if (sigaction(SIGALRM, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     timer_t tid;
     if (timer_create(CLOCK_REALTIME, NULL, &tid) == -1)
-        errExit("timer_create");
+        systmErr("timer_create");
     printf("timer ID = %ld\n", (long) tid);
 
     struct itimerspec ts;
@@ -61,7 +61,7 @@ main(int argc, char *argv[])
     ts.it_interval.tv_sec = (argc > 3) ? atoi(argv[3]) : 0;
     ts.it_interval.tv_nsec = (argc > 4) ? atoi(argv[4]) : 0;
     if (timer_settime(tid, 0, &ts, NULL) == -1)
-        errExit("timer_settime");
+        systmErr("timer_settime");
 
     for (int j = 0; ; j++)
         pause();

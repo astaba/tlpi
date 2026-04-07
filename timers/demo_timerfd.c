@@ -41,13 +41,13 @@ main(int argc, char *argv[])
 
     fd = timerfd_create(CLOCK_REALTIME, 0);
     if (fd == -1)
-        errExit("timerfd_create");
+        systmErr("timerfd_create");
 
     if (timerfd_settime(fd, 0, &ts, NULL) == -1)
-        errExit("timerfd_settime");
+        systmErr("timerfd_settime");
 
     if (clock_gettime(CLOCK_MONOTONIC, &start) == -1)
-        errExit("clock_gettime");
+        systmErr("clock_gettime");
 
     for (totalExp = 0; totalExp < maxExp;) {
 
@@ -57,12 +57,12 @@ main(int argc, char *argv[])
 
         s = read(fd, &numExp, sizeof(uint64_t));
         if (s != sizeof(uint64_t))
-            errExit("read");
+            systmErr("read");
 
         totalExp += numExp;
 
         if (clock_gettime(CLOCK_MONOTONIC, &now) == -1)
-            errExit("clock_gettime");
+            systmErr("clock_gettime");
 
         secs = now.tv_sec - start.tv_sec;
         nanosecs = now.tv_nsec - start.tv_nsec;

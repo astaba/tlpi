@@ -50,10 +50,10 @@ main(int argc, char *argv[])
             (long) getpid());
     if (mkfifo(clientFifo, S_IRUSR | S_IWUSR | S_IWGRP) == -1
                 && errno != EEXIST)
-        errExit("mkfifo %s", clientFifo);
+        systmErr("mkfifo %s", clientFifo);
 
     if (atexit(removeFifo) != 0)
-        errExit("atexit");
+        systmErr("atexit");
 
     /* Construct request message, open server FIFO, and send message */
 
@@ -62,21 +62,21 @@ main(int argc, char *argv[])
 
     serverFd = open(SERVER_FIFO, O_WRONLY);
     if (serverFd == -1)
-        errExit("open %s", SERVER_FIFO);
+        systmErr("open %s", SERVER_FIFO);
 
     if (write(serverFd, &req, sizeof(struct request)) !=
             sizeof(struct request))
-        fatal("Can't write to server");
+        custmErr("Can't write to server");
 
     /* Open our FIFO, read and display response */
 
     clientFd = open(clientFifo, O_RDONLY);
     if (clientFd == -1)
-        errExit("open %s", clientFifo);
+        systmErr("open %s", clientFifo);
 
     if (read(clientFd, &resp, sizeof(struct response))
             != sizeof(struct response))
-        fatal("Can't read response from server");
+        custmErr("Can't read response from server");
 
     printf("%d\n", resp.seqNum);
     exit(EXIT_SUCCESS);

@@ -62,7 +62,7 @@ main(int argc, char *argv[])
 
     sem = sem_open(argv[optind], flags, perms, value);
     if (sem == SEM_FAILED)
-        errExit("sem_open");
+        systmErr("sem_open");
 
     exit(EXIT_SUCCESS);
 }

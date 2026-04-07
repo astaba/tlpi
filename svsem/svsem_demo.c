@@ -35,11 +35,11 @@ main(int argc, char *argv[])
 
         semid = semget(IPC_PRIVATE, 1, S_IRUSR | S_IWUSR);
         if (semid == -1)
-            errExit("semid");
+            systmErr("semid");
 
         arg.val = getInt(argv[1], 0, "init-value");
         if (semctl(semid, /* semnum= */ 0, SETVAL, arg) == -1)
-            errExit("semctl");
+            systmErr("semctl");
 
         printf("Semaphore ID = %d\n", semid);
 
@@ -56,7 +56,7 @@ main(int argc, char *argv[])
 
         printf("%ld: about to semop at  %s\n", (long) getpid(), currTime("%T"));
         if (semop(semid, &sop, 1) == -1)
-            errExit("semop");
+            systmErr("semop");
 
         printf("%ld: semop completed at %s\n", (long) getpid(), currTime("%T"));
     }

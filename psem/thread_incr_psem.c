@@ -32,14 +32,14 @@ threadFunc(void *arg)
 
     for (j = 0; j < loops; j++) {
         if (sem_wait(&sem) == -1)
-            errExit("sem_wait");
+            systmErr("sem_wait");
 
         loc = glob;
         loc++;
         glob = loc;
 
         if (sem_post(&sem) == -1)
-            errExit("sem_post");
+            systmErr("sem_post");
     }
 
     return NULL;
@@ -56,25 +56,25 @@ main(int argc, char *argv[])
     /* Initialize a semaphore with the value 1 */
 
     if (sem_init(&sem, 0, 1) == -1)
-        errExit("sem_init");
+        systmErr("sem_init");
 
     /* Create two threads that increment 'glob' */
 
     s = pthread_create(&t1, NULL, threadFunc, &loops);
     if (s != 0)
-        errExitEN(s, "pthread_create");
+        nmsetErr(s, "pthread_create");
     s = pthread_create(&t2, NULL, threadFunc, &loops);
     if (s != 0)
-        errExitEN(s, "pthread_create");
+        nmsetErr(s, "pthread_create");
 
     /* Wait for threads to terminate */
 
     s = pthread_join(t1, NULL);
     if (s != 0)
-        errExitEN(s, "pthread_join");
+        nmsetErr(s, "pthread_join");
     s = pthread_join(t2, NULL);
     if (s != 0)
-        errExitEN(s, "pthread_join");
+        nmsetErr(s, "pthread_join");
 
     printf("glob = %d\n", glob);
     exit(EXIT_SUCCESS);

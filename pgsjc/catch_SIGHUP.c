@@ -40,15 +40,15 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sa.sa_handler = handler;
     if (sigaction(SIGHUP, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     childPid = fork();
     if (childPid == -1)
-        errExit("fork");
+        systmErr("fork");
 
     if (childPid == 0 && argc > 1)
         if (setpgid(0, 0) == -1)        /* Move to new process group */
-            errExit("setpgid");
+            systmErr("setpgid");
 
     printf("PID=%ld; PPID=%ld; PGID=%ld; SID=%ld\n", (long) getpid(),
             (long) getppid(), (long) getpgrp(), (long) getsid(0));

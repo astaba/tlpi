@@ -74,24 +74,24 @@ main(int argc, char *argv[])
                 break;
 
             if (ngroups >= NGROUPS_MAX)
-                fatal("-G: too many groups");
+                custmErr("-G: too many groups");
 
             gidList[ngroups] = atoi(p);
             ngroups++;
         }
 
         if (setgroups(ngroups, gidList) == -1)
-            errExit("setgroups");
+            systmErr("setgroups");
     }
 
     if (newgid != (uid_t) -1) {
         if (setresgid(newgid, newgid, newgid) == -1)
-            errExit("setresuid");
+            systmErr("setresuid");
     }
 
     if (newuid != (uid_t) -1) {
         if (setresuid(newuid, newuid, newuid) == -1)
-            errExit("setresuid");
+            systmErr("setresuid");
     }
 
     /* The '-v' option allows us to verify the capabilities of the process,
@@ -103,7 +103,7 @@ main(int argc, char *argv[])
     /* Execute the command specified in the remaining arguments */
 
     execvp(argv[optind], &argv[optind]);
-    errExit("execvp");
+    systmErr("execvp");
 
     exit(EXIT_SUCCESS);
 }

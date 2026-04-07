@@ -25,20 +25,20 @@ int
 main(int argc, char *argv[])
 {
     if (mkdir("test", S_IRUSR | S_IWUSR | S_IXUSR) == -1)
-        errExit("mkdir");
+        systmErr("mkdir");
     if (chdir("test") == -1)
-        errExit("chdir");
+        systmErr("chdir");
 
     int fd = open("myfile", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
     if (close(fd) == -1)
-        errExit("close");
+        systmErr("close");
 
     if (symlink("myfile", "../mylink") == -1)
-        errExit("symlink");
+        systmErr("symlink");
     if (chmod("../mylink", S_IRUSR) == -1)
-        errExit("chmod");
+        systmErr("chmod");
 
     exit(EXIT_SUCCESS);
 }

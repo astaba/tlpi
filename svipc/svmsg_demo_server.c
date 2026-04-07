@@ -38,7 +38,7 @@ main(int argc, char *argv[])
 
     key = ftok(KEY_FILE, 1);
     if (key == -1)
-        errExit("ftok");
+        systmErr("ftok");
 
     /* While msgget() fails, try creating the queue exclusively */
 
@@ -48,13 +48,13 @@ main(int argc, char *argv[])
                                            exists - remove it and try again */
             msqid = msgget(key, 0);
             if (msqid == -1)
-                errExit("msgget() failed to retrieve old queue ID");
+                systmErr("msgget() failed to retrieve old queue ID");
             if (msgctl(msqid, IPC_RMID, NULL) == -1)
-                errExit("msgctl() failed to delete old queue");
+                systmErr("msgctl() failed to delete old queue");
             printf("Removed old message queue (id=%d)\n", msqid);
 
         } else {                        /* Some other error --> give up */
-            errExit("msgget() failed");
+            systmErr("msgget() failed");
         }
     }
 

@@ -41,17 +41,17 @@ main(int argc, char *argv[])
 
     s = pthread_create(&thr, NULL, threadFunc, NULL);
     if (s != 0)
-        errExitEN(s, "pthread_create");
+        nmsetErr(s, "pthread_create");
 
     sleep(3);                           /* Allow new thread to run a while */
 
     s = pthread_cancel(thr);
     if (s != 0)
-        errExitEN(s, "pthread_cancel");
+        nmsetErr(s, "pthread_cancel");
 
     s = pthread_join(thr, &res);
     if (s != 0)
-        errExitEN(s, "pthread_join");
+        nmsetErr(s, "pthread_join");
 
     if (res == PTHREAD_CANCELED)
         printf("Thread was canceled\n");

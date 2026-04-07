@@ -51,37 +51,37 @@ main(int argc, char *argv[])
 
     mqd = mq_open(argv[1], O_RDONLY | O_NONBLOCK);
     if (mqd == (mqd_t) -1)
-        errExit("mq_open");
+        systmErr("mq_open");
 
     /* Determine mq_msgsize for message queue, and allocate an input buffer
        of that size */
 
     if (mq_getattr(mqd, &attr) == -1)
-        errExit("mq_getattr");
+        systmErr("mq_getattr");
 
     buffer = malloc(attr.mq_msgsize);
     if (buffer == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     /* Block the notification signal and establish a handler for it */
 
     sigemptyset(&blockMask);
     sigaddset(&blockMask, NOTIFY_SIG);
     if (sigprocmask(SIG_BLOCK, &blockMask, NULL) == -1)
-        errExit("sigprocmask");
+        systmErr("sigprocmask");
 
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
     sa.sa_handler = handler;
     if (sigaction(NOTIFY_SIG, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* Register for message notification via a signal */
 
     sev.sigev_notify = SIGEV_SIGNAL;
     sev.sigev_signo = NOTIFY_SIG;
     if (mq_notify(mqd, &sev) == -1)
-        errExit("mq_notify");
+        systmErr("mq_notify");
 
     sigemptyset(&emptyMask);
 
@@ -91,12 +91,12 @@ main(int argc, char *argv[])
         /* Reregister for message notification */
 
         if (mq_notify(mqd, &sev) == -1)
-            errExit("mq_notify");
+            systmErr("mq_notify");
 
         while ((numRead = mq_receive(mqd, buffer, attr.mq_msgsize, NULL)) >= 0)
             printf("Read %ld bytes\n", (long) numRead);
 
         if (errno != EAGAIN)            /* Unexpected error */
-            errExit("mq_receive");
+            systmErr("mq_receive");
     }
 }

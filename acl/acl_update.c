@@ -220,41 +220,41 @@ findEntry(acl_t acl, acl_tag_t tag, id_t qaul)
     for (int ent = ACL_FIRST_ENTRY; ; ent = ACL_NEXT_ENTRY) {
         int s = acl_get_entry(acl, ent, &entry);
         if (s == -1)
-            errExit("acl_get_entry");
+            systmErr("acl_get_entry");
 
         if (s == 0)
             return NULL;
 
         if (acl_get_tag_type(entry, &entryTag) == -1)
-            errExit("acl_get_tag_type");
+            systmErr("acl_get_tag_type");
 
         if (tag == entryTag) {
             if (tag == ACL_USER) {
                 uid_t *uidp = acl_get_qualifier(entry);
                 if (uidp == NULL)
-                    errExit("acl_get_qualifier");
+                    systmErr("acl_get_qualifier");
 
                 if (qaul == *uidp) {
                     if (acl_free(uidp) == -1)
-                        errExit("acl_free");
+                        systmErr("acl_free");
                     return entry;
                 } else {
                     if (acl_free(uidp) == -1)
-                        errExit("acl_free");
+                        systmErr("acl_free");
                 }
 
             } else if (tag == ACL_GROUP) {
                 gid_t *gidp = acl_get_qualifier(entry);
                 if (gidp == NULL)
-                    errExit("acl_get_qualifier");
+                    systmErr("acl_get_qualifier");
 
                 if (qaul == *gidp) {
                     if (acl_free(gidp) == -1)
-                        errExit("acl_free");
+                        systmErr("acl_free");
                     return entry;
                 } else {
                     if (acl_free(gidp) == -1)
-                        errExit("acl_free");
+                        systmErr("acl_free");
                 }
 
             } else {
@@ -272,23 +272,23 @@ setPerms(acl_entry_t entry, int perms)
     acl_permset_t permset;
 
     if (acl_get_permset(entry, &permset) == -1)
-        errExit("acl_get_permset");
+        systmErr("acl_get_permset");
 
     if (acl_clear_perms(permset) == -1)
-        errExit("acl_clear_perms");
+        systmErr("acl_clear_perms");
 
     if (perms & ACL_READ)
         if (acl_add_perm(permset, ACL_READ) == -1)
-            errExit("acl_add_perm");
+            systmErr("acl_add_perm");
     if (perms & ACL_WRITE)
         if (acl_add_perm(permset, ACL_WRITE) == -1)
-            errExit("acl_add_perm");
+            systmErr("acl_add_perm");
     if (perms & ACL_EXECUTE)
         if (acl_add_perm(permset, ACL_EXECUTE) == -1)
-            errExit("acl_add_perm");
+            systmErr("acl_add_perm");
 
     if (acl_set_permset(entry, permset) == -1)
-        errExit("acl_set_permset");
+        systmErr("acl_set_permset");
 }
 
 /* Modify or remove entries in the default or in the access ACL of 'file. */
@@ -302,7 +302,7 @@ updateACL(char *file, bool useDefaultACL,
 
     acl_t acl = acl_get_file(file, type);
     if (acl == NULL)
-        errExit("acl_get_file");
+        systmErr("acl_get_file");
 
     /* Apply each of the entries in 'aclist' to the current file */
 
@@ -312,7 +312,7 @@ updateACL(char *file, bool useDefaultACL,
         if (operation == removeEntries) {
             if (entry != NULL)
                 if (acl_delete_entry(acl, entry) == -1)
-                    errExit("acl_delete_entry");
+                    systmErr("acl_delete_entry");
 
         } else {        /* modifyEntries */
 
@@ -322,12 +322,12 @@ updateACL(char *file, bool useDefaultACL,
                    entry with required tag and qualifier */
 
                 if (acl_create_entry(&acl, &entry) == -1)
-                    errExit("acl_create_entry");
+                    systmErr("acl_create_entry");
                 if (acl_set_tag_type(entry, aclist[en].tag) == -1)
-                    errExit("acl_set_tag_type");
+                    systmErr("acl_set_tag_type");
                 if (aclist[en].tag == ACL_USER || aclist[en].tag == ACL_GROUP)
                     if (acl_set_qualifier(entry, &aclist[en].qual) == -1)
-                        errExit("acl_set_qualifier");
+                        systmErr("acl_set_qualifier");
             }
 
             setPerms(entry, aclist[en].perms);
@@ -337,19 +337,19 @@ updateACL(char *file, bool useDefaultACL,
 
         if (recalcMask)
             if (acl_calc_mask(&acl) == -1)
-                errExit("acl_calc_mask");
+                systmErr("acl_calc_mask");
 
         /* Update the file ACL */
 
         if (acl_valid(acl) == -1)
-            errExit("acl_valid");
+            systmErr("acl_valid");
 
         if (acl_set_file(file, type, acl) == -1)
-            errExit("acl_set_file");
+            systmErr("acl_set_file");
     }
 
     if (acl_free(acl) == -1)
-        errExit("acl_free");
+        systmErr("acl_free");
 }
 
 int
@@ -416,7 +416,7 @@ main(int argc, char *argv[])
 
     if (operation == checkValidACL) {
         if (parseACL(aclSpec, aclist, true) == -1) {
-            fatal("Bad ACL entry specification");
+            custmErr("Bad ACL entry specification");
         } else {
             printf("ACL is valid\n");
             exit(EXIT_SUCCESS);
@@ -435,14 +435,14 @@ main(int argc, char *argv[])
     for (int j = optind; j < argc; j++) {
         if (operation == removeDefaultACL) {
             if (acl_delete_def_file(argv[j]) == -1)
-                errExit("acl_delete_def_file: %s", argv[j]);
+                systmErr("acl_delete_def_file: %s", argv[j]);
 
         } else if (operation == modifyEntries || operation == removeEntries) {
             updateACL(argv[j], useDefaultACL, numEntries, aclist,
                       operation, recalcMask);
 
         } else {
-            fatal("Bad logic!");
+            custmErr("Bad logic!");
         }
     }
 

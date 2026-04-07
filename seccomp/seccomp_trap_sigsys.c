@@ -71,7 +71,7 @@ install_filter(void)
     };
 
     if (seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog) == -1)
-        errExit("seccomp");
+        systmErr("seccomp");
 }
 
 static void             /* Handler for SIGINT signal */
@@ -86,7 +86,7 @@ main(int argc, char *argv[])
     /* Set up seccomp filter */
 
     if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0))
-        errExit("prctl");
+        systmErr("prctl");
 
     install_filter();
 
@@ -97,7 +97,7 @@ main(int argc, char *argv[])
     sa.sa_handler = sigHandler;
     sigemptyset(&sa.sa_mask);
     if (sigaction(SIGSYS, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     printf("About to call getppid()\n");
 

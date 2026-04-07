@@ -33,7 +33,7 @@ main(int argc, char *argv[])
     if (argc == 1) {                                    /* Disable */
         intrChar = fpathconf(STDIN_FILENO, _PC_VDISABLE);
         if (intrChar == -1)
-            errExit("Couldn't determine VDISABLE");
+            systmErr("Couldn't determine VDISABLE");
     } else if (isdigit((unsigned char) argv[1][0])) {
         intrChar = strtoul(argv[1], NULL, 0);           /* Allows hex, octal */
     } else {                                            /* Literal character */
@@ -44,10 +44,10 @@ main(int argc, char *argv[])
        push changes back to the terminal driver */
 
     if (tcgetattr(STDIN_FILENO, &tp) == -1)
-        errExit("tcgetattr");
+        systmErr("tcgetattr");
     tp.c_cc[VINTR] = intrChar;
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &tp) == -1)
-        errExit("tcsetattr");
+        systmErr("tcsetattr");
 
     exit(EXIT_SUCCESS);
 }

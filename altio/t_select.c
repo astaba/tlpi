@@ -83,7 +83,7 @@ main(int argc, char *argv[])
     ready = select(nfds, &readfds, &writefds, NULL, pto);
                                         /* Ignore exceptional events */
     if (ready == -1)
-        errExit("select");
+        systmErr("select");
 
     /* Display results of select() */
 

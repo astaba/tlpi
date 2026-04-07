@@ -28,7 +28,7 @@ main(int argc, char *argv[])
         _exit(EXIT_SUCCESS);
 
     if (setsid() == -1)
-        errExit("setsid");
+        systmErr("setsid");
 
     printf("PID=%ld, PGID=%ld, SID=%ld\n", (long) getpid(),
             (long) getpgrp(), (long) getsid(0));
@@ -36,6 +36,6 @@ main(int argc, char *argv[])
     /* Following should fail, since we don't have a controlling terminal */
 
     if (open("/dev/tty", O_RDWR) == -1)
-        errExit("open /dev/tty");
+        systmErr("open /dev/tty");
     exit(EXIT_SUCCESS);
 }

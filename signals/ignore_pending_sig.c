@@ -50,7 +50,7 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sa.sa_handler = handler;
     if (sigaction(SIGINT, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* Block SIGINT for a while */
 
@@ -58,7 +58,7 @@ main(int argc, char *argv[])
     sigemptyset(&blocked);
     sigaddset(&blocked, SIGINT);
     if (sigprocmask(SIG_SETMASK, &blocked, NULL) == -1)
-        errExit("sigprocmask");
+        systmErr("sigprocmask");
 
     printf("BLOCKING SIGINT for %d seconds\n", numSecs);
     sleep(numSecs);
@@ -67,7 +67,7 @@ main(int argc, char *argv[])
 
     sigset_t pending;
     if (sigpending(&pending) == -1)
-        errExit("sigpending");
+        systmErr("sigpending");
     printf("PENDING signals are: \n");
     printSigset(stdout, "\t\t", &pending);
 
@@ -75,12 +75,12 @@ main(int argc, char *argv[])
 
     sleep(2);
     printf("Ignoring SIGINT\n");
-    if (signal(SIGINT, SIG_IGN) == SIG_ERR)     errExit("signal");
+    if (signal(SIGINT, SIG_IGN) == SIG_ERR)     systmErr("signal");
 
     /* Redisplay mask of pending signals */
 
     if (sigpending(&pending) == -1)
-        errExit("sigpending");
+        systmErr("sigpending");
     if (sigismember(&pending, SIGINT)) {
         printf("SIGINT is now pending\n");
     } else {
@@ -96,7 +96,7 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sa.sa_handler = handler;
     if (sigaction(SIGINT, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     sleep(2);
 
@@ -105,7 +105,7 @@ main(int argc, char *argv[])
     printf("UNBLOCKING SIGINT\n");
     sigemptyset(&blocked);
     if (sigprocmask(SIG_SETMASK, &blocked, NULL) == -1)
-        errExit("sigprocmask");
+        systmErr("sigprocmask");
 
     exit(EXIT_SUCCESS);
 }

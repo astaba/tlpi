@@ -60,7 +60,7 @@
 #include <string.h>
 #include <errno.h>
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 /* logMessage() flags */
@@ -295,7 +295,7 @@ findEmptyCacheSlot(void)
 
     wlCache = realloc(wlCache, cacheSize * sizeof(struct watch));
     if (wlCache == NULL)
-        errExit("realloc");
+        systmErr("realloc");
 
     for (int j = cacheSize - ALLOC_INCR; j < cacheSize; j++)
         markCacheSlotEmpty(j);
@@ -401,16 +401,16 @@ copyRootDirPaths(char *argv[])
 
     rootDirPaths = calloc(numRootDirs, sizeof(char *));
     if (rootDirPaths == NULL)
-        errExit("calloc");
+        systmErr("calloc");
 
     rootDirStat = calloc(numRootDirs, sizeof(struct stat));
     if (rootDirPaths == NULL)
-        errExit("calloc");
+        systmErr("calloc");
 
     for (int j = 0; j < numRootDirs; j++) {
         rootDirPaths[j] = strdup(argv[j]);
         if (rootDirPaths[j] == NULL)
-            errExit("strdup");
+            systmErr("strdup");
 
         /* If the same filesystem object appears more than once in the command
            line, this will cause confusion if we later try to zap an object
@@ -421,7 +421,7 @@ copyRootDirPaths(char *argv[])
            i-node numbers and containing device IDs. */
 
         if (lstat(argv[j], &rootDirStat[j]) == -1)
-            errExit("lstat");
+            systmErr("lstat");
 
         for (int k = 0; k < j; k++) {
             if ((rootDirStat[j].st_ino == rootDirStat[k].st_ino) &&
@@ -700,7 +700,7 @@ reinitialize(int oldInotifyFd)
 
     int inotifyFd = inotify_init();
     if (inotifyFd == -1)
-        errExit("inotify_init");
+        systmErr("inotify_init");
 
     logMessage(VB_BASIC, "    new inotifyFd = %d\n", inotifyFd);
 
@@ -1046,7 +1046,7 @@ processInotifyEvents(int *inotifyFd)
     sa.sa_handler = alarmHandler;
     sa.sa_flags = 0;
     if (sigaction(SIGALRM, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     int firstTry = 1;
 
@@ -1055,7 +1055,7 @@ processInotifyEvents(int *inotifyFd)
     size_t cnt = (readBufferSize > 0) ? readBufferSize : INOTIFY_READ_BUF_LEN;
     ssize_t numRead = read(*inotifyFd, buf, cnt);
     if (numRead == -1)
-        errExit("read");
+        systmErr("read");
     if (numRead == 0) {
         fprintf(stderr, "read() from inotify fd returned 0!");
         exit(EXIT_FAILURE);
@@ -1118,7 +1118,7 @@ processInotifyEvents(int *inotifyFd)
             errno = savedErrno;
 
             if (nr == -1 && errno != EINTR)
-                errExit("read");
+                systmErr("read");
             if (nr == 0) {
                 fprintf(stderr, "read() from inotify fd returned 0!");
                 exit(EXIT_FAILURE);
@@ -1368,7 +1368,7 @@ main(int argc, char *argv[])
         case 'l':
             logfp = fopen(optarg, "w+");
             if (logfp == NULL)
-                errExit("fopen");
+                systmErr("fopen");
             setbuf(logfp, NULL);
             break;
 
@@ -1400,7 +1400,7 @@ main(int argc, char *argv[])
         FD_SET(STDIN_FILENO, &rfds);
         FD_SET(inotifyFd, &rfds);
         if (select(inotifyFd + 1, &rfds, NULL, NULL, NULL) == -1)
-            errExit("select");
+            systmErr("select");
 
         if (FD_ISSET(STDIN_FILENO, &rfds)) {
             executeCommand(&inotifyFd);

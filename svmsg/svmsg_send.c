@@ -77,7 +77,7 @@ main(int argc, char *argv[])
     /* Send message */
 
     if (msgsnd(msqid, &msg, msgLen, flags) == -1)
-        errExit("msgsnd");
+        systmErr("msgsnd");
 
     exit(EXIT_SUCCESS);
 }

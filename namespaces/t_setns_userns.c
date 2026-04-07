@@ -24,7 +24,7 @@
 #include <sys/capability.h>
 #include "userns_functions.h"
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 int
@@ -40,10 +40,10 @@ main(int argc, char *argv[])
 
     int fd = open(argv[1], O_RDONLY); /* Get descriptor for namespace */
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     if (setns(fd, CLONE_NEWUSER) == -1)  /* Join that namespace */
-        errExit("setns-1");
+        systmErr("setns-1");
 
     display_creds_and_caps("After setns():\n");
     exit(EXIT_SUCCESS);

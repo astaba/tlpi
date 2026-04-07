@@ -46,7 +46,7 @@ createKey(void)
 
     s = pthread_key_create(&strerrorKey, destructor);
     if (s != 0)
-        errExitEN(s, "pthread_key_create");
+        nmsetErr(s, "pthread_key_create");
 }
 
 char *
@@ -59,18 +59,18 @@ strerror(int err)
 
     s = pthread_once(&once, createKey);
     if (s != 0)
-        errExitEN(s, "pthread_once");
+        nmsetErr(s, "pthread_once");
 
     buf = pthread_getspecific(strerrorKey);
     if (buf == NULL) {          /* If first call from this thread, allocate
                                    buffer for thread, and save its location */
         buf = malloc(MAX_ERROR_LEN);
         if (buf == NULL)
-            errExit("malloc");
+            systmErr("malloc");
 
         s = pthread_setspecific(strerrorKey, buf);
         if (s != 0)
-            errExitEN(s, "pthread_setspecific");
+            nmsetErr(s, "pthread_setspecific");
     }
 
     if (err < 0 || err >= _sys_nerr || _sys_errlist[err] == NULL) {

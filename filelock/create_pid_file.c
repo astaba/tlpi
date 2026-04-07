@@ -41,7 +41,7 @@ createPidFile(const char *progName, const char *pidFile, int flags)
 
     fd = open(pidFile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
     if (fd == -1)
-        errExit("Could not open PID file %s", pidFile);
+        systmErr("Could not open PID file %s", pidFile);
 
     if (flags & CPF_CLOEXEC) {
 
@@ -54,28 +54,28 @@ createPidFile(const char *progName, const char *pidFile, int flags)
 
         flags = fcntl(fd, F_GETFD);                     /* Fetch flags */
         if (flags == -1)
-            errExit("Could not get flags for PID file %s", pidFile);
+            systmErr("Could not get flags for PID file %s", pidFile);
 
         flags |= FD_CLOEXEC;                            /* Turn on FD_CLOEXEC */
 
         if (fcntl(fd, F_SETFD, flags) == -1)            /* Update flags */
-            errExit("Could not set flags for PID file %s", pidFile);
+            systmErr("Could not set flags for PID file %s", pidFile);
     }
 
     if (lockRegion(fd, F_WRLCK, SEEK_SET, 0, 0) == -1) {
         if (errno  == EAGAIN || errno == EACCES)
-            fatal("PID file '%s' is locked; probably "
+            custmErr("PID file '%s' is locked; probably "
                      "'%s' is already running", pidFile, progName);
         else
-            errExit("Unable to lock PID file '%s'", pidFile);
+            systmErr("Unable to lock PID file '%s'", pidFile);
     }
 
     if (ftruncate(fd, 0) == -1)
-        errExit("Could not truncate PID file '%s'", pidFile);
+        systmErr("Could not truncate PID file '%s'", pidFile);
 
     snprintf(buf, BUF_SIZE, "%ld\n", (long) getpid());
     if (write(fd, buf, strlen(buf)) != (ssize_t) strlen(buf))
-        fatal("Writing to PID file '%s'", pidFile);
+        custmErr("Writing to PID file '%s'", pidFile);
 
     return fd;
 }

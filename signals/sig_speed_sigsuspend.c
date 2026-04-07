@@ -54,7 +54,7 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sa.sa_handler = handler;
     if (sigaction(TESTSIG, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* Block the signal before fork(), so that the child doesn't manage
        to send it to the parent before the parent is ready to catch it */
@@ -63,29 +63,29 @@ main(int argc, char *argv[])
     sigemptyset(&blockedMask);
     sigaddset(&blockedMask, TESTSIG);
     if (sigprocmask(SIG_SETMASK, &blockedMask, NULL) == -1)
-        errExit("sigprocmask");
+        systmErr("sigprocmask");
 
     sigemptyset(&emptyMask);
 
     pid_t childPid = fork();
     switch (childPid) {
-    case -1: errExit("fork");
+    case -1: systmErr("fork");
 
     case 0:     /* child */
         for (int scnt = 0; scnt < numSigs; scnt++) {
             if (kill(getppid(), TESTSIG) == -1)
-                errExit("kill");
+                systmErr("kill");
             if (sigsuspend(&emptyMask) == -1 && errno != EINTR)
-                    errExit("sigsuspend");
+                    systmErr("sigsuspend");
         }
         exit(EXIT_SUCCESS);
 
     default: /* parent */
         for (int scnt = 0; scnt < numSigs; scnt++) {
             if (sigsuspend(&emptyMask) == -1 && errno != EINTR)
-                    errExit("sigsuspend");
+                    systmErr("sigsuspend");
             if (kill(childPid, TESTSIG) == -1)
-                errExit("kill");
+                systmErr("kill");
         }
         exit(EXIT_SUCCESS);
     }

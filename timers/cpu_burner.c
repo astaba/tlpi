@@ -33,16 +33,16 @@ main(int argc, char *argv[])
 
     struct timespec prev_real;
     if (clock_gettime(CLOCK_REALTIME, &prev_real) == -1)
-        errExit("clock_gettime");
+        systmErr("clock_gettime");
     if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &prev_cpu) == -1)
-        errExit("clock_gettime");
+        systmErr("clock_gettime");
 
     /* Loop consuming CPU time. */
 
     int cnt = 0;
     while (1) {
         if (clock_gettime(CLOCK_REALTIME, &curr_real) == -1)
-            errExit("clock_gettime");
+            systmErr("clock_gettime");
 
         long elapsed_real_nsec = timespecDiff(prev_real, curr_real);
 
@@ -53,7 +53,7 @@ main(int argc, char *argv[])
         if (elapsed_real_nsec >= NANO) {
             struct timespec curr_cpu;
             if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &curr_cpu) == -1)
-                errExit("clock_gettime");
+                systmErr("clock_gettime");
 
             long elapsed_cpu_nsec = timespecDiff(prev_cpu, curr_cpu);
 

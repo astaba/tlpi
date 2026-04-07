@@ -23,7 +23,7 @@ main(int argc, char *argv[])
     write(STDOUT_FILENO, "Ciao\n", 5);
 
     if (fork() == -1)
-        errExit("fork");
+        systmErr("fork");
 
     /* Both child and parent continue execution here */
 

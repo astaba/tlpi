@@ -38,7 +38,7 @@ useCPU(char *msg)
     for (;;) {
         struct tms tms;
         if (times(&tms) == -1)
-            errExit("times");
+            systmErr("times");
         int cpuCentisecs = (tms.tms_utime + tms.tms_stime) * 100 /
                            sysconf(_SC_CLK_TCK);
 
@@ -71,7 +71,7 @@ main(int argc, char *argv[])
     CPU_SET(1, &set);
 
     if (sched_setaffinity(getpid(), sizeof(set), &set) == -1)
-        errExit("sched_setaffinity");
+        systmErr("sched_setaffinity");
 
     /* Establish a CPU time limit. This demonstrates how we can
        ensure that a runaway realtime process is terminated if we
@@ -84,21 +84,21 @@ main(int argc, char *argv[])
     struct rlimit rlim;
     rlim.rlim_cur = rlim.rlim_max = 50;
     if (setrlimit(RLIMIT_CPU, &rlim) == -1)
-        errExit("setrlimit");
+        systmErr("setrlimit");
 
     /* Run the two processes in the lowest SCHED_FIFO priority */
 
     struct sched_param sp;
     sp.sched_priority = sched_get_priority_min(SCHED_FIFO);
     if (sp.sched_priority == -1)
-        errExit("sched_get_priority_min");
+        systmErr("sched_get_priority_min");
 
     if (sched_setscheduler(0, SCHED_FIFO, &sp) == -1)
-        errExit("sched_setscheduler");
+        systmErr("sched_setscheduler");
 
     switch (fork()) {
     case -1:
-        errExit("fork");
+        systmErr("fork");
 
     case 0:
         useCPU("child ");

@@ -45,7 +45,7 @@ main(int argc, char *argv[])
     hints.ai_flags = AI_NUMERICSERV;
 
     if (getaddrinfo(argv[1], PORT_NUM, &hints, &result) != 0)
-        errExit("getaddrinfo");
+        systmErr("getaddrinfo");
 
     /* Walk through returned list until we find an address structure
        that can be used to successfully connect a socket */
@@ -65,7 +65,7 @@ main(int argc, char *argv[])
     }
 
     if (rp == NULL)
-        fatal("Could not connect socket to any address");
+        custmErr("Could not connect socket to any address");
 
     freeaddrinfo(result);
 
@@ -74,17 +74,17 @@ main(int argc, char *argv[])
     reqLenStr = (argc > 2) ? argv[2] : "1";
     if (write(cfd, reqLenStr, strlen(reqLenStr)) !=
             (ssize_t) strlen(reqLenStr))
-        fatal("Partial/failed write (reqLenStr)");
+        custmErr("Partial/failed write (reqLenStr)");
     if (write(cfd, "\n", 1) != 1)
-        fatal("Partial/failed write (newline)");
+        custmErr("Partial/failed write (newline)");
 
     /* Read and display sequence number returned by server */
 
     numRead = readLine(cfd, seqNumStr, INT_LEN);
     if (numRead == -1)
-        errExit("readLine");
+        systmErr("readLine");
     if (numRead == 0)
-        fatal("Unexpected EOF from server");
+        custmErr("Unexpected EOF from server");
 
     printf("Sequence number: %s", seqNumStr);   /* Includes '\n' */
 

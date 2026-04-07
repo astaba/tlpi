@@ -160,7 +160,7 @@ main(int argc, char *argv[])
         usageError(argv[0], "Wrong number of arguments\n");
 
     if (mount(argv[optind], argv[optind + 1], fstype, flags, data) == -1)
-        errExit("mount");
+        systmErr("mount");
 
     exit(EXIT_SUCCESS);
 }

@@ -32,13 +32,13 @@ main(int argc, char *argv[])
 
     fd = open(argv[1], O_RDONLY);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     /* Obtain the size of the file and use it to specify the size of
        the mapping and the size of the buffer to be written */
 
     if (fstat(fd, &sb) == -1)
-        errExit("fstat");
+        systmErr("fstat");
 
     /* Handle zero-length file specially, since specifying a size of
        zero to mmap() will fail with the error EINVAL */
@@ -48,9 +48,9 @@ main(int argc, char *argv[])
 
     addr = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (addr == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     if (write(STDOUT_FILENO, addr, sb.st_size) != sb.st_size)
-        fatal("partial/failed write");
+        custmErr("partial/failed write");
     exit(EXIT_SUCCESS);
 }

@@ -46,19 +46,19 @@ displayTimes(const char *msg, Boolean includeTimer)
 
     if (callNum == 0)                   /* Initialize elapsed time meter */
         if (gettimeofday(&start, NULL) == -1)
-            errExit("gettimeofday");
+            systmErr("gettimeofday");
 
     if (callNum % 20 == 0)              /* Print header every 20 lines */
         printf("       Elapsed   Value Interval\n");
 
     if (gettimeofday(&curr, NULL) == -1)
-        errExit("gettimeofday");
+        systmErr("gettimeofday");
     printf("%-7s %6.2f", msg, curr.tv_sec - start.tv_sec +
                         (curr.tv_usec - start.tv_usec) / 1000000.0);
 
     if (includeTimer) {
         if (getitimer(ITIMER_REAL, &itv) == -1)
-            errExit("getitimer");
+            systmErr("getitimer");
         printf("  %6.2f  %6.2f",
                 itv.it_value.tv_sec + itv.it_value.tv_usec / 1000000.0,
                 itv.it_interval.tv_sec + itv.it_interval.tv_usec / 1000000.0);
@@ -90,7 +90,7 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sa.sa_handler = sigalrmHandler;
     if (sigaction(SIGALRM, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* Set timer from the command-line arguments */
 
@@ -106,7 +106,7 @@ main(int argc, char *argv[])
 
     displayTimes("START:", FALSE);
     if (setitimer(ITIMER_REAL, &itv, NULL) == -1)
-        errExit("setitimer");
+        systmErr("setitimer");
 
     prevClock = clock();
     sigCnt = 0;

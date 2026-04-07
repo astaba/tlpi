@@ -31,7 +31,7 @@ tstpHandler(int sig)
     printf("Caught SIGTSTP\n");         /* UNSAFE (see Section 21.1.2) */
 
     if (signal(SIGTSTP, SIG_DFL) == SIG_ERR)
-        errExit("signal");              /* Set handling to default */
+        systmErr("signal");              /* Set handling to default */
 
     raise(SIGTSTP);                     /* Generate a further SIGTSTP */
 
@@ -40,18 +40,18 @@ tstpHandler(int sig)
     sigemptyset(&tstpMask);
     sigaddset(&tstpMask, SIGTSTP);
     if (sigprocmask(SIG_UNBLOCK, &tstpMask, &prevMask) == -1)
-        errExit("sigprocmask");
+        systmErr("sigprocmask");
 
     /* Execution resumes here after SIGCONT */
 
     if (sigprocmask(SIG_SETMASK, &prevMask, NULL) == -1)
-        errExit("sigprocmask");         /* Reblock SIGTSTP */
+        systmErr("sigprocmask");         /* Reblock SIGTSTP */
 
     sigemptyset(&sa.sa_mask);           /* Reestablish handler */
     sa.sa_flags = SA_RESTART;
     sa.sa_handler = tstpHandler;
     if (sigaction(SIGTSTP, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     printf("Exiting SIGTSTP handler\n");
     errno = savedErrno;
@@ -65,14 +65,14 @@ main(int argc, char *argv[])
     /* Only establish handler for SIGTSTP if it is not being ignored */
 
     if (sigaction(SIGTSTP, NULL, &sa) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     if (sa.sa_handler != SIG_IGN) {
         sigemptyset(&sa.sa_mask);
         sa.sa_flags = SA_RESTART;
         sa.sa_handler = tstpHandler;
         if (sigaction(SIGTSTP, &sa, NULL) == -1)
-            errExit("sigaction");
+            systmErr("sigaction");
     }
 
     for (;;) {                          /* Wait for signals */

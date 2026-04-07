@@ -33,37 +33,37 @@ main(int argc, char *argv[])
 
     listenFd = inetListen(argv[1], 5, &len);
     if (listenFd == -1)
-        errExit("inetListen");
+        systmErr("inetListen");
 
     connFd = inetConnect(NULL, argv[1], SOCK_STREAM);
     if (connFd == -1)
-        errExit("inetConnect");
+        systmErr("inetConnect");
 
     acceptFd = accept(listenFd, NULL, NULL);
     if (acceptFd == -1)
-        errExit("accept");
+        systmErr("accept");
 
     addr = malloc(len);
     if (addr == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     if (getsockname(connFd, addr, &len) == -1)
-        errExit("getsockname");
+        systmErr("getsockname");
     printf("getsockname(connFd):   %s\n",
             inetAddressStr(addr, len, addrStr, IS_ADDR_STR_LEN));
 
     if (getsockname(acceptFd, addr, &len) == -1)
-        errExit("getsockname");
+        systmErr("getsockname");
     printf("getsockname(acceptFd): %s\n",
             inetAddressStr(addr, len, addrStr, IS_ADDR_STR_LEN));
 
     if (getpeername(connFd, addr, &len) == -1)
-        errExit("getpeername");
+        systmErr("getpeername");
     printf("getpeername(connFd):   %s\n",
             inetAddressStr(addr, len, addrStr, IS_ADDR_STR_LEN));
 
     if (getpeername(acceptFd, addr, &len) == -1)
-        errExit("getpeername");
+        systmErr("getpeername");
     printf("getpeername(acceptFd): %s\n",
             inetAddressStr(addr, len, addrStr, IS_ADDR_STR_LEN));
 

@@ -78,7 +78,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 /* The following is a hack to allow for systems (pre-Linux 4.14) that don't
@@ -244,7 +244,7 @@ install_filter(void)
     };
 
     if (seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog) == -1)
-        errExit("seccomp");
+        systmErr("seccomp");
 }
 
 int
@@ -257,7 +257,7 @@ main(int argc, char *argv[])
 
     if (getenv(no_seccomp_filter_var) == NULL) {
         if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0))
-            errExit("prctl");
+            systmErr("prctl");
 
         printf("Initial execution; installing seccomp filter\n");
         install_filter();
@@ -303,7 +303,7 @@ main(int argc, char *argv[])
         printf("\n");
         printf("About to exec: %s\n", argv[1]);
         execv(argv[1], &argv[1]);
-        errExit("execvp");
+        systmErr("execvp");
     }
 
     exit(EXIT_SUCCESS);

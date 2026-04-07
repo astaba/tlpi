@@ -31,7 +31,7 @@ main(int argc, char *argv[])
 
     if (sig != 0) {
         if (s == -1)
-            errExit("kill");
+            systmErr("kill");
 
     } else {                    /* Null signal: process existence check */
         if (s == 0) {
@@ -43,7 +43,7 @@ main(int argc, char *argv[])
             else if (errno == ESRCH)
                 printf("Process does not exist\n");
             else
-                errExit("kill");
+                systmErr("kill");
         }
     }
 

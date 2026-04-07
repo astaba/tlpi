@@ -47,7 +47,7 @@ main(int argc, char *argv[])
 
     mqd_t mqd = mq_open(argv[1], O_RDONLY | O_NONBLOCK);
     if (mqd == (mqd_t) -1)
-        errExit("mq_open");
+        systmErr("mq_open");
 
     /* Establish handler for notification signal */
 
@@ -56,18 +56,18 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sa.sa_handler = handler;
     if (sigaction(NOTIFY_SIG, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* Determine mq_msgsize for message queue, and allocate an input buffer
        of that size */
 
     struct mq_attr attr;
     if (mq_getattr(mqd, &attr) == -1)
-        errExit("mq_getattr");
+        systmErr("mq_getattr");
 
     char *msg = malloc(attr.mq_msgsize);
     if (msg == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     /* Possibly, a message had already been queued by the time we enter
        the loop below. By initializing 'gotSig' to 1 above, we trigger the
@@ -84,7 +84,7 @@ main(int argc, char *argv[])
             sev.sigev_notify = SIGEV_SIGNAL;
             sev.sigev_signo = NOTIFY_SIG;
             if (mq_notify(mqd, &sev) == -1)
-                errExit("mq_notify");
+                systmErr("mq_notify");
 
             /* Drain all messages from the queue */
 
@@ -96,7 +96,7 @@ main(int argc, char *argv[])
                 printf("Read %zd bytes\n", numRead);
             }
             if (errno != EAGAIN)        /* Unexpected error */
-                errExit("mq_receive");
+                systmErr("mq_receive");
         }
 
         printf("j = %d\n", j);

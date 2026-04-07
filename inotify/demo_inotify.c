@@ -72,14 +72,14 @@ main(int argc, char *argv[])
 
     inotifyFd = inotify_init();                 /* Create inotify instance */
     if (inotifyFd == -1)
-        errExit("inotify_init");
+        systmErr("inotify_init");
 
     /* For each command-line argument, add a watch for all events */
 
     for (j = 1; j < argc; j++) {
         wd = inotify_add_watch(inotifyFd, argv[j], IN_ALL_EVENTS);
         if (wd == -1)
-            errExit("inotify_add_watch");
+            systmErr("inotify_add_watch");
 
         printf("Watching %s using wd %d\n", argv[j], wd);
     }
@@ -87,10 +87,10 @@ main(int argc, char *argv[])
     for (;;) {                                  /* Read events forever */
         numRead = read(inotifyFd, buf, BUF_LEN);
         if (numRead == 0)
-            fatal("read() from inotify fd returned 0!");
+            custmErr("read() from inotify fd returned 0!");
 
         if (numRead == -1)
-            errExit("read");
+            systmErr("read");
 
         printf("Read %ld bytes from inotify fd\n", (long) numRead);
 

@@ -33,7 +33,7 @@ main(int argc, char *argv[])
 
     switch (fork()) {
     case -1:
-        errExit("fork");
+        systmErr("fork");
 
     case 0:             /* Child */
         while ((ppid = getppid()) == ppidOrig) {   /* Loop until orphaned */

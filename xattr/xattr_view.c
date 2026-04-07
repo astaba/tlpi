@@ -52,7 +52,7 @@ main(int argc, char *argv[])
     for (j = optind; j < argc; j++) {
         listLen = listxattr(argv[j], list, XATTR_SIZE);
         if (listLen == -1)
-            errExit("listxattr");
+            systmErr("listxattr");
 
         printf("%s:\n", argv[j]);
 

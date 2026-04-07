@@ -33,13 +33,13 @@ main(int argc, char *argv[])
 
     struct stat sb;
     if (stat(pathname, &sb) == -1)    /* Retrieve current file times */
-        errExit("stat");
+        systmErr("stat");
 
     struct utimbuf utb;
     utb.actime = sb.st_atime;         /* Leave access time unchanged */
     utb.modtime = sb.st_atime;        /* Make modify time same as access time */
     if (utime(pathname, &utb) == -1)  /* Update file times */
-        errExit("utime");
+        systmErr("utime");
 
     exit(EXIT_SUCCESS);
 }

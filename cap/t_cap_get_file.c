@@ -20,7 +20,7 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 int
@@ -39,11 +39,11 @@ main(int argc, char *argv[])
         if (errno == ENODATA)
             printf("No capabilities are attached to this file\n");
         else
-            errExit("cap_get_file");
+            systmErr("cap_get_file");
     } else {
         char *str = cap_to_text(caps, NULL);
         if (str == NULL)
-            errExit("cap_to_text");
+            systmErr("cap_to_text");
 
         printf("Capabilities: %s\n", str);
 

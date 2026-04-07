@@ -32,7 +32,7 @@ threadFunc(void *arg)
     for (int j = 0; j < loops; j++) {
         s = pthread_rwlock_wrlock(&rwlock);
         if (s != 0)
-            errExitEN(s, "pthread_rwlock_wrlock");
+            nmsetErr(s, "pthread_rwlock_wrlock");
 
         loc = glob;
         loc++;
@@ -40,7 +40,7 @@ threadFunc(void *arg)
 
         s = pthread_rwlock_unlock(&rwlock);
         if (s != 0)
-            errExitEN(s, "pthread_rwlock_unlock");
+            nmsetErr(s, "pthread_rwlock_unlock");
     }
 
     return NULL;
@@ -53,22 +53,22 @@ main(int argc, char *argv[])
 
     int s = pthread_rwlock_init(&rwlock, NULL);
     if (s != 0)
-        errExitEN(s, "pthread_rwlock_init");
+        nmsetErr(s, "pthread_rwlock_init");
 
     pthread_t t1, t2;
     s = pthread_create(&t1, NULL, threadFunc, &loops);
     if (s != 0)
-        errExitEN(s, "pthread_create");
+        nmsetErr(s, "pthread_create");
     s = pthread_create(&t2, NULL, threadFunc, &loops);
     if (s != 0)
-        errExitEN(s, "pthread_create");
+        nmsetErr(s, "pthread_create");
 
     s = pthread_join(t1, NULL);
     if (s != 0)
-        errExitEN(s, "pthread_join");
+        nmsetErr(s, "pthread_join");
     s = pthread_join(t2, NULL);
     if (s != 0)
-        errExitEN(s, "pthread_join");
+        nmsetErr(s, "pthread_join");
 
     printf("glob = %d\n", glob);
     exit(EXIT_SUCCESS);

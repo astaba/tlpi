@@ -33,7 +33,7 @@ main(int argc, char *argv[])
             break;
 
         if (childPid == -1) {   /* Could not create another child? */
-            errMsg("fork");
+            systmWrn("fork");
             break;              /* If so, parent falls out of loop */
         }
 

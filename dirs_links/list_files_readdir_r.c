@@ -51,13 +51,13 @@ listFiles(const char *dirpath)
 
     entryp = malloc(offsetof(struct dirent, d_name) + nameMax + 1);
     if (entryp == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     /* Open the directory - on failure print an error and return */
 
     dirp = opendir(dirpath);
     if (dirp == NULL) {
-        errMsg("opendir failed on '%s'", dirpath);
+        systmWrn("opendir failed on '%s'", dirpath);
         free(entryp);
         return;
     }
@@ -67,7 +67,7 @@ listFiles(const char *dirpath)
     for (;;) {
         errno = readdir_r(dirp, entryp, &result);
         if (errno != 0)
-            errExit("readdir_r");
+            systmErr("readdir_r");
 
         if (result == NULL)     /* End of stream */
             break;
@@ -85,7 +85,7 @@ listFiles(const char *dirpath)
     }
 
     if (closedir(dirp) == -1)
-        errMsg("closedir");
+        systmWrn("closedir");
 }
 
 int

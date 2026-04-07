@@ -30,13 +30,13 @@ int main(int argc, char *argv[]) {
 
   fd = open64(argv[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
   if (fd == -1)
-    errExit("open64");
+    systmErr("open64");
 
   off = atoll(argv[2]);
   if (lseek64(fd, off, SEEK_SET) == -1)
-    errExit("lseek64");
+    systmErr("lseek64");
 
   if (write(fd, "test", 4) == -1)
-    errExit("write");
+    systmErr("write");
   exit(EXIT_SUCCESS);
 }

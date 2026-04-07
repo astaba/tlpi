@@ -81,7 +81,7 @@ main(int argc, char *argv[])
 
     int fd = open(argv[optind], O_RDONLY);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     /* The 'msg_name' field can be used to specify the address of the
        destination socket when sending a datagram. However, we do not need to
@@ -131,7 +131,7 @@ main(int argc, char *argv[])
     int sfd = unixConnect(SOCK_PATH,
                           useDatagramSocket ? SOCK_DGRAM : SOCK_STREAM);
     if (sfd == -1)
-        errExit("unixConnect");
+        systmErr("unixConnect");
 
     printf("Sending FD %d\n", fd);
 
@@ -139,7 +139,7 @@ main(int argc, char *argv[])
 
     ssize_t ns = sendmsg(sfd, &msgh, 0);
     if (ns == -1)
-        errExit("sendmsg");
+        systmErr("sendmsg");
 
     if (verbose)
         printf("sendmsg() returned %zd\n", ns);
@@ -148,7 +148,7 @@ main(int argc, char *argv[])
        keep it open in the sending process. */
 
     if (close(fd) == -1)
-        errExit("close");
+        systmErr("close");
 
     exit(EXIT_SUCCESS);
 }

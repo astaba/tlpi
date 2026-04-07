@@ -39,18 +39,18 @@ main(int argc, char *argv[])
 
     mqd_t mqd = mq_open(argv[1], O_RDONLY | O_NONBLOCK);
     if (mqd == (mqd_t) -1)
-        errExit("mq_open");
+        systmErr("mq_open");
 
     /* Determine mq_msgsize for message queue, and allocate an input buffer
        of that size */
 
     struct mq_attr attr;
     if (mq_getattr(mqd, &attr) == -1)
-        errExit("mq_getattr");
+        systmErr("mq_getattr");
 
     void *buffer = malloc(attr.mq_msgsize);
     if (buffer == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     /* Block the signal that we'll accept using sigwaitinfo() */
 
@@ -58,7 +58,7 @@ main(int argc, char *argv[])
     sigemptyset(&blockMask);
     sigaddset(&blockMask, NOTIFY_SIG);
     if (sigprocmask(SIG_BLOCK, &blockMask, NULL) == -1)
-        errExit("sigprocmask");
+        systmErr("sigprocmask");
 
     /* Set up message notification using the signal NOTIFY_SIG */
 
@@ -70,7 +70,7 @@ main(int argc, char *argv[])
                    siginfo_t structure returned by sigwaitinfo() */
 
     if (mq_notify(mqd, &sev) == -1)
-        errExit("mq_notify");
+        systmErr("mq_notify");
 
     for (;;) {
 
@@ -79,7 +79,7 @@ main(int argc, char *argv[])
 
         siginfo_t si;
         if (sigwaitinfo(&blockMask, &si) == -1)
-            errExit("sigwaitinfo");
+            systmErr("sigwaitinfo");
 
         printf("Accepted signal:\n");
         printf("        si_signo   = %d\n", si.si_signo);
@@ -92,7 +92,7 @@ main(int argc, char *argv[])
         /* Reestablish message notification */
 
         if (mq_notify(mqd, &sev) == -1)
-            errExit("mq_notify");
+            systmErr("mq_notify");
 
         /* Although only one signal might have been queued (if NOTIFY_SIG
            is a standard signal) we might have received multiple messages,
@@ -104,6 +104,6 @@ main(int argc, char *argv[])
             printf("Read %ld bytes\n", (long) numRead);
 
         if (errno != EAGAIN)            /* Unexpected error */
-            errExit("mq_receive");
+            systmErr("mq_receive");
     }
 }

@@ -52,11 +52,11 @@ threadFunc(void *arg)
         if (useMutex) {
             s = pthread_mutex_lock(&mtx);
             if (s != 0)
-                errExitEN(s, "pthread_mutex_lock");
+                nmsetErr(s, "pthread_mutex_lock");
         } else {
             s = pthread_spin_lock(&splock);
             if (s != 0)
-                errExitEN(s, "pthread_spin_lock");
+                nmsetErr(s, "pthread_spin_lock");
         }
 
         for (int k = 0; k < numInnerLoops; k++)
@@ -65,11 +65,11 @@ threadFunc(void *arg)
         if (useMutex) {
             s = pthread_mutex_unlock(&mtx);
             if (s != 0)
-                errExitEN(s, "pthread_mutex_unlock");
+                nmsetErr(s, "pthread_mutex_unlock");
         } else {
             s = pthread_spin_unlock(&splock);
             if (s != 0)
-                errExitEN(s, "pthread_spin_unlock");
+                nmsetErr(s, "pthread_spin_unlock");
         }
     }
 
@@ -127,30 +127,30 @@ main(int argc, char *argv[])
 
     pthread_t *thread = calloc(numThreads, sizeof(pthread_t));
     if (thread == NULL)
-        errExit("calloc");
+        systmErr("calloc");
 
     int s;
 
     if (useMutex) {
         s = pthread_mutex_init(&mtx, NULL);
         if (s != 0)
-            errExitEN(s, "pthread_mutex_init");
+            nmsetErr(s, "pthread_mutex_init");
     } else {
         s = pthread_spin_init(&splock, 0);
         if (s != 0)
-            errExitEN(s, "pthread_spin_init");
+            nmsetErr(s, "pthread_spin_init");
     }
 
     for (int j = 0; j < numThreads; j++) {
         s = pthread_create(&thread[j], NULL, threadFunc, NULL);
         if (s != 0)
-            errExitEN(s, "pthread_create");
+            nmsetErr(s, "pthread_create");
     }
 
     for (int j = 0; j < numThreads; j++) {
         s = pthread_join(thread[j], NULL);
         if (s != 0)
-            errExitEN(s, "pthread_join");
+            nmsetErr(s, "pthread_join");
     }
 
     if (verbose)

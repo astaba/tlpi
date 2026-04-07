@@ -71,11 +71,11 @@ main(int argc, char *argv[])
     sa.sa_flags = SA_RESTART;
     sa.sa_handler = handler;
     if (sigaction(SIGINT, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
     if (sigaction(SIGTSTP, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
     if (sigaction(SIGCONT, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* If stdin is a terminal, this is the first process in pipeline:
        print a heading and initialize message to be sent down pipe */
@@ -88,7 +88,7 @@ main(int argc, char *argv[])
 
     } else {            /* Not first in pipeline, so read message from pipe */
         if (read(STDIN_FILENO, &cmdNum, sizeof(cmdNum)) <= 0)
-            fatal("read got EOF or error");
+            custmErr("read got EOF or error");
     }
 
     cmdNum++;
@@ -100,7 +100,7 @@ main(int argc, char *argv[])
 
     if (!isatty(STDOUT_FILENO))   /* If not tty, then should be pipe */
         if (write(STDOUT_FILENO, &cmdNum, sizeof(cmdNum)) == -1)
-            errMsg("write");
+            systmWrn("write");
 
     for (;;)            /* Wait for signals */
         pause();

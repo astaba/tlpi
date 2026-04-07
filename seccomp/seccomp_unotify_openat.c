@@ -133,7 +133,7 @@ installNotifyFilter(void)
     int notifyFd = seccomp(SECCOMP_SET_MODE_FILTER,
                            SECCOMP_FILTER_FLAG_NEW_LISTENER, &prog);
     if (notifyFd == -1)
-        errExit("seccomp-install-notify-filter");
+        systmErr("seccomp-install-notify-filter");
 
     return notifyFd;
 }
@@ -144,9 +144,9 @@ static void
 closeSocketPair(int sockPair[2])
 {
     if (close(sockPair[0]) == -1)
-        errExit("closeSocketPair-close-0");
+        systmErr("closeSocketPair-close-0");
     if (close(sockPair[1]) == -1)
-        errExit("closeSocketPair-close-1");
+        systmErr("closeSocketPair-close-1");
 }
 
 /* Implementation of the target process; create a child process that:
@@ -165,7 +165,7 @@ targetProcess(int sockPair[2], char *argv[])
 {
     pid_t targetPid = fork();
     if (targetPid == -1)
-        errExit("fork");
+        systmErr("fork");
 
     if (targetPid > 0)          /* In parent, return PID of child */
         return targetPid;
@@ -177,7 +177,7 @@ targetProcess(int sockPair[2], char *argv[])
     /* Install seccomp filter */
 
     if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0))
-        errExit("prctl");
+        systmErr("prctl");
 
     int notifyFd = installNotifyFilter();
 
@@ -185,12 +185,12 @@ targetProcess(int sockPair[2], char *argv[])
        a UNIX domain socket */
 
     if (sendfd(sockPair[0], notifyFd) == -1)
-        errExit("sendfd");
+        systmErr("sendfd");
 
     /* Notification and socket FDs are no longer needed in target process */
 
     if (close(notifyFd) == -1)
-        errExit("close-target-notify-fd");
+        systmErr("close-target-notify-fd");
 
     closeSocketPair(sockPair);
 
@@ -243,7 +243,7 @@ handleNotifications(int notifyFd)
             if (errno == EINTR)
                     continue;
 
-            errExit("ioctl-SECCOMP_IOCTL_NOTIF_RECV");
+            systmErr("ioctl-SECCOMP_IOCTL_NOTIF_RECV");
         }
 
         printf("\tS: got notification (ID %#llx) for PID %d\n",
@@ -301,7 +301,7 @@ handleNotifications(int notifyFd)
                 int remoteFd = ioctl(notifyFd, SECCOMP_IOCTL_NOTIF_ADDFD,
                                      &addfd);
                 if (remoteFd == -1)
-                    errExit("SECCOMP_IOCTL_NOTIF_ADDFD");
+                    systmErr("SECCOMP_IOCTL_NOTIF_ADDFD");
 
                 close(fd);              /* No longer needed in supervisor */
 
@@ -345,7 +345,7 @@ supervisor(int sockPair[2])
 {
     int notifyFd = recvfd(sockPair[1]);
     if (notifyFd == -1)
-        errExit("recvfd");
+        systmErr("recvfd");
 
     closeSocketPair(sockPair);  /* We no longer need the socket pair */
 
@@ -364,7 +364,7 @@ main(int argc, char *argv[])
        supervisor process. */
 
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, sockPair) == -1)
-        errExit("socketpair");
+        systmErr("socketpair");
 
     /* Create a child process--the "target"--that installs seccomp
        filtering. The target process writes the seccomp notification
@@ -381,7 +381,7 @@ main(int argc, char *argv[])
     sa.sa_flags = 0;
     sigemptyset(&sa.sa_mask);
     if (sigaction(SIGCHLD, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     supervisor(sockPair);
 

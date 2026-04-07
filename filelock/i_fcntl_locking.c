@@ -59,7 +59,7 @@ mandLockingEnabled(int fd)
     struct stat sb;
 
     if (fstat(fd, &sb) == -1)
-        errExit("stat");
+        systmErr("stat");
     return (sb.st_mode & S_ISGID) != 0 && (sb.st_mode & S_IXGRP) == 0;
 }
 
@@ -106,12 +106,12 @@ main(int argc, char *argv[])
 
     fdList = calloc(argc, sizeof(int));
     if (fdList == NULL)
-        errExit("calloc");
+        systmErr("calloc");
 
     for (j = 1; j < argc; j++) {
         fdList[j] = open(argv[j], O_RDWR);
         if (fdList[j] == -1)
-            errExit("open (%s)", argv[j]);
+            systmErr("open (%s)", argv[j]);
     }
 
     /* Inform user what type of locking is in effect for each file. */
@@ -191,7 +191,7 @@ main(int argc, char *argv[])
 #endif
                 ) {
             if (status == -1) {
-                errMsg("fcntl");
+                systmWrn("fcntl");
             } else {
                 if (fl.l_type == F_UNLCK)
                     printf("[PID=%ld] Lock can be placed\n", (long) getpid());
@@ -212,7 +212,7 @@ main(int argc, char *argv[])
             else if (errno == EDEADLK)                          /* F_SETLKW */
                 printf("[PID=%ld] failed (deadlock)\n", (long) getpid());
             else
-                errMsg("fcntl");
+                systmWrn("fcntl");
         }
     }
 }

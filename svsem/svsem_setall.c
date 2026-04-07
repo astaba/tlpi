@@ -38,7 +38,7 @@ main(int argc, char *argv[])
 
     arg.buf = &ds;
     if (semctl(semid, 0, IPC_STAT, arg) == -1)
-        errExit("semctl");
+        systmErr("semctl");
 
     /* The number of values supplied on the command line must match the
        number of semaphores in the set */
@@ -51,13 +51,13 @@ main(int argc, char *argv[])
 
     arg.array = calloc(ds.sem_nsems, sizeof(arg.array[0]));
     if (arg.array == NULL)
-        errExit("calloc");
+        systmErr("calloc");
 
     for (j = 2; j < argc; j++)
         arg.array[j - 2] = getInt(argv[j], 0, "val");
 
     if (semctl(semid, 0, SETALL, arg) == -1)
-        errExit("semctl-SETALL");
+        systmErr("semctl-SETALL");
     printf("Semaphore values changed (PID=%ld)\n", (long) getpid());
 
     exit(EXIT_SUCCESS);

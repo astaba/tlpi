@@ -83,7 +83,7 @@ main(int argc, char *argv[])
     }
 
     if (becomeDaemon(0) == -1)
-        errExit("becomeDaemon");
+        systmErr("becomeDaemon");
 
     struct sigaction sa;
     sigemptyset(&sa.sa_mask);

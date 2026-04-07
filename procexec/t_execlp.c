@@ -25,5 +25,5 @@ main(int argc, char *argv[])
     /* Execute the program specified in argv[1] */
 
     execlp(argv[1], argv[1], "hello world", (char *) NULL);
-    errExit("execlp");      /* If we get here, something went wrong */
+    systmErr("execlp");      /* If we get here, something went wrong */
 }

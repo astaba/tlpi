@@ -51,7 +51,7 @@ main(int argc, char *argv[])
 
         char *retAddr = shmat(shmid, addr, flags);
         if (retAddr == (void *) -1)
-            errExit("shmat: %s", argv[j]);
+            systmErr("shmat: %s", argv[j]);
 
         printf("%d: %s ==> %p\n", j, argv[j], retAddr);
     }

@@ -42,7 +42,7 @@ main(int argc, char *argv[])
                 (argv[2][0] == 'i') ? RLIM_INFINITY :
                                 (rlim_t) getInt(argv[2], 0, "hard-limit");
     if (setrlimit(RLIMIT_NPROC, &rl) == -1)
-        errExit("setrlimit");
+        systmErr("setrlimit");
 
     printRlimit("New maximum process limits:     ", RLIMIT_NPROC);
 
@@ -50,7 +50,7 @@ main(int argc, char *argv[])
 
     for (j = 1; ; j++) {
         switch (childPid = fork()) {
-        case -1: errExit("fork");
+        case -1: systmErr("fork");
 
         case 0: _exit(EXIT_SUCCESS);            /* Child */
 

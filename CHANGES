@@ -260,7 +260,7 @@ for TLPI, available at https://man7.org/tlpi/errata/.
 
 2013-01-02
         altio/poll_pipes.c
-                Fix typos in two errExit() string arguments.
+                Fix typos in two systmErr() string arguments.
                 See the erratum for page 1340.
 
 2013-02-11
@@ -289,9 +289,9 @@ for TLPI, available at https://man7.org/tlpi/errata/.
 2013-03-18
         threads/detached_attrib.c
                 Fix a typo in a string:
-                        errExitEN(s, "pthread_attr_getdetachstate");
+                        nmsetErr(s, "pthread_attr_getdetachstate");
                     ==>
-                        errExitEN(s, "pthread_attr_setdetachstate");
+                        nmsetErr(s, "pthread_attr_setdetachstate");
 
                 Interestingly, this error was not present in the printed
                 version of the code (page 628 of TLPI).
@@ -1559,7 +1559,7 @@ for TLPI, available at https://man7.org/tlpi/errata/.
                 Remove this source file, which was an accidental duplicate
                 of a file in the 'proc' directory.
         fileio/copy.c
-                Change the error text written by the fatal() call that follows
+                Change the error text written by the custmErr() call that follows
                 write() to more clearly indicate that two different cases are
                 being dealt with here: error on write() and partial write.
                 (Thanks to Hrvoje Nikšić; see also the erratum for page 71.)
@@ -1974,7 +1974,7 @@ for TLPI, available at https://man7.org/tlpi/errata/.
 
 2022-03-01
         dirs_links/file_type_stats.c
-                Tweak error handling (use my errExit() function in place of
+                Tweak error handling (use my systmErr() function in place of
                 perror() + exit()).
         altio/epoll_flags_fork.c
                 Relocate child logic into a separate function.
@@ -2310,7 +2310,7 @@ for TLPI, available at https://man7.org/tlpi/errata/.
 
 2023-12-20
         users_groups/t_getpwnam_r.c
-                Fix the % specifier used in a call to errExit().
+                Fix the % specifier used in a call to systmErr().
 
 2024-01-09
         svipc/svmsg_demo_server.c

@@ -36,17 +36,17 @@ producer(void *arg)
 
         int s = pthread_mutex_lock(&mtx);
         if (s != 0)
-            errExitEN(s, "pthread_mutex_lock");
+            nmsetErr(s, "pthread_mutex_lock");
 
         avail++;        /* Let consumer know another unit is available */
 
         s = pthread_mutex_unlock(&mtx);
         if (s != 0)
-            errExitEN(s, "pthread_mutex_unlock");
+            nmsetErr(s, "pthread_mutex_unlock");
 
         s = pthread_cond_signal(&cond);         /* Wake sleeping consumer */
         if (s != 0)
-            errExitEN(s, "pthread_cond_signal");
+            nmsetErr(s, "pthread_cond_signal");
     }
 
     return NULL;
@@ -67,7 +67,7 @@ main(int argc, char *argv[])
         pthread_t tid;
         int s = pthread_create(&tid, NULL, producer, argv[j]);
         if (s != 0)
-            errExitEN(s, "pthread_create");
+            nmsetErr(s, "pthread_create");
     }
 
     /* Loop to consume available units */
@@ -78,12 +78,12 @@ main(int argc, char *argv[])
     for (;;) {
         int s = pthread_mutex_lock(&mtx);
         if (s != 0)
-            errExitEN(s, "pthread_mutex_lock");
+            nmsetErr(s, "pthread_mutex_lock");
 
         while (avail == 0) {            /* Wait for something to consume */
             s = pthread_cond_wait(&cond, &mtx);
             if (s != 0)
-                errExitEN(s, "pthread_cond_wait");
+                nmsetErr(s, "pthread_cond_wait");
         }
 
         /* At this point, 'mtx' is locked... */
@@ -102,7 +102,7 @@ main(int argc, char *argv[])
 
         s = pthread_mutex_unlock(&mtx);
         if (s != 0)
-            errExitEN(s, "pthread_mutex_unlock");
+            nmsetErr(s, "pthread_mutex_unlock");
 
         if (done)
             break;

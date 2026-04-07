@@ -51,7 +51,7 @@ traverseTree(const char *pathname, const struct stat *sb, int tflag,
         dlSize += D_INCR;
         dirList = realloc(dirList, dlSize * sizeof(char *));
         if (dirList == NULL)
-            errExit("realloc");
+            systmErr("realloc");
     }
 
     dirList[dcnt] = strdup(pathname);
@@ -67,7 +67,7 @@ getDirList(const char *pathname)
     dcnt = 0;
 
     if (nftw(pathname, traverseTree, 20, FTW_PHYS) == -1)
-        errMsg("nftw: %s", pathname);
+        systmWrn("nftw: %s", pathname);
 
     return dcnt;
 }
@@ -135,7 +135,7 @@ main(int argc, char *argv[])
         case 'l':
             logfp = fopen(optarg, "w+");
             if (logfp == NULL)
-                errExit("fopen");
+                systmErr("fopen");
             setbuf(logfp, NULL);
             break;
 

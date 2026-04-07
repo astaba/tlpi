@@ -33,11 +33,11 @@ main(int argc, char *argv[])
 
     struct stat sb;
     if (stat(argv[1], &sb) == -1)
-        errExit("stat");
+        systmErr("stat");
 
     key_t key = ftok(argv[1], argv[2][0]);
     if (key == -1)
-        errExit("ftok");
+        systmErr("ftok");
 
     printf("Key = %lx i-node = %lx st_dev = %lx proj = %x\n",
           (unsigned long) key, (unsigned long) sb.st_ino,

@@ -25,7 +25,7 @@ main(int argc, char *argv[])
         usageErr("%s [file]\n", argv[0]);
 
     if (acct(argv[1]) == -1)
-        errExit("acct");
+        systmErr("acct");
 
     printf("Process accounting %s\n",
             (argv[1] == NULL) ? "disabled" : "enabled");

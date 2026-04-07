@@ -37,7 +37,7 @@ main(int argc, char *argv[])
                 (unsigned int) status, status >> 8, status & 0xff);
 
         if (status == -1) {
-            errExit("system");
+            systmErr("system");
         } else {
             if (WIFEXITED(status) && WEXITSTATUS(status) == 127)
                 printf("(Probably) could not invoke shell\n");

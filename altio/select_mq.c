@@ -59,7 +59,7 @@ childMon(int msqid, int fd)
         struct pbuf pmsg;
         ssize_t msgLen = msgrcv(msqid, &pmsg.mtype, MAX_MTEXT, 0, 0);
         if (msgLen == -1)
-            errExit("msgrcv");
+            systmErr("msgrcv");
 
         /* We add some info to the message read by msgrcv() before
            writing to the pipe. */
@@ -71,7 +71,7 @@ childMon(int msqid, int fd)
         /* Or: wlen = &pmsg.mtext - &pmsg + msgLen */
 
         if (write(fd, &pmsg, wlen) != (ssize_t) wlen)
-            fatal("partial/failed write to pipe");
+            custmErr("partial/failed write to pipe");
     }
 }
 
@@ -85,14 +85,14 @@ main(int argc, char *argv[])
 
     int pfd[2];
     if (pipe(pfd) == -1)
-        errExit("pipe");
+        systmErr("pipe");
 
     /* Create one child for each message queue being monitored */
 
     for (int j = 1; j < argc; j++) {
         switch (fork()) {
         case -1:
-            errMsg("fork");
+            systmWrn("fork");
             killpg(0, SIGTERM);
             exit(EXIT_FAILURE);         /* NOTREACHED */
 
@@ -116,7 +116,7 @@ main(int argc, char *argv[])
 
         int ready = select(nfds, &readfds, NULL, NULL, NULL);
         if (ready == -1)
-            errExit("select");
+            systmErr("select");
 
         /* Check if terminal fd is ready */
 
@@ -124,7 +124,7 @@ main(int argc, char *argv[])
             char buf[BUF_SIZE];
             ssize_t numRead = read(STDIN_FILENO, buf, BUF_SIZE - 1);
             if (numRead == -1)
-                errExit("read stdin");
+                systmErr("read stdin");
 
             buf[numRead] = '\0';
             printf("Read from terminal: %s", buf);
@@ -138,15 +138,15 @@ main(int argc, char *argv[])
             struct pbuf pmsg;
             ssize_t numRead = read(pfd[0], &pmsg, offsetof(struct pbuf, mtext));
             if (numRead == -1)
-                errExit("read pipe");
+                systmErr("read pipe");
             if (numRead == 0)
-                fatal("EOF on pipe");
+                custmErr("EOF on pipe");
 
             numRead = read(pfd[0], &pmsg.mtext, pmsg.len);
             if (numRead == -1)
-                errExit("read pipe");
+                systmErr("read pipe");
             if (numRead == 0)
-                fatal("EOF on pipe");
+                custmErr("EOF on pipe");
 
             printf("MQ %d: type=%ld length=%d <%.*s>\n", pmsg.msqid,
                     pmsg.mtype, pmsg.len, pmsg.len, pmsg.mtext);

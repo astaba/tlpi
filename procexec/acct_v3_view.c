@@ -82,7 +82,7 @@ main(int argc, char *argv[])
 
     int acctFile = open(argv[1], O_RDONLY);
     if (acctFile == -1)
-        errExit("open");
+        systmErr("open");
 
     printf("ver. command    flags   term.   PID   PPID  user     group"
            "      start date+time     CPU   elapsed\n");
@@ -93,7 +93,7 @@ main(int argc, char *argv[])
     struct acct_v3 ac;
     while ((numRead = read(acctFile, &ac, sizeof(struct acct_v3))) > 0) {
         if (numRead != sizeof(struct acct_v3))
-            fatal("partial read");
+            custmErr("partial read");
 
         printf("%1d    ", (int) ac.ac_version);
         printf("%-8.8s   ", ac.ac_comm);
@@ -131,7 +131,7 @@ main(int argc, char *argv[])
     }
 
     if (numRead == -1)
-        errExit("read");
+        systmErr("read");
 
     exit(EXIT_SUCCESS);
 }

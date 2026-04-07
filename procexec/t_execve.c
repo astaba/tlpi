@@ -39,5 +39,5 @@ main(int argc, char *argv[])
     /* Execute the program specified in argv[1] */
 
     execve(argv[1], argVec, envVec);
-    errExit("execve");          /* If we get here, something went wrong */
+    systmErr("execve");          /* If we get here, something went wrong */
 }

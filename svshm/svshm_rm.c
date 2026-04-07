@@ -27,7 +27,7 @@ main(int argc, char *argv[])
 
     for (int j = 1; j < argc; j++)
         if (shmctl(getInt(argv[j], 0, "shmid"), IPC_RMID, NULL) == -1)
-            errExit("shmctl %s", argv[j]);
+            systmErr("shmctl %s", argv[j]);
 
     exit(EXIT_SUCCESS);
 }

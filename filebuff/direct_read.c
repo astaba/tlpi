@@ -42,7 +42,7 @@ main(int argc, char *argv[])
 
     fd = open(argv[1], O_RDONLY | O_DIRECT);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     /* memalign() allocates a block of memory aligned on an address that
        is a multiple of its first argument. By specifying this argument as
@@ -54,16 +54,16 @@ main(int argc, char *argv[])
 
     buf = memalign(alignment * 2, length + alignment);
     if (buf == NULL)
-        errExit("memalign");
+        systmErr("memalign");
 
     buf += alignment;
 
     if (lseek(fd, offset, SEEK_SET) == -1)
-        errExit("lseek");
+        systmErr("lseek");
 
     numRead = read(fd, buf, length);
     if (numRead == -1)
-        errExit("read");
+        systmErr("read");
     printf("Read %ld bytes\n", (long) numRead);
 
     exit(EXIT_SUCCESS);

@@ -44,7 +44,7 @@ main(int argc, char *argv[])
     } else {                                    /* Turn user name into UID */
         uid = userIdFromName(argv[1]);
         if (uid == (uid_t) -1)
-            fatal("No such user (%s)", argv[1]);
+            custmErr("No such user (%s)", argv[1]);
     }
 
     if (strcmp(argv[2], "-") == 0) {            /* "-" ==> don't change group */
@@ -52,7 +52,7 @@ main(int argc, char *argv[])
     } else {                                    /* Turn group name into GID */
         gid = groupIdFromName(argv[2]);
         if (gid == (gid_t) -1)
-            fatal("No such group (%s)", argv[2]);
+            custmErr("No such group (%s)", argv[2]);
     }
 
     /* Change ownership of all files named in remaining arguments */
@@ -60,7 +60,7 @@ main(int argc, char *argv[])
     errFnd = FALSE;
     for (j = 3; j < argc; j++) {
         if (chown(argv[j], uid, gid) == -1) {
-            errMsg("chown: %s", argv[j]);
+            systmWrn("chown: %s", argv[j]);
             errFnd = TRUE;
         }
     }

@@ -27,7 +27,7 @@ main(int argc, char *argv[])
     struct utsname uts;
 
     if (uname(&uts) == -1)
-        errExit("uname");
+        systmErr("uname");
 
     printf("Node name:   %s\n", uts.nodename);
     printf("System name: %s\n", uts.sysname);

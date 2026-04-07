@@ -51,7 +51,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 #ifndef EPOLLEXCLUSIVE
@@ -96,7 +96,7 @@ child(int childNum, int epfd, int fd, struct cmdLineArgs *args)
     if (args->openFifoInChild) {
         fd = open(args->fifoPath, O_RDONLY | O_NONBLOCK);
         if (fd == -1)
-            errExit("open");
+            systmErr("open");
         printf("Child %d: opened FIFO %s\n", childNum, args->fifoPath);
     }
 
@@ -105,12 +105,12 @@ child(int childNum, int epfd, int fd, struct cmdLineArgs *args)
 
         epfd = epoll_create(2);
         if (epfd == -1)
-            errExit("epoll_create");
+            systmErr("epoll_create");
 
         struct epoll_event ev;
         ev.events = args->eventsMask;
         if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev) == -1)
-            errExit("epoll_ctl");
+            systmErr("epoll_ctl");
     }
 
     do {
@@ -120,7 +120,7 @@ child(int childNum, int epfd, int fd, struct cmdLineArgs *args)
         struct epoll_event rev;
         int numReady = epoll_wait(epfd, &rev, 1, -1);
         if (numReady == -1)
-            errExit("epoll-wait");
+            systmErr("epoll-wait");
         printf("Child %d: epoll_wait() returned %d\n", childNum, numReady);
 
         /* If specified on command line, read data when the FIFO
@@ -184,7 +184,7 @@ main(int argc, char *argv[])
     if (!args.openFifoInChild) {
         fd = open(args.fifoPath, O_RDONLY | O_NONBLOCK);
         if (fd == -1)
-            errExit("open");
+            systmErr("open");
         printf("Opened FIFO %s\n", args.fifoPath);
     }
 
@@ -198,11 +198,11 @@ main(int argc, char *argv[])
         printf("Creating single epoll FD and adding FIFO\n");
         epfd = epoll_create(2);
         if (epfd == -1)
-            errExit("epoll_create");
+            systmErr("epoll_create");
 
         ev.events = args.eventsMask;
         if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev) == -1)
-            errExit("epoll_ctl");
+            systmErr("epoll_ctl");
     }
 
     printf("\n");
@@ -212,7 +212,7 @@ main(int argc, char *argv[])
     for (int childNum = 0; childNum < childMax; childNum++) {
         switch (fork()) {
         case -1:
-            errExit("fork");
+            systmErr("fork");
 
         case 0: /* Child */
             printf("Child %d: created\n", childNum);

@@ -28,38 +28,38 @@ main(int argc, char *argv[])
 
     fd1 = open(file, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
     if (fd1 == -1)
-        errExit("open fd1");
+        systmErr("open fd1");
     fd2 = dup(fd1);
     if (fd2 == -1)
-        errExit("dup");
+        systmErr("dup");
     fd3 = open(file, O_RDWR);
     if (fd3 == -1)
-        errExit("open fd3");
+        systmErr("open fd3");
 
     /* 'fd1' and 'fd2' share same open file table entry (and thus file
        offset). 'fd3' has its own open file table entry, and thus a
        separate file offset. */
 
     if (write(fd1, "Hello,", 6) == -1)
-        errExit("write1");
+        systmErr("write1");
     system(cmd);
     if (write(fd2, " world", 6) == -1)
-        errExit("write2");
+        systmErr("write2");
     system(cmd);
     if (lseek(fd2, 0, SEEK_SET) == -1)
-        errExit("lseek");
+        systmErr("lseek");
     if (write(fd1, "HELLO,", 6) == -1)
-        errExit("write3");
+        systmErr("write3");
     system(cmd);
     if (write(fd3, "Gidday", 6) == -1)
-        errExit("write4");
+        systmErr("write4");
     system(cmd);
 
     if (close(fd1) == -1)
-        errExit("close output");
+        systmErr("close output");
     if (close(fd2) == -1)
-        errExit("close output");
+        systmErr("close output");
     if (close(fd3) == -1)
-        errExit("close output");
+        systmErr("close output");
     exit(EXIT_SUCCESS);
 }

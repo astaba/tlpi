@@ -57,7 +57,7 @@ main(int argc, char *argv[])
     for (j = 0; j < numAllocs; j++) {
         ptr[j] = malloc(blockSize);
         if (ptr[j] == NULL)
-            errExit("malloc");
+            systmErr("malloc");
     }
 
     printf("Program break is now:           %10p\n", sbrk(0));

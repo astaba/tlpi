@@ -67,20 +67,20 @@ threadFunc(void *arg)
 
     struct timespec base_real;
     if (clock_gettime(CLOCK_REALTIME, &base_real) == -1)
-        errExit("clock_gettime");
+        systmErr("clock_gettime");
 
     struct timespec prev_real = base_real;
 
     struct timespec prev_cpu;
     if (clock_gettime(CLOCK_THREAD_CPUTIME_ID, &prev_cpu) == -1)
-        errExit("clock_gettime");
+        systmErr("clock_gettime");
 
     long nloops = 0;
     while (1) {
         nloops++;
         struct timespec curr_real;
         if (clock_gettime(CLOCK_REALTIME, &curr_real) == -1)
-            errExit("clock_gettime");
+            systmErr("clock_gettime");
 
         long elapsed_real_nsec = timespecDiff(base_real, curr_real);
         long elapsed_real_steps = elapsed_real_nsec / step_size;
@@ -88,7 +88,7 @@ threadFunc(void *arg)
         if (elapsed_real_steps > prev_step) {
             struct timespec curr_cpu;
             if (clock_gettime(CLOCK_THREAD_CPUTIME_ID, &curr_cpu) == -1)
-                errExit("clock_gettime");
+                systmErr("clock_gettime");
 
             long diff_real_nsec = timespecDiff(prev_real, curr_real);
             long diff_cpu_nsec = timespecDiff(prev_cpu, curr_cpu);
@@ -147,7 +147,7 @@ main(int argc, char *argv[])
         pthread_t thr;
         int s = pthread_create(&thr, NULL, threadFunc, argv[j + optind]);
         if (s != 0)
-            errExitEN(s, "pthread_create");
+            nmsetErr(s, "pthread_create");
     }
 
     pause();

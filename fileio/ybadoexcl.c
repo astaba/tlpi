@@ -17,31 +17,31 @@ int main(int argc, char *argv[argc + 1]) {
   if (argc < 2 || is_help(argv[1]))
     usageErr("%s filename\n", argv[0]);
 
-  fd = open(argv[1], O_WRONLY);
-  if (fd != -1) { /* open() succeeded */
+  fd = open(argv[1], O_WRONLY); /* Open 1: check for existence */
+  if (fd != -1) {               /* open() succeeded */
     printf("[PID:%ld] File \"%s\" already exists.\n", (long)getpid(), argv[1]);
     close(fd);
-  } else { /* open() failed */
-    if (errno != ENOENT)
+  } else {
+    if (errno != ENOENT) { /* Failed for unexpected reasons */
       errExit("open() failed");
+    } else {
+      printf("[PID:%ld] File \"%s\" doesn't exist yet.\n", (long)getpid(),
+             argv[1]);
+      if (argc > 2) { /* Delay second check and create */
+        sleep(5);
+        printf("[PID:%ld] Done sleeping.\n", (long)getpid());
+      }
+      fd = open(argv[1], O_WRONLY | O_CREAT | O_APPEND,
+                S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+      if (fd == -1)
+        errExit("open() failed");
 
-    /* Leave temporal opportunity for other process to create file */
-    if (argc > 2) {
-      sleep(5);
-      printf("[PID:%ld] Done sleeping.\n", (long)getpid());
+      printf("[PID:%ld] Created \"%s\" file exclusively.\n", (long)getpid(),
+             argv[1]);
+      if (write(fd, buf, (size_t)strlen(buf)) != (ssize_t)strlen(buf))
+        errExit("write() failed");
+      close(fd);
     }
-
-    fd = open(argv[1], O_WRONLY | O_CREAT | O_APPEND,
-              S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    if (fd == -1)
-      errExit("open() failed");
-
-    printf("[PID:%ld] Created \"%s\" file exclusively.\n", (long)getpid(),
-           argv[1]);
-
-    if (write(fd, buf, (size_t)strlen(buf)) != (ssize_t)strlen(buf))
-      errExit("write() failed");
-    close(fd);
   }
 
   return EXIT_SUCCESS;

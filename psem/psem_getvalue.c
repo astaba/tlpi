@@ -31,10 +31,10 @@ main(int argc, char *argv[])
 
     sem = sem_open(argv[1], 0);
     if (sem == SEM_FAILED)
-        errExit("sem_open");
+        systmErr("sem_open");
 
     if (sem_getvalue(sem, &value) == -1)
-        errExit("sem_getvalue");
+        systmErr("sem_getvalue");
 
     printf("%d\n", value);
     exit(EXIT_SUCCESS);

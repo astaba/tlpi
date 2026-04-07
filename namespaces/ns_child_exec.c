@@ -35,7 +35,7 @@
 /* A simple error-handling function: print an error message based
    on the value in 'errno' and terminate the calling process */
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 static void
@@ -60,7 +60,7 @@ childFunc(void *arg)
     char **argv = arg;
 
     execvp(argv[0], argv);
-    errExit("execvp");
+    systmErr("execvp");
 }
 
 #define STACK_SIZE (1024 * 1024)
@@ -100,13 +100,13 @@ main(int argc, char *argv[])
     char *stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE,
                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
     if (stack == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     pid_t child_pid = clone(childFunc,
                             stack + STACK_SIZE,
                             flags | SIGCHLD, &argv[optind]);
     if (child_pid == -1)
-        errExit("clone");
+        systmErr("clone");
 
     if (verbose)
         printf("%s: PID of child created by clone() is %ld\n",
@@ -117,7 +117,7 @@ main(int argc, char *argv[])
     /* Parent falls through to here */
 
     if (waitpid(child_pid, NULL, 0) == -1)      /* Wait for child */
-        errExit("waitpid");
+        systmErr("waitpid");
 
     if (verbose)
         printf("%s: terminating\n", argv[0]);

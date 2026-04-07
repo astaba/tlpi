@@ -35,18 +35,18 @@ main(int argc, char *argv[])
 
     sfd = inetConnect(argv[1], SERVICE, SOCK_DGRAM);
     if (sfd == -1)
-        fatal("Could not connect to server socket");
+        custmErr("Could not connect to server socket");
 
     /* Send remaining command-line arguments to server as separate datagrams */
 
     for (j = 2; j < argc; j++) {
         len = strlen(argv[j]);
         if (write(sfd, argv[j], len) != (ssize_t) len)
-            fatal("partial/failed write");
+            custmErr("partial/failed write");
 
         numRead = read(sfd, buf, BUF_SIZE);
         if (numRead == -1)
-            errExit("read");
+            systmErr("read");
 
         printf("[%ld bytes] %.*s\n", (long) numRead, (int) numRead, buf);
     }

@@ -33,13 +33,13 @@ main(int argc, char *argv[])
 
     sfd = socket(AF_INET6, SOCK_DGRAM, 0);      /* Create client socket */
     if (sfd == -1)
-        errExit("socket");
+        systmErr("socket");
 
     memset(&svaddr, 0, sizeof(struct sockaddr_in6));
     svaddr.sin6_family = AF_INET6;
     svaddr.sin6_port = htons(PORT_NUM);
     if (inet_pton(AF_INET6, argv[1], &svaddr.sin6_addr) <= 0)
-        fatal("inet_pton failed for address '%s'", argv[1]);
+        custmErr("inet_pton failed for address '%s'", argv[1]);
 
     /* Send messages to server; echo responses on stdout */
 
@@ -47,11 +47,11 @@ main(int argc, char *argv[])
         msgLen = strlen(argv[j]);
         if (sendto(sfd, argv[j], msgLen, 0, (struct sockaddr *) &svaddr,
                     sizeof(struct sockaddr_in6)) != (ssize_t) msgLen)
-            fatal("sendto");
+            custmErr("sendto");
 
         numBytes = recvfrom(sfd, resp, BUF_SIZE, 0, NULL, NULL);
         if (numBytes == -1)
-            errExit("recvfrom");
+            systmErr("recvfrom");
 
         printf("Response %d: %.*s\n", j - 1, (int) numBytes, resp);
     }

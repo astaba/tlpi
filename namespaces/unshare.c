@@ -35,7 +35,7 @@
 /* A simple error-handling function: print an error message based
    on the value in 'errno' and terminate the calling process */
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 static void
@@ -81,7 +81,7 @@ main(int argc, char *argv[])
         usage(argv[0]);
 
     if (unshare(flags) == -1)
-        errExit("unshare");
+        systmErr("unshare");
 
     /* If we are unsharing the PID namespace, then the caller is *not*
        moved into the new namespace. Instead, only the children are moved
@@ -100,5 +100,5 @@ main(int argc, char *argv[])
     }
 
     execvp(argv[optind], &argv[optind]);
-    errExit("execvp");
+    systmErr("execvp");
 }

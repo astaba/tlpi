@@ -47,11 +47,11 @@ main(int argc, char *argv[])
 
     sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sockfd == -1)
-        errExit("socket");
+        systmErr("socket");
 
     if (bind(sockfd, (struct sockaddr *) &addr,
             sizeof(sa_family_t) + strlen(str) + 1) == -1)
-        errExit("bind");
+        systmErr("bind");
 
     // In early printings of the book, the final part of the bind() call
     // above was instead:

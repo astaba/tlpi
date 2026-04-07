@@ -65,7 +65,7 @@ main(int argc, char *argv[])
     /* Traverse directory tree counting files; don't follow symbolic links */
 
     if (nftw(argv[1], &countFile, 20, FTW_PHYS) == -1)
-        errExit("nftw");
+        systmErr("nftw");
 
     int numFiles = numReg + numDir + numSymLk + numSocket +
                 numFifo + numChar + numBlock + numNonstatable;

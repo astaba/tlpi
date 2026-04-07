@@ -1,79 +1,64 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU General Public License as published by the   *
-* Free Software Foundation, either version 3 or (at your option) any      *
-* later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
-\*************************************************************************/
-
-/* Listing 57-3 */
-
-/* us_xfr_sv.c
-
-   An example UNIX stream socket server. Accepts incoming connections
-   and copies data sent from clients to stdout.
-
-   See also us_xfr_cl.c.
-*/
+/* =========================================================================
+ * Created on: <Tue Apr 07 13:28:26 +01 2026>
+ * Time-stamp: <Tue Apr  7 15:24:30 +01 2026 by owner>
+ * Author    : Copyright (C) Michael Kerrisk, 2026
+ *             See file COPYING.gpl-v3 for details GNU License.
+ * Desc      : ~/coding/c_prog/tlpi/sockets/us_xfr_sv.c -
+ * Listing 57.3: An example UNIX stream socket server.
+ * Accepts incoming connections and copies data sent from clients to stdout.
+ * See client at [[file:us_xfr_cl.c]]
+ * ========================================================================= */
 #include "us_xfr.h"
 #define BACKLOG 5
 
-int
-main(int argc, char *argv[])
-{
-    struct sockaddr_un addr;
-    int sfd, cfd;
-    ssize_t numRead;
-    char buf[BUF_SIZE];
+int main(int argc, char *argv[]) {
+  struct sockaddr_un addr;
+  int sfd, cfd;
+  ssize_t numRead;
+  char buf[BUF_SIZE];
 
-    sfd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sfd == -1)
-        errExit("socket");
+  if ((sfd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
+    systmErr("socket");
 
-    /* Construct server socket address, bind socket to it,
-       and make this a listening socket */
+  /* Construct server socket address, bind socket to it,
+     and make this a listening socket */
 
-    /* For an explanation of the following check, see the errata notes for
-       pages 1168 and 1172 at http://www.man7.org/tlpi/errata/. */
+  /* HACK: Follow this link for explanation on both following checks:
+     [[file:README.org::#stream-sockets-in-the-unix-domain]] */
+  if (strlen(SV_SOCK_PATH) > sizeof(addr.sun_path) - 1)
+    custmErr("Server socket path too long: %s", SV_SOCK_PATH);
+  /* WARN: Make sure path didn't exist before being created anew. */
+  if (remove(SV_SOCK_PATH) == -1 && errno != ENOENT)
+    systmErr("remove-%s", SV_SOCK_PATH);
 
-    if (strlen(SV_SOCK_PATH) > sizeof(addr.sun_path) - 1)
-        fatal("Server socket path too long: %s", SV_SOCK_PATH);
+  memset(&addr, 0, sizeof(struct sockaddr_un));
+  addr.sun_family = AF_UNIX;
+  strncpy(addr.sun_path, SV_SOCK_PATH, sizeof(addr.sun_path) - 1);
 
-    if (remove(SV_SOCK_PATH) == -1 && errno != ENOENT)
-        errExit("remove-%s", SV_SOCK_PATH);
+  if (bind(sfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_un)) == -1)
+    systmErr("bind");
 
-    memset(&addr, 0, sizeof(struct sockaddr_un));
-    addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, SV_SOCK_PATH, sizeof(addr.sun_path) - 1);
+  if (listen(sfd, BACKLOG) == -1)
+    systmErr("listen");
 
-    if (bind(sfd, (struct sockaddr *) &addr, sizeof(struct sockaddr_un)) == -1)
-        errExit("bind");
+  for (;;) { /* Handle client connections iteratively */
+    /* Accept a connection. The connection is returned on a new
+       socket, 'cfd'; the listening socket ('sfd') remains open
+       and can be used to accept further connections. */
 
-    if (listen(sfd, BACKLOG) == -1)
-        errExit("listen");
+    if ((cfd = accept(sfd, NULL, NULL)) == -1)
+      systmErr("accept");
 
-    for (;;) {          /* Handle client connections iteratively */
+    /* Transfer data from connected socket to stdout until EOF */
 
-        /* Accept a connection. The connection is returned on a new
-           socket, 'cfd'; the listening socket ('sfd') remains open
-           and can be used to accept further connections. */
+    while ((numRead = read(cfd, buf, BUF_SIZE)) > 0)
+      if (write(STDOUT_FILENO, buf, numRead) != numRead)
+        custmErr("partial/failed write");
 
-        cfd = accept(sfd, NULL, NULL);
-        if (cfd == -1)
-            errExit("accept");
+    if (numRead == -1)
+      systmErr("read");
 
-        /* Transfer data from connected socket to stdout until EOF */
-
-        while ((numRead = read(cfd, buf, BUF_SIZE)) > 0)
-            if (write(STDOUT_FILENO, buf, numRead) != numRead)
-                fatal("partial/failed write");
-
-        if (numRead == -1)
-            errExit("read");
-
-        if (close(cfd) == -1)
-            errMsg("close");
-    }
+    if (close(cfd) == -1)
+      systmWrn("close");
+  }
 }

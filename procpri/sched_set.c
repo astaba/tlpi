@@ -65,7 +65,7 @@ main(int argc, char *argv[])
 
     for (j = 3; j < argc; j++)
         if (sched_setscheduler(getLong(argv[j], 0, "pid"), pol, &sp) == -1)
-            errExit("sched_setscheduler");
+            systmErr("sched_setscheduler");
 
     exit(EXIT_SUCCESS);
 }

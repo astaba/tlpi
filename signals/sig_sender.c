@@ -43,13 +43,13 @@ main(int argc, char *argv[])
 
     for (j = 0; j < numSigs; j++)
         if (kill(pid, sig) == -1)
-            errExit("kill");
+            systmErr("kill");
 
     /* If a fourth command-line argument was specified, send that signal */
 
     if (argc > 4)
         if (kill(pid, getInt(argv[4], 0, "sig-num-2")) == -1)
-            errExit("kill");
+            systmErr("kill");
 
     printf("%s: exiting\n", argv[0]);
     exit(EXIT_SUCCESS);

@@ -55,7 +55,7 @@ parseOps(char *arg, struct sembuf sops[])
                         MAX_SEMOPS, arg);
 
         if (*remaining == '\0')
-            fatal("Trailing comma or empty argument: \"%s\"", arg);
+            custmErr("Trailing comma or empty argument: \"%s\"", arg);
         if (!isdigit((unsigned char) *remaining))
             cmdLineErr("Expected initial digit: \"%s\"\n", arg);
 
@@ -113,7 +113,7 @@ main(int argc, char *argv[])
                 currTime("%T"), argv[ind]);
 
         if (semop(getInt(argv[1], 0, "semid"), sops, nsops) == -1)
-            errExit("semop (PID=%ld)", (long) getpid());
+            systmErr("semop (PID=%ld)", (long) getpid());
 
         printf("%5ld, %s: semop() completed [%s]\n", (long) getpid(),
                 currTime("%T"), argv[ind]);

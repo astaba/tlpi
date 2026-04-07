@@ -26,15 +26,15 @@ main(int argc, char *argv[])
 {
     int sfd = unixBind(SV_SOCK_PATH, SOCK_STREAM);
     if (sfd == -1)
-        errExit("unixBind");
+        systmErr("unixBind");
 
     if (listen(sfd, 5) == -1)
-        errExit("listen");
+        systmErr("listen");
 
     for (;;) {          /* Handle client connections iteratively */
         int cfd = accept(sfd, NULL, NULL);
         if (cfd == -1)
-            errExit("accept");
+            systmErr("accept");
 
         /* Transfer data from connected socket to stdout until EOF */
 
@@ -43,12 +43,12 @@ main(int argc, char *argv[])
 
         while ((numRead = read(cfd, buf, BUF_SIZE)) > 0)
             if (write(STDOUT_FILENO, buf, numRead) != numRead)
-                fatal("partial/failed write");
+                custmErr("partial/failed write");
 
         if (numRead == -1)
-            errExit("read");
+            systmErr("read");
 
         if (close(cfd) == -1)
-            errMsg("close");
+            systmWrn("close");
     }
 }

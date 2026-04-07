@@ -34,14 +34,14 @@ main(int argc, char *argv[])
 
     msqid = getInt(argv[1], 0, "msqid");
     if (msgctl(msqid, IPC_STAT, &ds) == -1)
-        errExit("msgctl");
+        systmErr("msgctl");
 
     ds.msg_qbytes = getInt(argv[2], 0, "max-bytes");
 
     /* Update associated data structure in kernel */
 
     if (msgctl(msqid, IPC_SET, &ds) == -1)
-        errExit("msgctl");
+        systmErr("msgctl");
 
     exit(EXIT_SUCCESS);
 }

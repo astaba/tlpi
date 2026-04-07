@@ -37,7 +37,7 @@
 /* A simple error-handling function: print an error message based
    on the value in 'errno' and terminate the calling process */
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 static void
@@ -47,7 +47,7 @@ display_symlink(char *pname, char *link)
 
     ssize_t s = readlink(link, path, PATH_MAX);
     if (s == -1)
-        errExit("readlink");
+        systmErr("readlink");
 
     printf("%s%s ==> %.*s\n", pname, link, (int) s, path);
 }
@@ -102,19 +102,19 @@ main(int argc, char *argv[])
 
     long fd = open(argv[1], O_RDONLY);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     /* Create child process in new user namespace */
 
     char *stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE,
                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
     if (stack == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     pid_t child_pid = clone(childFunc, stack + STACK_SIZE,
                             CLONE_NEWUSER | SIGCHLD, (void *) fd);
     if (child_pid == -1)
-        errExit("clone");
+        systmErr("clone");
 
     munmap(stack, STACK_SIZE);
 
@@ -124,7 +124,7 @@ main(int argc, char *argv[])
     printf("\n");
 
     if (waitpid(child_pid, NULL, 0) == -1)      /* Wait for child */
-        errExit("waitpid");
+        systmErr("waitpid");
 
     exit(EXIT_SUCCESS);
 }

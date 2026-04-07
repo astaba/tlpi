@@ -29,10 +29,10 @@ main(int argc, char *argv[])
     for (j = 1; j < argc; j++) {
         pol = sched_getscheduler(getLong(argv[j], 0, "pid"));
         if (pol == -1)
-            errExit("sched_getscheduler");
+            systmErr("sched_getscheduler");
 
         if (sched_getparam(getLong(argv[j], 0, "pid"), &sp) == -1)
-            errExit("sched_getparam");
+            systmErr("sched_getparam");
 
         printf("%s: %-5s ", argv[j],
                 (pol == SCHED_OTHER) ? "OTHER" :

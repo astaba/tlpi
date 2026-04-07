@@ -35,7 +35,7 @@ static void             /* General handler: restore tty settings and exit */
 handler(int sig)
 {
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &userTermios) == -1)
-        errExit("tcsetattr");
+        systmErr("tcsetattr");
     _exit(EXIT_SUCCESS);
 }
 
@@ -53,43 +53,43 @@ tstpHandler(int sig)
        state at time of program startup */
 
     if (tcgetattr(STDIN_FILENO, &ourTermios) == -1)
-        errExit("tcgetattr");
+        systmErr("tcgetattr");
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &userTermios) == -1)
-        errExit("tcsetattr");
+        systmErr("tcsetattr");
 
     /* Set the disposition of SIGTSTP to the default, raise the signal
        once more, and then unblock it so that we actually stop */
 
     if (signal(SIGTSTP, SIG_DFL) == SIG_ERR)
-        errExit("signal");
+        systmErr("signal");
     raise(SIGTSTP);
 
     sigemptyset(&tstpMask);
     sigaddset(&tstpMask, SIGTSTP);
     if (sigprocmask(SIG_UNBLOCK, &tstpMask, &prevMask) == -1)
-        errExit("sigprocmask");
+        systmErr("sigprocmask");
 
     /* Execution resumes here after SIGCONT */
 
     if (sigprocmask(SIG_SETMASK, &prevMask, NULL) == -1)
-        errExit("sigprocmask");         /* Reblock SIGTSTP */
+        systmErr("sigprocmask");         /* Reblock SIGTSTP */
 
     sigemptyset(&sa.sa_mask);           /* Reestablish handler */
     sa.sa_flags = SA_RESTART;
     sa.sa_handler = tstpHandler;
     if (sigaction(SIGTSTP, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* The user may have changed the terminal settings while we were
        stopped; save the settings so we can restore them later */
 
     if (tcgetattr(STDIN_FILENO, &userTermios) == -1)
-        errExit("tcgetattr");
+        systmErr("tcgetattr");
 
     /* Restore our terminal settings */
 
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &ourTermios) == -1)
-        errExit("tcsetattr");
+        systmErr("tcsetattr");
 
     errno = savedErrno;
 }
@@ -106,7 +106,7 @@ main(int argc, char *argv[])
 
     if (argc > 1) {                     /* Use cbreak mode */
         if (ttySetCbreak(STDIN_FILENO, &userTermios) == -1)
-            errExit("ttySetCbreak");
+            systmErr("ttySetCbreak");
 
         /* Terminal special characters can generate signals in cbreak
            mode. Catch them so that we can adjust the terminal mode.
@@ -115,39 +115,39 @@ main(int argc, char *argv[])
         sa.sa_handler = handler;
 
         if (sigaction(SIGQUIT, NULL, &prev) == -1)
-            errExit("sigaction");
+            systmErr("sigaction");
         if (prev.sa_handler != SIG_IGN)
             if (sigaction(SIGQUIT, &sa, NULL) == -1)
-                errExit("sigaction");
+                systmErr("sigaction");
 
         if (sigaction(SIGINT, NULL, &prev) == -1)
-            errExit("sigaction");
+            systmErr("sigaction");
         if (prev.sa_handler != SIG_IGN)
             if (sigaction(SIGINT, &sa, NULL) == -1)
-                errExit("sigaction");
+                systmErr("sigaction");
 
         sa.sa_handler = tstpHandler;
 
         if (sigaction(SIGTSTP, NULL, &prev) == -1)
-            errExit("sigaction");
+            systmErr("sigaction");
         if (prev.sa_handler != SIG_IGN)
             if (sigaction(SIGTSTP, &sa, NULL) == -1)
-                errExit("sigaction");
+                systmErr("sigaction");
     } else {                            /* Use raw mode */
         if (ttySetRaw(STDIN_FILENO, &userTermios) == -1)
-            errExit("ttySetRaw");
+            systmErr("ttySetRaw");
     }
 
     sa.sa_handler = handler;
     if (sigaction(SIGTERM, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     setbuf(stdout, NULL);               /* Disable stdout buffering */
 
     for (;;) {                          /* Read and echo stdin */
         n = read(STDIN_FILENO, &ch, 1);
         if (n == -1) {
-            errMsg("read");
+            systmWrn("read");
             break;
         }
 
@@ -168,6 +168,6 @@ main(int argc, char *argv[])
     }
 
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &userTermios) == -1)
-        errExit("tcsetattr");
+        systmErr("tcsetattr");
     exit(EXIT_SUCCESS);
 }

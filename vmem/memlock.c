@@ -42,10 +42,10 @@ displayMincore(char *addr, size_t length)
     numPages = (length + pageSize - 1) / pageSize;
     vec = malloc(numPages);
     if (vec == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     if (mincore(addr, length, vec) == -1)
-        errExit("mincore");
+        systmErr("mincore");
 
     for (j = 0; j < numPages; j++) {
         if (j % 64 == 0)
@@ -70,11 +70,11 @@ main(int argc, char *argv[])
 #ifndef _SC_PAGESIZE
     pageSize = getpagesize();
     if (pageSize == -1)
-        errExit("getpagesize");
+        systmErr("getpagesize");
 #else
     pageSize = sysconf(_SC_PAGESIZE);
     if (pageSize == -1)
-        errExit("sysconf(_SC_PAGESIZE)");
+        systmErr("sysconf(_SC_PAGESIZE)");
 #endif
 
     len =      getInt(argv[1], GN_GT_0, "num-pages") * pageSize;
@@ -83,7 +83,7 @@ main(int argc, char *argv[])
 
     addr = mmap(NULL, len, PROT_READ, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     if (addr == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     printf("Allocated %ld (%#lx) bytes starting at %p\n",
             (long) len, (unsigned long) len, addr);
@@ -95,7 +95,7 @@ main(int argc, char *argv[])
 
     for (j = 0; j + lockLen <= len; j += stepSize)
         if (mlock(addr + j, lockLen) == -1)
-            errExit("mlock");
+            systmErr("mlock");
 
     printf("After mlock:\n");
     displayMincore(addr, len);

@@ -45,20 +45,20 @@ main(int argc, char *argv[])
     umask(0);                           /* So we get the permissions we want */
     if (mkfifo(SERVER_FIFO, S_IRUSR | S_IWUSR | S_IWGRP) == -1
             && errno != EEXIST)
-        errExit("mkfifo %s", SERVER_FIFO);
+        systmErr("mkfifo %s", SERVER_FIFO);
     serverFd = open(SERVER_FIFO, O_RDONLY);
     if (serverFd == -1)
-        errExit("open %s", SERVER_FIFO);
+        systmErr("open %s", SERVER_FIFO);
 
     /* Open an extra write descriptor, so that we never see EOF */
 
     dummyFd = open(SERVER_FIFO, O_WRONLY);
     if (dummyFd == -1)
-        errExit("open %s", SERVER_FIFO);
+        systmErr("open %s", SERVER_FIFO);
 
     /* Let's find out about broken client pipe via failed write() */
 
-    if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)    errExit("signal");
+    if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)    systmErr("signal");
 
     for (;;) {                          /* Read requests and send responses */
         if (read(serverFd, &req, sizeof(struct request))
@@ -73,7 +73,7 @@ main(int argc, char *argv[])
                 (long) req.pid);
         clientFd = open(clientFifo, O_WRONLY);
         if (clientFd == -1) {           /* Open failed, give up on client */
-            errMsg("open %s", clientFifo);
+            systmWrn("open %s", clientFifo);
             continue;
         }
 
@@ -84,7 +84,7 @@ main(int argc, char *argv[])
                 != sizeof(struct response))
             fprintf(stderr, "Error writing to FIFO %s\n", clientFifo);
         if (close(clientFd) == -1)
-            errMsg("close");
+            systmWrn("close");
 
         seqNum += req.seqLen;           /* Update our sequence number */
     }

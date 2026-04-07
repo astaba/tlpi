@@ -41,20 +41,20 @@ main(int argc, char *argv[])
 
     fd = open(argv[1], O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     if (unlink(argv[1]) == -1)          /* Remove filename */
-        errExit("unlink");
+        systmErr("unlink");
 
     for (j = 0; j < numBlocks; j++)     /* Write lots of junk to file */
         if (write(fd, buf, BUF_SIZE) != BUF_SIZE)
-            fatal("partial/failed write");
+            custmErr("partial/failed write");
 
     snprintf(shellCmd, CMD_SIZE, "df -k `dirname %s`", argv[1]);
     system(shellCmd);                   /* View space used in file system */
 
     if (close(fd) == -1)                /* File is now destroyed */
-        errExit("close");
+        systmErr("close");
     printf("********** Closed file descriptor\n");
 
     /* See the erratum for page 348 at http://man7.org/tlpi/errata/.

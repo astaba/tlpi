@@ -29,10 +29,10 @@ main(int argc, char *argv[])
 
     sem_t *sem = sem_open(argv[1], 0);
     if (sem == SEM_FAILED)
-        errExit("sem_open");
+        systmErr("sem_open");
 
     if (sem_trywait(sem) == -1)
-        errExit("sem_trywait");
+        systmErr("sem_trywait");
 
     exit(EXIT_SUCCESS);
 }

@@ -35,7 +35,7 @@ main(int argc, char *argv[])
 
     fd = open(_PATH_LASTLOG, O_RDONLY);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     for (j = 1; j < argc; j++) {
         uid = userIdFromName(argv[j]);
@@ -45,7 +45,7 @@ main(int argc, char *argv[])
         }
 
         if (lseek(fd, uid * sizeof(struct lastlog), SEEK_SET) == -1)
-            errExit("lseek");
+            systmErr("lseek");
 
         if (read(fd, &llog, sizeof(struct lastlog)) <= 0) {
             printf("read failed for %s\n", argv[j]);    /* EOF or error */

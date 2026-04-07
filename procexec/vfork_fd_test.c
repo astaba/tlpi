@@ -23,10 +23,10 @@ int
 main(int argc, char *argv[])
 {
     switch (vfork()) {
-    case -1: errExit("vfork");
+    case -1: systmErr("vfork");
 
     case 0: if (close(STDOUT_FILENO) == -1)
-                errMsg("close - child");
+                systmWrn("close - child");
             _exit(EXIT_SUCCESS);
 
     default: break;
@@ -37,9 +37,9 @@ main(int argc, char *argv[])
        child did not affect the parent. */
 
     if (close(STDOUT_FILENO) == -1)
-        errMsg("close");
+        systmWrn("close");
     if (close(STDOUT_FILENO) == -1)
-        errMsg("close");
+        systmWrn("close");
 
     exit(EXIT_SUCCESS);
 }

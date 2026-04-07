@@ -49,7 +49,7 @@ main(int argc, char *argv[])
 
     username = malloc(lnmax);
     if (username == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     printf("Username: ");
     fflush(stdout);
@@ -64,10 +64,10 @@ main(int argc, char *argv[])
 
     pwd = getpwnam(username);
     if (pwd == NULL)
-        fatal("couldn't get password record");
+        custmErr("couldn't get password record");
     spwd = getspnam(username);
     if (spwd == NULL && errno == EACCES)
-        fatal("no permission to read shadow password file");
+        custmErr("no permission to read shadow password file");
 
     if (spwd != NULL)           /* If there is a shadow password record */
         pwd->pw_passwd = spwd->sp_pwdp;     /* Use the shadow password */
@@ -81,7 +81,7 @@ main(int argc, char *argv[])
         *p++ = '\0';
 
     if (encrypted == NULL)
-        errExit("crypt");
+        systmErr("crypt");
 
     authOk = strcmp(encrypted, pwd->pw_passwd) == 0;
     if (!authOk) {

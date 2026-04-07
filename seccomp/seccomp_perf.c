@@ -35,7 +35,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 /* The following is a hack to allow for systems (pre-Linux 4.14) that don't
@@ -93,7 +93,7 @@ install_filter(void)
     };
 
     if (seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog) == -1)
-        errExit("seccomp");
+        systmErr("seccomp");
 }
 
 int
@@ -109,7 +109,7 @@ main(int argc, char *argv[])
         printf("Applying BPF filter\n");
 
         if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0))
-            errExit("prctl");
+            systmErr("prctl");
 
         install_filter();
     }

@@ -24,22 +24,22 @@ int main(int argc, char *argv[])
 
     scmp_filter_ctx ctx = seccomp_init(SCMP_ACT_ALLOW);
     if (ctx == NULL)
-        fatal("seccomp_init() failed");
+        custmErr("seccomp_init() failed");
 
     /* Cause clone(), clone3(), and fork() to fail, each with different
        errors */
 
     int rc = seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EPERM), SCMP_SYS(clone), 0);
     if (rc < 0)
-        errExitEN(-rc, "seccomp_rule_add");
+        nmsetErr(-rc, "seccomp_rule_add");
 
     rc = seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EACCES), SCMP_SYS(clone3), 0);
     if (rc < 0)
-        errExitEN(-rc, "seccomp_rule_add");
+        nmsetErr(-rc, "seccomp_rule_add");
 
     rc = seccomp_rule_add(ctx, SCMP_ACT_ERRNO(ENOTSUP), SCMP_SYS(fork), 0);
     if (rc < 0)
-        errExitEN(-rc, "seccomp_rule_add");
+        nmsetErr(-rc, "seccomp_rule_add");
 
     /* Export the pseudofilter code and BPF binary code,
        each to different file descriptors (if they are open) */
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
     rc = seccomp_load(ctx);
     if (rc < 0)
-        errExitEN(-rc, "seccomp_load");
+        nmsetErr(-rc, "seccomp_load");
 
     /* Free the user-space seccomp filter state */
 

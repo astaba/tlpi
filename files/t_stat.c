@@ -99,10 +99,10 @@ main(int argc, char *argv[])
 
     if (statLink) {
         if (lstat(argv[fname], &sb) == -1)
-            errExit("lstat");
+            systmErr("lstat");
     } else {
         if (stat(argv[fname], &sb) == -1)
-            errExit("stat");
+            systmErr("stat");
     }
 
     displayStatInfo(&sb);

@@ -134,10 +134,10 @@ main(int argc, char *argv[])
     sa.sa_flags = SA_RESTART;
     sa.sa_handler = sighupHandler;
     if (sigaction(SIGHUP, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     if (becomeDaemon(0) == -1)
-        errExit("becomeDaemon");
+        systmErr("becomeDaemon");
 
     logOpen(LOG_FILE);
     readConfigFile(CONFIG_FILE);

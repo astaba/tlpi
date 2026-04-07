@@ -36,9 +36,9 @@ main(int argc, char *argv[])
     char *p;
 
     if (getresuid(&ruid, &euid, &suid) == -1)
-        errExit("getresuid");
+        systmErr("getresuid");
     if (getresgid(&rgid, &egid, &sgid) == -1)
-        errExit("getresgid");
+        systmErr("getresgid");
 
     /* Attempts to change the file-system IDs are always ignored
        for unprivileged processes, but even so, the following
@@ -71,7 +71,7 @@ main(int argc, char *argv[])
 
     numGroups = getgroups(SG_SIZE, suppGroups);
     if (numGroups == -1)
-        errExit("getgroups");
+        systmErr("getgroups");
 
     printf("Supplementary groups (%d): ", numGroups);
     for (j = 0; j < numGroups; j++) {

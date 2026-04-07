@@ -34,7 +34,7 @@ main(int argc, char *argv[])
 
     libHandle = dlopen(argv[1], RTLD_LAZY);
     if (libHandle == NULL)
-        fatal("dlopen: %s", dlerror());
+        custmErr("dlopen: %s", dlerror());
 
     /* Search library for symbol named in argv[2] */
 
@@ -69,7 +69,7 @@ main(int argc, char *argv[])
 
     err = dlerror();
     if (err != NULL)
-        fatal("dlsym: %s", err);
+        custmErr("dlsym: %s", err);
 
     /* Try calling the address returned by dlsym() as a function
        that takes no arguments */

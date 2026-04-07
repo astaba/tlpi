@@ -50,9 +50,9 @@ main(int argc, char *argv[])
        (strongly) preferred API for this task. */
 
     if (signal(SIGINT, sigHandler) == SIG_ERR)
-        errExit("signal");
+        systmErr("signal");
     if (signal(SIGQUIT, sigHandler) == SIG_ERR)
-        errExit("signal");
+        systmErr("signal");
 
     for (;;)                    /* Loop forever, waiting for signals */
         pause();                /* Block until a signal is caught */

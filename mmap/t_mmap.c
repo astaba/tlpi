@@ -31,14 +31,14 @@ main(int argc, char *argv[])
 
     fd = open(argv[1], O_RDWR);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     addr = mmap(NULL, MEM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (addr == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     if (close(fd) == -1)                /* No longer need 'fd' */
-        errExit("close");
+        systmErr("close");
 
     printf("Current string=%.*s\n", MEM_SIZE, addr);
                         /* Secure practice: output at most MEM_SIZE bytes */
@@ -50,7 +50,7 @@ main(int argc, char *argv[])
         memset(addr, 0, MEM_SIZE);      /* Zero out region */
         strncpy(addr, argv[2], MEM_SIZE - 1);
         if (msync(addr, MEM_SIZE, MS_SYNC) == -1)
-            errExit("msync");
+            systmErr("msync");
 
         printf("Copied \"%s\" to shared memory\n", argv[2]);
     }

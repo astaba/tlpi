@@ -28,7 +28,7 @@ main(int argc, char *argv[])
         usageErr("%s mount-point\n", argv[0]);
 
     if (umount(argv[1]) == -1)
-        errExit("umount");
+        systmErr("umount");
 
     exit(EXIT_SUCCESS);
 }

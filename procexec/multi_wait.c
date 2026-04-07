@@ -42,7 +42,7 @@ main(int argc, char *argv[])
     for (j = 1; j < argc; j++) {    /* Create one child for each argument */
         switch (fork()) {
         case -1:
-            errExit("fork");
+            systmErr("fork");
 
         case 0:                     /* Child sleeps for a while then exits */
             printf("[%s] child %d started with PID %ld, sleeping %s "
@@ -64,7 +64,7 @@ main(int argc, char *argv[])
                 printf("No more children - bye!\n");
                 exit(EXIT_SUCCESS);
             } else {                /* Some other (unexpected) error */
-                errExit("wait");
+                systmErr("wait");
             }
         }
 

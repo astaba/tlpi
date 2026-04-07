@@ -43,22 +43,22 @@ main(int argc, char *argv[])
     unlink(argv[1]);
     int fd = open(argv[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     for (int j = 0; j < MAP_SIZE; j++)
         write(fd, "a", 1);
     if (fsync(fd) == -1)
-        errExit("fsync");
+        systmErr("fsync");
     close(fd);
 
     fd = open(argv[1], O_RDWR);
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     char *addr = mmap(NULL, MAP_SIZE, PROT_READ | PROT_WRITE,
                       MAP_PRIVATE, fd, 0);
     if (addr == MAP_FAILED)
-        errExit("mmap");
+        systmErr("mmap");
 
     printf("After mmap:          ");
     write(STDOUT_FILENO, addr, WRITE_SIZE);
@@ -78,7 +78,7 @@ main(int argc, char *argv[])
        contents (if MADV_DONTNEED has destructive semantics, as on Linux) */
 
     if (madvise(addr, MAP_SIZE, MADV_DONTNEED) == -1)
-        errExit("madvise");
+        systmErr("madvise");
 
     printf("After MADV_DONTNEED: ");
     write(STDOUT_FILENO, addr, WRITE_SIZE);

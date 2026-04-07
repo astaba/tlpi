@@ -90,7 +90,7 @@ threadFunc(void *arg)
             printf("\n");
 
         } else {        /* Error */
-            errExitEN(s, "pthread_barrier_wait (%ld)", threadNum);
+            nmsetErr(s, "pthread_barrier_wait (%ld)", threadNum);
         }
     }
 
@@ -118,7 +118,7 @@ main(int argc, char *argv[])
 
     pthread_t *tid = calloc(numThreads, sizeof(pthread_t));
     if (tid == NULL)
-        errExit("calloc");
+        systmErr("calloc");
 
     /* Initialize the barrier. The final argument specifies the
        number of threads that must call pthread_barrier_wait()
@@ -126,7 +126,7 @@ main(int argc, char *argv[])
 
     int s = pthread_barrier_init(&barrier, NULL, numThreads);
     if (s != 0)
-        errExitEN(s, "pthread_barrier_init");
+        nmsetErr(s, "pthread_barrier_init");
 
     /* Create 'numThreads' threads */
 
@@ -134,7 +134,7 @@ main(int argc, char *argv[])
         s = pthread_create(&tid[threadNum], NULL, threadFunc,
                 (void *) threadNum);
         if (s != 0)
-            errExitEN(s, "pthread_create");
+            nmsetErr(s, "pthread_create");
     }
 
     /* Each thread prints a start-up message. We briefly delay,
@@ -149,7 +149,7 @@ main(int argc, char *argv[])
     for (int threadNum = 0; threadNum < numThreads; threadNum++) {
         s = pthread_join(tid[threadNum], NULL);
         if (s != 0)
-            errExitEN(s, "pthread_join");
+            nmsetErr(s, "pthread_join");
     }
 
     exit(EXIT_SUCCESS);

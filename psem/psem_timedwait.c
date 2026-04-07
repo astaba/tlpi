@@ -32,7 +32,7 @@ main(int argc, char *argv[])
 
     sem_t *sem = sem_open(argv[1], 0);
     if (sem == SEM_FAILED)
-        errExit("sem_open");
+        systmErr("sem_open");
 
     /* sem_timedwait() expects an absolute time in its second argument.
        So we take the number of (relative) seconds specified on the
@@ -40,12 +40,12 @@ main(int argc, char *argv[])
 
     struct timespec ts;
     if (clock_gettime(CLOCK_REALTIME, &ts) == -1)
-        errExit("clock_gettime-CLOCK_REALTIME");
+        systmErr("clock_gettime-CLOCK_REALTIME");
 
     ts.tv_sec += atoi(argv[2]);
 
     if (sem_timedwait(sem, &ts) == -1)
-        errExit("sem_timedwait");
+        systmErr("sem_timedwait");
 
     printf("%ld sem_wait() succeeded\n", (long) getpid());
     exit(EXIT_SUCCESS);

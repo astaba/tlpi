@@ -58,7 +58,7 @@ main(int argc, char *argv[])
         case 'f':               /* -f pathname */
             key = ftok(optarg, 1);
             if (key == -1)
-                errExit("ftok");
+                systmErr("ftok");
             numKeyFlags++;
             break;
 
@@ -92,7 +92,7 @@ main(int argc, char *argv[])
 
     msqid = msgget(key, flags | perms);
     if (msqid == -1)
-        errExit("msgget");
+        systmErr("msgget");
 
     printf("%d\n", msqid);
     exit(EXIT_SUCCESS);

@@ -104,14 +104,14 @@ main(int argc, char *argv[])
         sigdelset(&blockMask, SIGTERM);
 
         if (sigprocmask(SIG_SETMASK, &blockMask, &prevMask) == -1)
-            errExit("sigprocmask");
+            systmErr("sigprocmask");
 
         printf("%s: signals blocked - sleeping %s seconds\n", argv[0], argv[1]);
         sleep(getInt(argv[1], GN_GT_0, "block-time"));
         printf("%s: sleep complete\n", argv[0]);
 
         if (sigprocmask(SIG_SETMASK, &prevMask, NULL) == -1)
-            errExit("sigprocmask");
+            systmErr("sigprocmask");
     }
 
     while (!allDone)                    /* Wait for incoming signals */

@@ -36,7 +36,7 @@ handler(int sig)
 
     savedErrno = errno;
     if (write(pfd[1], "x", 1) == -1 && errno != EAGAIN)
-        errExit("write");
+        systmErr("write");
     errno = savedErrno;
 }
 
@@ -83,7 +83,7 @@ main(int argc, char *argv[])
     /* Create pipe before establishing signal handler to prevent race */
 
     if (pipe(pfd) == -1)
-        errExit("pipe");
+        systmErr("pipe");
 
     FD_SET(pfd[0], &readfds);           /* Add read end of pipe to 'readfds' */
     nfds = max(nfds, pfd[0] + 1);       /* And adjust 'nfds' if required */
@@ -92,29 +92,29 @@ main(int argc, char *argv[])
 
     flags = fcntl(pfd[0], F_GETFL);
     if (flags == -1)
-        errExit("fcntl-F_GETFL");
+        systmErr("fcntl-F_GETFL");
     flags |= O_NONBLOCK;                /* Make read end nonblocking */
     if (fcntl(pfd[0], F_SETFL, flags) == -1)
-        errExit("fcntl-F_SETFL");
+        systmErr("fcntl-F_SETFL");
 
     flags = fcntl(pfd[1], F_GETFL);
     if (flags == -1)
-        errExit("fcntl-F_GETFL");
+        systmErr("fcntl-F_GETFL");
     flags |= O_NONBLOCK;                /* Make write end nonblocking */
     if (fcntl(pfd[1], F_SETFL, flags) == -1)
-        errExit("fcntl-F_SETFL");
+        systmErr("fcntl-F_SETFL");
 
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;           /* Restart interrupted reads()s */
     sa.sa_handler = handler;
     if (sigaction(SIGINT, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     while ((ready = select(nfds, &readfds, NULL, NULL, pto)) == -1 &&
             errno == EINTR)
         continue;                       /* Restart if interrupted by signal */
     if (ready == -1)                    /* Unexpected error */
-        errExit("select");
+        systmErr("select");
 
     if (FD_ISSET(pfd[0], &readfds)) {   /* Handler was called */
         printf("A signal was caught\n");
@@ -124,7 +124,7 @@ main(int argc, char *argv[])
                 if (errno == EAGAIN)
                     break;              /* No more bytes */
                 else
-                    errExit("read");    /* Some other error */
+                    systmErr("read");    /* Some other error */
             }
         }
 

@@ -48,13 +48,13 @@ main(int argc, char *argv[])
     cr1 = strdup(crypt(argv[1], "xx"));  /* Copy statically allocated string
                                             to another buffer */
     if (cr1 == NULL)
-        errExit("strdup");
+        systmErr("strdup");
 
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
     sa.sa_handler = handler;
     if (sigaction(SIGINT, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     /* Repeatedly call crypt() using argv[1]. If interrupted by a
        signal handler, then the static storage returned by crypt()

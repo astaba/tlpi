@@ -32,9 +32,9 @@ main(int argc, char *argv[])
 
     sem = sem_open(argv[1], 0);
     if (sem == SEM_FAILED)
-        errExit("sem_open");
+        systmErr("sem_open");
 
     if (sem_post(sem) == -1)
-        errExit("sem_post");
+        systmErr("sem_post");
     exit(EXIT_SUCCESS);
 }

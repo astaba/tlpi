@@ -27,6 +27,6 @@ main(int argc, char *argv[])
         usageErr("%s shm-name\n", argv[0]);
 
     if (shm_unlink(argv[1]) == -1)
-        errExit("shm_unlink");
+        systmErr("shm_unlink");
     exit(EXIT_SUCCESS);
 }

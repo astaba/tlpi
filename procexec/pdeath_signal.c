@@ -34,7 +34,7 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+#define systmErr(msg)    do { perror(msg); exit(EXIT_FAILURE); \
                         } while (0)
 
 /* Structure defining parameters used by each thread */
@@ -119,7 +119,7 @@ createOrphanChild(int ancestorNum)
 
     switch (fork()) {
     case -1:
-        errExit("fork");
+        systmErr("fork");
 
     case 0:
         printf("Child (PID %ld) created; parent %ld\n",
@@ -131,7 +131,7 @@ createOrphanChild(int ancestorNum)
         sigemptyset(&sa.sa_mask);
         sa.sa_sigaction = handler;
         if (sigaction(SIGUSR1, &sa, NULL) == -1)
-            errExit("sigaction");
+            systmErr("sigaction");
 
         /* Perform a pre-sleep before requesting "parent death" signal;
            this allows us to see what happens if the parent terminates
@@ -148,7 +148,7 @@ createOrphanChild(int ancestorNum)
         printf("\tChild (PID %ld) about to set PR_SET_PDEATHSIG\n",
                 (long) getpid());
         if (prctl(PR_SET_PDEATHSIG, SIGUSR1) == -1)
-            errExit("prctl");
+            systmErr("prctl");
 
         /* Now sleep, while ancestors terminate. Perform the sleep in
            1-second steps to allow for the fact that signal handler
@@ -242,7 +242,7 @@ createThreads(char *ancestorArg, char **argv, int ancestorNum)
 
         tparam = malloc(sizeof(struct threadParam));
         if (tparam == NULL)
-            errExit("malloc");
+            systmErr("malloc");
 
         /* If this token started with '+', remember that this thread should
            be the one to call fork() to create the next descendant */
@@ -320,7 +320,7 @@ createAncestor(char **argv, int ancestorNum)
 
     childPid = fork();
     if (childPid == -1)
-        errExit("fork");
+        systmErr("fork");
 
     /* Parent simply returns */
 
@@ -338,7 +338,7 @@ createAncestor(char **argv, int ancestorNum)
 
     if (*ancestorArg == '@') {
         if (prctl(PR_SET_CHILD_SUBREAPER, 1) == -1)
-            errExit("prctl");
+            systmErr("prctl");
         printf("    *** PID %ld (child of %ld) became a subreaper\n",
                 (long) getpid(), (long) getppid());
         ancestorArg++;          /* Advance past '@' */

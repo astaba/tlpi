@@ -25,7 +25,7 @@ main(int argc, char *argv[])
 
     switch (vfork()) {
     case -1:
-        errExit("vfork");
+        systmErr("vfork");
 
     case 0:             /* Child executes first, in parent's memory space */
         sleep(3);                   /* Even if we sleep for a while,

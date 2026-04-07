@@ -33,18 +33,18 @@ main(int argc, char *argv[])
 
     switch (childPid = fork()) {
     case -1:
-        errExit("fork");
+        systmErr("fork");
 
     case 0:
         execvp(argv[1], &argv[1]);
-        errExit("execvp");
+        systmErr("execvp");
 
     default:
         printf("Command PID: %ld\n", (long) childPid);
         if (wait(NULL) == -1)
-            errExit("wait");
+            systmErr("wait");
         if (getrusage(RUSAGE_CHILDREN, &ru) == -1)
-            errExit("getrusage");
+            systmErr("getrusage");
 
         printf("\n");
         printRusage("\t", &ru);

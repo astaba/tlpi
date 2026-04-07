@@ -38,7 +38,7 @@ main(int argc, char *argv[])
 
     fd = open(argv[1], O_RDONLY);               /* Open file to be locked */
     if (fd == -1)
-        errExit("open");
+        systmErr("open");
 
     lname = (lock & LOCK_SH) ? "LOCK_SH" : "LOCK_EX";
 
@@ -47,9 +47,9 @@ main(int argc, char *argv[])
 
     if (flock(fd, lock) == -1) {
         if (errno == EWOULDBLOCK)
-            fatal("PID %ld: already locked - bye!", (long) getpid());
+            custmErr("PID %ld: already locked - bye!", (long) getpid());
         else
-            errExit("flock (PID=%ld)", (long) getpid());
+            systmErr("flock (PID=%ld)", (long) getpid());
     }
 
     printf("PID %ld: granted    %s at %s\n", (long) getpid(), lname,
@@ -60,7 +60,7 @@ main(int argc, char *argv[])
     printf("PID %ld: releasing  %s at %s\n", (long) getpid(), lname,
             currTime("%T"));
     if (flock(fd, LOCK_UN) == -1)
-        errExit("flock");
+        systmErr("flock");
 
     exit(EXIT_SUCCESS);
 }

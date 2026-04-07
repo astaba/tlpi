@@ -66,12 +66,12 @@ main(int argc, char *argv[])
 
     sigstack.ss_sp = malloc(SIGSTKSZ);
     if (sigstack.ss_sp == NULL)
-        errExit("malloc");
+        systmErr("malloc");
 
     sigstack.ss_size = SIGSTKSZ;
     sigstack.ss_flags = 0;
     if (sigaltstack(&sigstack, NULL) == -1)
-        errExit("sigaltstack");
+        systmErr("sigaltstack");
     printf("Alternate stack is at         %10p-%p\n",
             sigstack.ss_sp, (char *) sbrk(0) - 1);
 
@@ -79,7 +79,7 @@ main(int argc, char *argv[])
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_ONSTACK;           /* Handler uses alternate stack */
     if (sigaction(SIGSEGV, &sa, NULL) == -1)
-        errExit("sigaction");
+        systmErr("sigaction");
 
     overflowStack(1);
 }

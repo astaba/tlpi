@@ -51,15 +51,15 @@ main(int argc, char *argv[])
 {
 #ifdef HAVE_ON_EXIT
     if (on_exit(onexitFunc, (void *) 10) != 0)
-        fatal("on_exit 1");
+        custmErr("on_exit 1");
 #endif
     if (atexit(atexitFunc1) != 0)
-        fatal("atexit 1");
+        custmErr("atexit 1");
     if (atexit(atexitFunc2) != 0)
-        fatal("atexit 2");
+        custmErr("atexit 2");
 #ifdef HAVE_ON_EXIT
     if (on_exit(onexitFunc, (void *) 20) != 0)
-        fatal("on_exit 2");
+        custmErr("on_exit 2");
 #endif
 
     exit(2);
