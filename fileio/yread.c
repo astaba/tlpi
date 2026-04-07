@@ -14,7 +14,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
   ssize_t numRead;
 
   if ((numRead = read(STDIN_FILENO, buffer, MAX_READ)) == -1)
-    errExit("reading from stdin");
+    systmErr("reading from stdin");
 
   if (numRead > 0 && buffer[numRead - 1] == '\n') {
     buffer[numRead - 1] = 0;

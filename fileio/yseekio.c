@@ -43,7 +43,7 @@ int main(int argc, char *argv[argc + 1]) {
   /* Open binary stream */
   fd = open(argv[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if (fd == -1)
-    errExit("open() failed");
+    systmErr("open() failed");
 
   for (i = 2; i < argc; i++) {
     switch (argv[i][0]) {
@@ -52,10 +52,10 @@ int main(int argc, char *argv[argc + 1]) {
       len = getLong(&argv[i][1], GN_ANY_BASE, argv[i]);
       buf = malloc(sizeof(char) * len);
       if (buf == NULL)
-        errExit("malloc() failed");
+        systmErr("malloc() failed");
 
       if ((numRead = read(fd, buf, len)) == -1)
-        errExit("read() failed");
+        systmErr("read() failed");
 
       if (numRead == 0) {
         printf("%s: EOF nothing to read.\n", argv[i]);
@@ -82,7 +82,7 @@ int main(int argc, char *argv[argc + 1]) {
     case 'w': /* Write string at current offset */
       numWritten = write(fd, &argv[i][1], (size_t)strlen(&argv[i][1]));
       if (numWritten == -1)
-        errExit("write() failed");
+        systmErr("write() failed");
       printf("%s: Wrote %ld byte(s) of '%.*s'\n", argv[1], (long)numWritten,
              (int)numWritten, &argv[i][1]);
       break;
@@ -90,7 +90,7 @@ int main(int argc, char *argv[argc + 1]) {
     case 's': /* Change file offset */
       offset = getLong(&argv[i][1], GN_ANY_BASE, argv[i]);
       if (lseek(fd, offset, SEEK_SET) == -1)
-        errExit("lseek() failed");
+        systmErr("lseek() failed");
       printf("%s: offset %ld\n", argv[i], (long)offset);
       break;
 
@@ -100,7 +100,7 @@ int main(int argc, char *argv[argc + 1]) {
   }
 
   if (close(fd) == -1)
-    errExit("close() failed");
+    systmErr("close() failed");
 
   return EXIT_SUCCESS;
 }

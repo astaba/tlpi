@@ -14,7 +14,7 @@
 
    The following code shows why we need the open() O_EXCL flag.
 
-   This program to tries ensure that it is the one that creates the file
+   This program tries to ensure that it is the one that creates the file
    named in its command-line argument. It does this by trying to open()
    the filename once without the O_CREAT flag (if this open() succeeds
    then the program know it is not the creator of the file), and if

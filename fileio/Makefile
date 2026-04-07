@@ -7,8 +7,7 @@ CFLAGS = -std=c2x \
 
 GEN_EXE = atomic_append bad_exclusive_open copy \
 	multi_descriptors seek_io t_readv t_truncate \
-	draft01 draft02 draft03 draft04 draft05 \
-	draft06 draft07
+	$(patsubst %.c,%,$(wildcard y*.c))
 
 LINUX_EXE = large_file
 

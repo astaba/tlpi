@@ -1,8 +1,8 @@
 /* Created on: Fri Jan 30 14:29:46 +01 2026 */
 /* Description: Practice draft for atomic_append.c */
 /* Demonstrate the difference between using of nonatomic lseek(2)+write(2) and
- * the atomic open(2) with O_APPEND. More explanations at end of file.
- * */
+ * the atomic open(2) with O_APPEND. More explanations at end of file about the
+ * phenomenon of race condition. */
 
 #include "../lib/tlpi_hdr.h" // IWYU pragma: keep
 #include <fcntl.h>
@@ -29,14 +29,14 @@ int main(int argc, char *argv[argc + 1]) {
   fd = open(argv[1], O_WRONLY | O_CREAT | flag,
             S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if (fd == -1)
-    errExit("open() failed");
+    systmErr("open() failed");
 
   for (int i = 0; i < numBytes; i++) {
     if (useLseek)
       if (lseek(fd, 0, SEEK_END) == -1)
-        errExit("lseek() failed");
+        systmErr("lseek() failed");
     if (write(fd, &c, 1) != 1)
-      errExit("write() failed");
+      systmErr("write() failed");
     c++;
     if (c > 0x5a)
       c = 0x41;
@@ -46,8 +46,10 @@ int main(int argc, char *argv[argc + 1]) {
   return EXIT_SUCCESS;
 }
 
-/* Test: $ ./draft04 f1 1000000 & ./draft04 f1 1000000
-         $ ./draft04 f2 1000000 x & ./draft04 f2 1000000 x  */
+/* Test:
+  $ ./yatomicappend f1 1000000 & ./yatomicappend f1 1000000
+  $ ./yatomicappend f2 1000000 sleep & ./yatomicappend f2 1000000 sleep
+*/
 
 /* NOTE:: The RACE CONDITION */
 /* First looking at file content it does not seem like much until checking the

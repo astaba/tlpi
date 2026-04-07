@@ -23,7 +23,7 @@ int main(int argc, char *argv[argc + 1]) {
     close(fd);
   } else {
     if (errno != ENOENT) { /* Failed for unexpected reasons */
-      errExit("open() failed");
+      systmErr("open() failed");
     } else {
       printf("[PID:%ld] File \"%s\" doesn't exist yet.\n", (long)getpid(),
              argv[1]);
@@ -34,12 +34,12 @@ int main(int argc, char *argv[argc + 1]) {
       fd = open(argv[1], O_WRONLY | O_CREAT | O_APPEND,
                 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
       if (fd == -1)
-        errExit("open() failed");
+        systmErr("open() failed");
 
       printf("[PID:%ld] Created \"%s\" file exclusively.\n", (long)getpid(),
              argv[1]);
       if (write(fd, buf, (size_t)strlen(buf)) != (ssize_t)strlen(buf))
-        errExit("write() failed");
+        systmErr("write() failed");
       close(fd);
     }
   }

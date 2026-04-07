@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 
   fd = open(argv[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
   if (fd == -1)
-    errExit("open");
+    systmErr("open");
 
   /* WARN: Validate input with newly created getLLong() instead of getLong(), or
    * worse atoll(). Validating value above 2^32 with getLong() works on a 64-bit
@@ -28,10 +28,10 @@ int main(int argc, char *argv[]) {
   off = getLLong(argv[2], GN_GT_0, argv[0]);
 
   if (lseek(fd, off, SEEK_SET) == -1)
-    errExit("lseek");
+    systmErr("lseek");
 
   if (write(fd, "test", 4) == -1)
-    errExit("write");
+    systmErr("write");
   exit(EXIT_SUCCESS);
 }
 

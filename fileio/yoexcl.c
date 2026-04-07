@@ -25,7 +25,7 @@ int main(int argc, char *argv[argc + 1]) {
       printf("[PID:%ld] File \"%s\" already exists. I am not the creator!\n",
              (long)getpid(), argv[1]);
     else
-      errExit("open() failed");
+      systmErr("open() failed");
   } else { /* open() failed */
     /* Leave temporal opportunity for other process to create file */
     if (argc > 2) {
@@ -36,7 +36,7 @@ int main(int argc, char *argv[argc + 1]) {
     printf("[PID:%ld] Created \"%s\" file exclusively.\n", (long)getpid(),
            argv[1]);
     if (write(fd, buf, (size_t)strlen(buf)) != (ssize_t)strlen(buf))
-      errExit("write() failed");
+      systmErr("write() failed");
     close(fd);
   }
 
