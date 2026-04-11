@@ -26,7 +26,7 @@
 #include <sys/un.h>
 #include <sys/socket.h>
 #include <ctype.h>
-#include "tlpi_hdr.h"
+#include "../lib/tlpi_hdr.h"
 
 #define BUF_SIZE 10             /* Maximum size of messages exchanged
                                    between client and server */

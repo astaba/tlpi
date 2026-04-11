@@ -1,22 +1,13 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU General Public License as published by the   *
-* Free Software Foundation, either version 3 or (at your option) any      *
-* later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
-\*************************************************************************/
-
-/* Listing 57-4 */
-
-/* us_xfr_cl.c
-
-   An example UNIX domain stream socket client. This client transmits contents
-   of stdin to a server socket.
-
-   See also us_xfr_sv.c.
-*/
+/* =========================================================================
+ * Created on: <Tue Apr 07 15:53:30 +01 2026>
+ * Time-stamp: <Tue Apr  7 15:57:48 +01 2026 by owner>
+ * Author    : Copyright (C) Michael Kerrisk, 2026
+ *             See file COPYING.gpl-v3 for details GNU License.
+ * Desc      : ~/coding/c_prog/tlpi/sockets/us_xfr_cl.c -
+ * Listing 57.4 An example UNIX domain stream socket client.
+ * This client transmits contents of stdin to a server socket.
+ * See server at [[file:us_xfr_sv.c]]
+ * ========================================================================= */
 #include "us_xfr.h"
 
 int main(int argc, char *argv[]) {

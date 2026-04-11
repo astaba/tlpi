@@ -1,14 +1,25 @@
 #+TITLE: Sockets
 #+AUTHOR: Astar Bahouidi
 #+DESCRIPTION: Socket Chapters 56-61 The Linux Programming Interface by Michael Kerrisk
-#+STARTUP: showeverything
+#+STARTUP: showall
 
 * Table of Contents                                                   :toc_2:
 - [[#file-naming-convention][File Naming Convention]]
+- [[#561-overview-of-communication-domain][56.1 Overview of communication domain]]
+- [[#564-generic-socket-address-structure][56.4 Generic socket address structure]]
 - [[#571-unix-domain-socket-addresses-struct-sockaddr_un][57.1 Unix Domain Socket Addresses: =struct sockaddr_un=]]
 - [[#572-stream-sockets-in-the-unix-domain][57.2 Stream Sockets in the UNIX Domain]]
+  - [[#explanation][Explanation]]
+  - [[#test-run][Test Run]]
+- [[#573-datagram-sockets-in-the-unix-domain][57.3 Datagram Sockets in the UNIX Domain]]
+  - [[#functions-prototypes][Functions Prototypes]]
+  - [[#why-the-client-must-bind][Why the Client Must =bind()=]]
+  - [[#test-run-1][Test Run]]
 
 * File Naming Convention
+:PROPERTIES:
+:VISIBILITY: folded
+:END:
 
 Many of the programs in this directory are named according to the
 conventions described below. A prefix identifies the socket domain in
@@ -32,7 +43,55 @@ A suffix indicates whether the program is a client or server:
 Thus, =id_echo_sv.c= is a server program that uses datagram sockets in
 the Internet domain.
 
+* 56.1 Overview of communication domain
+
+- Figure 56.1
+
+| Domain     | Communication | Communication between | Address format         | Address structure |
+|            | performed     | applications          |                        |                   |
+|------------+---------------+-----------------------+------------------------+-------------------|
+| =AF_UNIX=  | within kernel | on same host          | pathname               | =sockaddr_un=     |
+| =AF_INET=  | via IPv4      | on hosts connected    | 32-bit IPv4 address +  | =sockaddr_in=     |
+|            |               | via an IPv4 network   | 16-bit port number     |                   |
+| =AF_INET6= | via IPv6      | on hosts connected    | 128-bit IPv6 address + | =sockaddr_in6=    |
+|            |               | via an IPv6 network   | 16-bit port number     |                   |
+
+* 56.4 Generic socket address structure
+
+The only purpose for the =struct sockaddr= type is to cast the various
+domain-specific address structures to a single type for use as
+arguments in the socket system calls. The sockaddr structure is
+typically defined as follows:
+
+#+begin_src C
+  struct sockaddr {
+    sa_family_t sa_family; /* Address family (AF_* constant) */
+    char sa_data[14]; /* Socket address (size varies according
+                         to socket domain, 14 is arbitrary) */
+  };
+#+end_src
+
 * 57.1 Unix Domain Socket Addresses: =struct sockaddr_un=
+
+In the UNIX domain, a socket address takes the form of a pathname, and
+the domain-specific socket address structure is defined as follows:
+
+#+begin_src C
+  struct sockaddr_un {
+    sa_family_t sun_family;      /* Always AF_UNIX */
+    char sun_path[108];          /* Null-terminated socket pathname */
+  };
+#+end_src
+
+- The prefix =sun_= in the fields of the =sockaddr_un= structure has
+  nothing to do with Sun Microsystems; rather, it derives from =socket
+  unix=.
+
+/SUSv3/ doesn’t specify the size of the =sun_path= field. Early BSD
+implementations used 108 and 104 bytes, and one contemporary
+implementation (HP-UX 11) uses 92 bytes. Portable applications should
+code to this lower value, and use =snprintf()= or =strncpy()= to avoid
+buffer overruns when writing into this field.
 
 -Reference: [[file:us_socket.c][Listing 57.1 us_socket]].
 
@@ -41,6 +100,7 @@ the Internet domain.
 :CUSTOM_ID: stream-sockets-in-the-unix-domain
 :END:
 
+** Explanation
 In the (hypothetical) case that the =SV_SOCK_PATH= pathname is longer
 than =sizeof(addr.sun_path) - 1= bytes, the =remove()= would attempt
 to remove that pathname, but the =bind()= call might nevertheless fail
@@ -66,3 +126,339 @@ References: Errata on page 1168 and 1172
 - [[file:us_xfr.h][Listing 57.2 us_xfr.h]]
 - [[file:us_xfr_sv.c][Listing 57.3 us_xfr_sv]]
 - [[file:us_xfr_cl.c][Listing 57.4 us_xfr_cl]]
+
+** Test Run
+:PROPERTIES:
+:CUSTOM_ID: test-run-us-xfr
+:END:
+References:
+- [[file:yus_xfr_sv.c][Sandbox 57.3 yus_xfr_sv]]
+- [[file:yus_xfr_cl.c][Sandbox 57.4 yus_xfr_cl]]
+
+Run server in background and log all its output. Then examine the
+newly created socket with =ls -lF=.
+
+#+begin_example
+$ ./yus_xfr_sv > SERVER_LOG &
+$ ls -lF /tmp/us_xfr
+#+end_example
+
+Create client input and feed it to the client by stdin redirection.
+
+#+begin_example
+$ cat *.c > CLIENT_LOAD
+$ ./yus_xfr_cl < CLIENT_LOAD
+#+end_example
+
+At this point client has terminated and sent EOF to the server. We
+terminate the server with manual signal and check similarity of both
+log files.
+
+#+begin_example
+$ kill %1 #or kill SIGTERM <pid>
+diff CLIENT_LOAD SERVER_LOG
+#+end_example
+
+At this point null as shell status code =$?= means
+identity. Successful test.
+
+* 57.3 Datagram Sockets in the UNIX Domain
+
+In the generic description of datagram sockets that we provided in
+Section 56.6, we stated that communication using datagram sockets is
+unreliable.  This is the case for datagrams transferred over a
+network.
+
+However, for UNIX domain sockets, datagram transmission is carried out
+within the kernel, and is reliable.  *All messages are delivered in
+order and unduplicated.*
+
+References:
+- [[file:ud_ucase.h][Listing 57.5 ud_ucase.h]]
+- [[file:ud_ucase_sv.c][Listing 57.6 ud_ucase_sv]]
+- [[file:ud_ucase_cl.c][Listing 57.7 ud_ucase_cl]]
+
+** Functions Prototypes
+#+begin_src C
+ssize_t sendto (int SOCKET, const void *BUFFER, size_t SIZE,
+          int FLAGS, struct sockaddr *ADDR, socklen_t LENGTH)
+#+end_src
+
+The ‘sendto’ function transmits the data in the =BUFFER= through the
+socket =SOCKET= to the destination address specified by the =ADDR= and
+=LENGTH= arguments.  The =SIZE= argument specifies the number of bytes
+to be transmitted ([[info:libc#Sending Datagrams][libc#Sending Datagrams]]).
+
+#+begin_src C
+ssize_t recvfrom (int SOCKET, void *BUFFER, size_t SIZE,
+          int FLAGS, struct sockaddr *ADDR, socklen_t *LENGTH_PTR)
+#+end_src
+
+The ‘recvfrom’ function reads through the socket =SOCKET= one packet
+into the buffer =BUFFER=.  The =SIZE= argument specifies the maximum
+number of bytes to be read ([[info:libc#Receiving Datagrams][libc#Receiving Datagrams]]).  The =ADDR= and
+=LENGTH_PTR= arguments are used to return the address where the packet
+came from. Set both of them to =NULL= if uninterested by data origin.
+
+** Why the Client Must =bind()=
+:PROPERTIES:
+:CUSTOM_ID: why-the-client-must-bind
+:END:
+Originally author used =sfd= for “socket file descriptor” in both
+client and server.  It seems confusing at first so you could make it
+contextual with variables like =clfd= and =svfd=.  But there is good
+reason for a simple naming like =sfd=: in the UNIX family mostly in
+DGRAMS type there is no “passive” or “active” socket in a
+communication context.
+
+The reason your brain likely snagged on the client's =sfd= is because
+of the =bind()= call.
+
+In *Internet Domain (UDP)* sockets, a client usually doesn't call
+=bind()=; the OS just picks a random port. But in *UNIX Domain
+(Datagram)* sockets, if the client wants a response, it *must* create
+its own entry in the file system (the =/tmp/ud_ucase_cl.PID= file).
+
+1. *Client Binds:* "I am at path X."
+2. *Client Sends:* "Here is data. By the way, I am at path X." (This is
+   passed via the =claddr= struct in =recvfrom=).
+3. *Server Receives:* The server's =recvfrom= fills in =claddr= with the
+   client's path.
+4. *Server Sends:* The server uses that path to send the response back.
+
+** Test Run
+References:
+- [[file:yud_ucase_sv.c][Sandbox 57.6 yud_ucase_sv]]
+- [[file:yud_ucase_cl.c][Sandbox 57.7 yud_ucase_cl]]
+
+#+begin_example
+$ ./ud_ucase_sv &
+[1] 20113
+$ ./ud_ucase_cl hello world                  # Send 2 messages to server
+Server received 5 bytes from /tmp/ud_ucase_cl.20150
+Response 1: HELLO
+Server received 5 bytes from /tmp/ud_ucase_cl.20150
+Response 2: WORLD
+$ ./ud_ucase_cl 'long message'               # Send 1 longer message to server
+Server received 10 bytes from /tmp/ud_ucase_cl.20151
+Response 1: LONG MESSA
+$ kill %1                                    # Terminate server
+#+end_example
+
+Notice how UDP silently truncates on reception packets that don't fit
+in the reception buffer.
+
+* 57.8 Exercises
+** Exercise 57.1
+:PROPERTIES:
+:CUSTOM_ID: exercise-57-1
+:END:
+In Section 57.3, we noted that UNIX domain datagram sockets are
+reliable. Write programs to show that if a sender transmits datagrams
+to a UNIX domain datagram socket faster than the receiver reads them,
+then the sender is eventually blocked, and remains blocked until the
+receiver reads some of the pending datagrams.
+
+*** What the exercise is all about
+The goal is simply to prove that *UNIX Datagrams act like a pipe with
+a fixed diameter*: if you pour water in faster than it can come out
+the other side, the water eventually backs up to the source.
+
+You need to create *congestion* on the receiver's kernel buffer by
+forcing it to sleep while the sender is flooding it with thousands of
+datagram bytes sent in a tight loop.  When the receiver's kernel
+buffer get saturated the kernel will turn back to the sender and block
+the send() syscall forcefully pausing the process at that very code
+line until the receiver start making space in its buffer by unclogging
+its waiting queue.
+
+To have clear result limit the test lab to unidirectional I/O.
+
+In a peer-to-peer relationship like UNIX domain datagrams, "Server"
+and "Client" are just labels. The *Blocking/Flow Control* logic
+applies to any sender attempting to write to a full socket buffer,
+regardless of their role.
+
+You can check the actual size of the buffer on your Linux machine by
+looking at =/proc/sys/net/core/rmem_default= with some pager or simply
+the =cat= command, or by using =getsockopt()= with
+=SO_RCVBUF=. Usually, it's around *212 KB*. If your messages are 1 KB,
+the client will block after about 200 messages.
+
+*** Answer
+**** How to shift the logic (The "Sender-Side" Bottleneck)
+:PROPERTIES:
+:CUSTOM_ID: how-to-shift-the-logic-the-sender-side-bottleneck
+:END:
+To set the client as the “flooder” it is enough to send massive amount
+of datagrams in a tight loop while the server sleeps *before* entering
+its infinite loop.
+
+In this scenario, the *Server* becomes the high-speed sender (the
+"flooder") and the *Client* becomes the slow consumer (the
+"bottleneck").
+
+1. *The Client (Receiver):*
+   - Sends an initial "Trigger" datagram to the server so the server
+     knows the client's address (=claddr=).
+   - Immediately goes to =sleep(30)=.
+   - During this sleep, its receive buffer will fill up.
+2. *The Server (Sender):*
+   - Receives the trigger.
+   - Enters a =for= loop to send thousands of responses back to that
+     =claddr= as fast as possible.
+   - *The Observation:* The Server will eventually hang on =sendto()=.
+
+*** Technical Summary
+**** The Logic of the "Blocking" Point
+:PROPERTIES:
+:CUSTOM_ID: the-logic-of-the-blocking-point
+:END:
+You don't need the =read()= and =write()= handshake because the kernel
+manages the socket buffer independently of the application logic.
+
+1. *Phase 1 (The Pour):* The Sender pours datagrams into the socket.
+2. *Phase 2 (The Fill):* The Kernel places those datagrams into the
+   Receiver's *Receive Queue (Recv-Q)*.
+3. *Phase 3 (The Block):* Once the Recv-Q reaches its byte limit
+   (defined by the kernel), the next =sendto()= call cannot move the
+   data from the Sender's process into the kernel.
+4. *Result:* The =sendto()= system call *blocks*. It effectively
+   "pauses" the Sender's execution right at that line of code.
+
+**** What You Will Observe
+:PROPERTIES:
+:CUSTOM_ID: what-you-will-observe
+:END:
+If you run the "Slow" Server and the "Fast" Client: 1. The Client will
+print "Sending message #1", "#2"... very quickly. 2. Suddenly, the
+Client will *stop* printing and hang on a =sendto()= call. This is the
+moment the kernel's socket buffer is full. 3. Because UNIX domain
+sockets are *reliable*, the kernel won't just drop the packets (like
+UDP might). It pauses the Client process. 4. Once the Server's
+=sleep(30)= ends and it calls =recvfrom()=, the Client will suddenly
+wake up and continue sending more messages.
+
+**** Why this proves the point
+:PROPERTIES:
+:CUSTOM_ID: why-this-proves-the-point
+:END:
+Whether it's the Server or the Client that is sleeping, the core
+mechanics of *AF_UNIX* remain the same:
+
+- *Reliability:* Unlike *AF_INET (UDP)*, which would simply drop the
+  packets (silent loss), the UNIX domain protocol ensures every byte
+  is delivered.
+- *Backpressure:* When the receiver's queue is full, the kernel
+  applies "backpressure" to the sender. The sender's =sendto()= call
+  cannot complete until the receiver's kernel buffer has enough free
+  space to hold the new datagram.
+
+**** A Practical Experiment for your Script
+:PROPERTIES:
+:CUSTOM_ID: a-practical-experiment-for-your-script
+:END:
+If you want to see the exact moment the block happens without waiting
+for a full 30-second sleep, you can run your "flooder" in one terminal
+and use the =ss= (socket statistics) command in another:
+
+#+begin_src sh
+  # Run this while your sender is active
+  ss -axp | grep ud_ucase
+  # or
+  ss -a --unix | grep ud_ucase
+#+end_src
+
+Look for the *Recv-Q* and *Send-Q* columns. * *Recv-Q:* You will see
+this number climb until it hits the max limit of the receiving
+socket. * *The Hang:* The moment *Recv-Q* hits the ceiling, your
+sender's process state will switch to =D= (uninterruptible sleep) or
+=S= (interruptible sleep) while it waits for the buffer to clear.
+
+**** Test Run
+References: [[file:exr5701_cl.c][Exercise 57.1 client]], [[file:exr5701_sv.c][Exercise 57.1 server]].
+
+Output of =ss -axp | grep exr5701=
+#+begin_example
+Netid State  Recv-Q Send-Q Local                    Address:Port Peer     Address:Port Process
+u_str ESTAB  0      0                                     * 474043              * 474980 users:(("emacs",pid=793,fd=12))
+u_str ESTAB  0      0                                     * 218470              * 218471 users:(("node",pid=48849,fd=35))
+...
+u_dgr UNCONN 0      213504 @/tmp/ud_ucase@@@...@@@@@@@@@@@  15230311            * 0      users:(("exr5701_sv",pid=1067244,fd=3))
+#+end_example
+
+Why the freeze happens around ~277 messages
+
+Let’s approximate:
+
+message size ≈ ~40 bytes
+277 × 40 ≈ ~11 KB
+
+But your =ss= shows ~213 KB → meaning:
+- Kernel also stores metadata + alignment + socket overhead
+
+** Exercise 57.2
+Rewrite the programs in [[file:us_xfr_sv.c][Listing 57.3 us_xfr_sv]] and [[file:us_xfr_cl.c][Listing 57.4
+us_xfr_cl]] to use the Linux-specific abstract socket namespace
+(Section 57.6).
+
+*** Answer
+References: [[file:exr5702_cl.c][Exercise 57.2 client]], [[file:exr5702_sv.c][Exercise 57.2 server]].
+
+#+begin_src C
+  /* HACK: Construct remote address based on abstract socket namespace
+     by prepending '\0' to the path. */
+  memset(&peerAddr, 0, sizeof(struct sockaddr_un));
+  peerAddr.sun_family = AF_UNIX;
+  strncpy(peerAddr.sun_path + 1, SV_SOCK_PATH, sizeof(peerAddr.sun_path) - 2);
+#+end_src
+
+Now no need to call =remove()= before =bind()=.
+
+*** Test Run
+Proceed just as in [[#test-run-us-xfr][us-xfr Test Run]]. While the server runs and since
+the file entry is abstract =ls -lF= is of no help. Use =netstat -ax=
+to see the whole abstract path with all ='\0'= as =@= at head and
+tail.
+
+** Exercise 57.4
+:PROPERTIES:
+:CUSTOM_ID: exercise-57-4
+:END:
+Suppose that we create two UNIX domain datagram sockets bound to the
+paths =/somepath/a= and =/somepath/b=, and that we connect (Section
+56.6.2) the socket =/somepath/a= to =/somepath/b=.  What happens if we
+create a third datagram socket and try to send (=sendto()=) a datagram
+via that socket to =/somepath/a=? Write a program to determine the
+answer.  If you have access to other UNIX systems, test the program on
+those systems to see if the answer differs.
+
+*** Answer
+1. In the *UNIX Datagram* communication context the =bind()= call is
+   the concrete action that create the socket as an entry in the *file
+   system* or *abstract namespace*.
+2. [[file:exr5704_b.c][Excercise 57.4 exr5704_b]]: labeled *B*: plays the role of “sever”
+   receiving datagrams with =recvfrom()= from any peer knowing its
+   address (through the [[file:exr5704.h][header file]]) sending response back with
+   =sendto()=. Notice:
+   - The local address is created in the *abstract namespace* (not
+     required) to rid of path ckeck overhead when testing.
+   - There is no such a thing as “passive” or “active” socket in the
+     datagram communication context. This “server” *never calls*
+     =listen()=.
+3. [[file:exr5704_a.c][Exercise 57.4 exr5704_a]]: labeled *A*: Mixes two prgrams that could
+   be run on their own.  At run time, to have the connected behavior
+   enter any string on stdin.  To have the disconnected socket enter
+   =c:= and wait:
+   - *A socket connected to B*: in this context any packets sent to A
+     by any peer other than B is discarded with =EPERM= error and the
+     mistaken peer is terminated by the Kernel if the error is not
+     caught.
+   - *A socket receiving from any* peer knowing its address. Only on
+     LINUX this can be achieved at run time by recalling =connect()=
+     and passin it a struct with the field ~sun_family = AF_UNSPEC~.
+4. [[file:exr5704_c.c][Exercise 57.4 exr5704_c]]: labeled *C*: This is the actual routine
+   that tests the behavior of a connected UNIX DGRAM socket. Send any
+   string on stdin to have “normal” communication with B (the
+   server). To test A whether connected or not start the string with
+   =a:=.
