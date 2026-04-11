@@ -1,6 +1,6 @@
 /* =========================================================================
- * Created on: <Thu Apr 09 13:52:37 +01 2026> 
- * Time-stamp: <Fri Apr 10 14:24:12 +01 2026 by owner> 
+ * Created on: <Thu Apr 09 13:52:37 +01 2026>
+ * Time-stamp: <Sat Apr 11 04:59:58 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/exr5704_b.c -
  * Exercise 57.4 Test connected socket receiving third party's packets.
@@ -24,17 +24,17 @@ int main(int argc, char *argv[argc + 1]) {
   localAddr.sun_family = AF_UNIX;
   strncpy(localAddr.sun_path + 1, PATH_B, sizeof(localAddr.sun_path) - 2);
 
-  if (bind(sfd, (struct sockaddr *)&localAddr,
-           (socklen_t)sizeof(struct sockaddr_un)) == -1)
+  if (bind(sfd, (struct sockaddr *)&localAddr, sizeof(struct sockaddr_un)) ==
+      -1)
     systmErr("B: bind() failed");
 
   /* WARN: UNIX DATAGRAMS Sockets don't call listen() */
   /* UNIX Datagrams Transaction loop */
   while (1) {
     peerLen = sizeof(struct sockaddr_un);
-    numRecv = recvfrom(sfd, buf, BUF_SIZE, 0, (struct sockaddr *)&peerAddr,
-                       &peerLen);
-    if(numRecv == -1)
+    numRecv =
+        recvfrom(sfd, buf, BUF_SIZE, 0, (struct sockaddr *)&peerAddr, &peerLen);
+    if (numRecv == -1)
       systmErr("B: recvfrom() failed");
 
     printf("B ←-- %s: \"%.*s\"\n", peerAddr.sun_path, (int)numRecv, buf);
@@ -43,7 +43,7 @@ int main(int argc, char *argv[argc + 1]) {
 
     numSent =
         sendto(sfd, buf, numRecv, 0, (struct sockaddr *)&peerAddr, peerLen);
-    if(numSent != numRecv)
+    if (numSent != numRecv)
       custmErr("B: senfto() failed");
     printf("B --→ \"%.*s\"\n", (int)numSent, buf);
   }

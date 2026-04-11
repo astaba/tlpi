@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Thu Apr 09 11:41:06 +01 2026>
- * Time-stamp: <Thu Apr  9 23:41:03 +01 2026 by owner>
+ * Time-stamp: <Sat Apr 11 04:59:58 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/exr5704_a.c -
  * Exercise 57.4 Test connected socket receiving third party's packets.
@@ -23,8 +23,7 @@ int main(int argc, char *argv[argc + 1]) {
   localAddr.sun_family = AF_UNIX;
   snprintf(localAddr.sun_path, sizeof(localAddr.sun_path), "%s", PATH_A);
 
-  if (bind(sfd, (struct sockaddr *)&localAddr,
-           (socklen_t)sizeof(struct sockaddr_un)) == -1)
+  if (bind(sfd, (struct sockaddr *)&localAddr, (SUN_LEN(&localAddr))) == -1)
     systmErr("A: bind() failed");
 
   memset(&anyAddr, 0, sizeof(struct sockaddr_un));
@@ -41,12 +40,12 @@ int main(int argc, char *argv[argc + 1]) {
 
     if (!strncmp(buf, "c:", 2)) {
       /* Disconnect A to recvfrom() any no sendto() */
-      anyLen = sizeof(struct sockaddr_un);
-      if (connect(sfd, (struct sockaddr *)&anyAddr, anyLen) == -1)
+      if (connect(sfd, (struct sockaddr *)&anyAddr, SUN_LEN(&anyAddr)) == -1)
         systmErr("A: connect(AF_UNSPEC) failed");
 
-      numRecv = recvfrom(sfd, buf, BUF_SIZE, 0, (struct sockaddr *)&anyAddr,
-                         &anyLen);
+      anyLen = sizeof(struct sockaddr_un);
+      numRecv =
+          recvfrom(sfd, buf, BUF_SIZE, 0, (struct sockaddr *)&anyAddr, &anyLen);
       if (numRecv == -1)
         systmErr("A ← 0: recvfrom() failed ");
       buf[numRecv] = 0;

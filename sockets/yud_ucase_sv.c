@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Wed Apr 08 01:24:33 +01 2026>
- * Time-stamp: <Wed Apr  8 14:51:17 +01 2026 by owner>
+ * Time-stamp: <Sat Apr 11 04:59:58 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/yud_ucase_sv.c -
  * Sandbox for [[file:ud_ucase_sv.c]]
@@ -31,7 +31,7 @@ int main(int argc, char *argv[argc + 1]) {
   strncpy(svaddr.sun_path, SV_SOCK_PATH, sizeof(svaddr.sun_path) - 1);
 
   /* (2.3) Bind server socket to local address */
-  if (bind(svfd, (struct sockaddr *)&svaddr, sizeof(struct sockaddr_un)) == -1)
+  if (bind(svfd, (struct sockaddr *)&svaddr, SUN_LEN(&svaddr)) == -1)
     systmErr("bind() failed");
 
   /* (4) Run infinite loop of iterative server. */
@@ -46,8 +46,8 @@ int main(int argc, char *argv[argc + 1]) {
       systmErr("recvfrom() failed");
 
     /* (4.2) Feedback received data to local output */
-    printf("Server received %ld bytes (%.*s) from: %s\n", (long)numRecv, (int)numRecv,
-           buf, claddr.sun_path);
+    printf("Server received %ld bytes (%.*s) from: %s\n", (long)numRecv,
+           (int)numRecv, buf, claddr.sun_path);
 
     /* (4.3) Build response */
     for (i = 0; i < numRecv; i++)

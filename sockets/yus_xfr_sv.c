@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Tue Apr 07 17:03:53 +01 2026>
- * Time-stamp: <Sat Apr 11 01:50:14 +01 2026 by owner>
+ * Time-stamp: <Sat Apr 11 04:59:58 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/yus_xfr_sv.c -
  * Sandbox for [[file:us_xfr_sv.c]]
@@ -36,8 +36,7 @@ int main(int argc, char *argv[argc + 1]) {
   strncpy(localAddr.sun_path, SV_SOCK_PATH, sizeof(localAddr.sun_path) - 1);
 
   /* (2.3) Bind server socket to local address */
-  if (bind(lisnfd, (struct sockaddr *)&localAddr, sizeof(struct sockaddr_un)) ==
-      -1)
+  if (bind(lisnfd, (struct sockaddr *)&localAddr, SUN_LEN(&localAddr)) == -1)
     systmErr("bind() failed");
 
   /* (3) Make the socket passive for listening */

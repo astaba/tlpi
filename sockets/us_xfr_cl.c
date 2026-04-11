@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Tue Apr 07 15:53:30 +01 2026>
- * Time-stamp: <Tue Apr  7 15:57:48 +01 2026 by owner>
+ * Time-stamp: <Sat Apr 11 04:00:43 +01 2026 by owner>
  * Author    : Copyright (C) Michael Kerrisk, 2026
  *             See file COPYING.gpl-v3 for details GNU License.
  * Desc      : ~/coding/c_prog/tlpi/sockets/us_xfr_cl.c -
@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
   addr.sun_family = AF_UNIX;
   strncpy(addr.sun_path, SV_SOCK_PATH, sizeof(addr.sun_path) - 1);
 
-  if (connect(sfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_un)) == -1)
+  if (connect(sfd, (struct sockaddr *)&addr, SUN_LEN(&addr)) == -1)
     systmErr("connect");
 
   /* Copy stdin to socket */

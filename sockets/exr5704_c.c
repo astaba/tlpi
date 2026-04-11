@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Thu Apr 09 14:58:41 +01 2026>
- * Time-stamp: <Fri Apr 10 00:13:19 +01 2026 by owner>
+ * Time-stamp: <Sat Apr 11 04:59:55 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/exr5704_c.c -
  * Exercise 57.4 Test connected socket receiving third party's packets.
@@ -24,8 +24,7 @@ int main(int argc, char *argv[argc + 1]) {
   snprintf(localAddr.sun_path, sizeof(localAddr.sun_path), "%s.%ld", PATH_C,
            (long)getpid());
 
-  if (bind(sfd, (struct sockaddr *)&localAddr,
-           (socklen_t)sizeof(struct sockaddr_un)) == -1)
+  if (bind(sfd, (struct sockaddr *)&localAddr, SUN_LEN(&localAddr)) == -1)
     systmErr("C: bind() failed");
 
   memset(&peerAddr, 0, sizeof(struct sockaddr_un));
@@ -44,13 +43,13 @@ int main(int argc, char *argv[argc + 1]) {
       p = buf + strspn(buf, "a:");
       msgLen = strlen(p);
       if (sendto(sfd, p, msgLen, 0, (struct sockaddr *)&aAddr,
-                 sizeof(struct sockaddr_un)) != (ssize_t)msgLen) {
+                 SUN_LEN(&aAddr)) != (ssize_t)msgLen) {
         if (errno == EPERM)
           systmWrn("C → A: sendto() failed");
         else
           systmErr("C → A: sendto() failed");
       } else
-	printf("C --→ %s: \"%s\"\n", aAddr.sun_path, p);
+        printf("C --→ %s: \"%s\"\n", aAddr.sun_path, p);
       continue;
     }
     /* On channel (C ←→ B) */

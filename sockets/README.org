@@ -8,6 +8,7 @@
 - [[#561-overview-of-communication-domain][56.1 Overview of communication domain]]
 - [[#564-generic-socket-address-structure][56.4 Generic socket address structure]]
 - [[#571-unix-domain-socket-addresses-struct-sockaddr_un][57.1 Unix Domain Socket Addresses: =struct sockaddr_un=]]
+  - [[#unixlocalfile-namespace][UNIX/Local/File Namespace]]
 - [[#572-stream-sockets-in-the-unix-domain][57.2 Stream Sockets in the UNIX Domain]]
   - [[#explanation][Explanation]]
   - [[#test-run][Test Run]]
@@ -94,6 +95,24 @@ code to this lower value, and use =snprintf()= or =strncpy()= to avoid
 buffer overruns when writing into this field.
 
 -Reference: [[file:us_socket.c][Listing 57.1 us_socket]].
+
+** UNIX/Local/File Namespace
+- Reference: [[info:libc#Local Namespace Details][libc#Local Namespace Details]].
+
+When you need to pass to library functions like =bind= or =connect=
+the =LENGTH= of a =struct sockaddr_un= previousy cleared and
+populated, you should compute that LENGTH parameter for the socket
+address in the local namespace as the sum of the size of the
+=sun_family= component and the *string length* (_not_ the allocation
+size!)  of the file name string.  This can be done using the macro
+=SUN_LEN=:
+
+*WARNING:* Never use =SUN_LEN= on Path from the Abstract Namespace.
+
+#+begin_src C
+  struct sockaddr_un addr;	/* Cleared and populated */
+  int rc = bind(sfd, (struct sockadrr*)&addr, SUNLEN(&addr));
+#+end_src
 
 * 57.2 Stream Sockets in the UNIX Domain
 :PROPERTIES:

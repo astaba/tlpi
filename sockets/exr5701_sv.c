@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Wed Apr 08 20:58:08 +01 2026>
- * Time-stamp: <Fri Apr 10 08:40:14 +01 2026 by owner>
+ * Time-stamp: <Sat Apr 11 04:59:58 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/exr5701_sv.c -
  * Server for Exercise 57.1: In Section 57.3, we noted that UNIX domain
@@ -31,13 +31,17 @@ int main(int argc, char *argv[argc + 1]) {
   sv_addr.sun_family = AF_UNIX;
   strncpy(sv_addr.sun_path + 1, SV_SOCK_PATH, sizeof(sv_addr.sun_path) - 2);
 
-  if (bind(sv_fd, (struct sockaddr *)&sv_addr,
-           (socklen_t)sizeof(struct sockaddr_un)) == -1)
-    systmErr("bind() failed");
+  if (bind(sv_fd, (struct sockaddr *)&sv_addr, sizeof(struct sockaddr_un)) ==
+      -1)
 
+    /* SUN_LEN(&sv_addr)) == -1) WARN: Peer terminates with: */
+    /*  ERROR [ECONNREFUSED Connection refused] sendto() failed */
+    /* NOTE: Never use SUN_LEN() on Path from the Abstract Namespace */
+
+    systmErr("bind() failed");
   cl_addrlen = sizeof(struct sockaddr_un);
-  numRecv = recvfrom(sv_fd, buf, BUFMAX, 0, (struct sockaddr *)&cl_addr,
-                     &cl_addrlen);
+  numRecv =
+      recvfrom(sv_fd, buf, BUFMAX, 0, (struct sockaddr *)&cl_addr, &cl_addrlen);
   if (numRecv == -1)
     systmErr("recvfrom() failed");
   printf("Server Received ← \"%.*s\"\n", (int)numRecv, buf);

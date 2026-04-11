@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Tue Apr 07 17:51:54 +01 2026>
- * Time-stamp: <Wed Apr  8 14:10:14 +01 2026 by owner>
+ * Time-stamp: <Sat Apr 11 04:59:58 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/yus_xfr_cl.c -
  * Sandbox for [[file:us_xfr_cl.c]]
@@ -24,8 +24,7 @@ int main(int argc, char *argv[argc + 1]) {
   strncpy(peerAddr.sun_path, SV_SOCK_PATH, sizeof(peerAddr.sun_path) - 1);
 
   /* (3) Connect to remote server (dial its number and call) */
-  if (connect(clfd, (struct sockaddr *)&peerAddr, sizeof(struct sockaddr_un)) ==
-      -1)
+  if (connect(clfd, (struct sockaddr *)&peerAddr, SUN_LEN(&peerAddr)) == -1)
     systmErr("connect() failed");
 
   /* (4) Manage TCP I/O */

@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Wed Apr 08 00:34:24 +01 2026>
- * Time-stamp: <Wed Apr  8 19:40:36 +01 2026 by owner>
+ * Time-stamp: <Sat Apr 11 02:43:53 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/yud_ucase_cl.c -
  * Sandbox for [[file:ud_ucase_cl.c]]
@@ -33,7 +33,7 @@ int main(int argc, char *argv[argc + 1]) {
            (long)getpid());
 
   /* (2.2) Bind client address to local address. */
-  if (bind(clfd, (struct sockaddr *)&claddr, sizeof(struct sockaddr_un)) == -1)
+  if (bind(clfd, (struct sockaddr *)&claddr, SUN_LEN(&claddr)) == -1)
     systmErr("bind() failed");
 
   /* (3) Construct struct sockaddr_un for the remote address */
@@ -45,7 +45,7 @@ int main(int argc, char *argv[argc + 1]) {
   for (i = 1; i < argc; i++) {
     msgLen = strlen(argv[i]);
     numSent = sendto(clfd, argv[i], msgLen, 0, (struct sockaddr *)&svaddr,
-                     (socklen_t)sizeof(struct sockaddr_un));
+                     SUN_LEN(&svaddr));
     if (numSent != (ssize_t)msgLen)
       custmErr("sendto() failed");
 
