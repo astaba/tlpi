@@ -1,10 +1,10 @@
 /* =========================================================================
  * Created on: <Wed Apr 08 16:09:22 +01 2026>
- * Time-stamp: <Wed Apr  8 23:06:28 +01 2026 by owner>
+ * Time-stamp: <Mon Apr 13 04:06:25 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/yus_axfr_sv_ex_57_2.c -
- * Server for Exercise 57.2 Rewrite the programs in Listing 57-3
- * [[file:us_xfr_sv.c]] and Listing 57-4 [[file:us_xfr_cl.c]]
+ * Server for Exercise 57.2 Rewrite the programs in Listing 57.3
+ * [[file:us_xfr_sv.c]] and Listing 57.4 [[file:us_xfr_cl.c]]
  * to use the Linux-specific abstract socket namespace (Section 57.6).
  * See peer at [[file:exr5702_cl.c]]
  * ========================================================================= */

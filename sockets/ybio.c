@@ -1,19 +1,47 @@
 /* =========================================================================
- * Created on: <Fri Apr 10 17:49:24 +01 2026>
- * Time-stamp: <Fri Apr 17 23:36:53 +01 2026 by owner>
+ * Created on: <Fri Apr 17 23:36:30 +01 2026>
+ * Time-stamp: <Sat Apr 18 00:27:09 +01 2026 by owner>
  * Author    : owner
- * Desc      : ~/coding/c_prog/tlpi/sockets/yread_line.c -
- *
- * What ever happen this routine returns a null-terminated string of
- * memoty bytes. Thus, it is enough to check for terminating '\n' to
- * ckeck for truncated data.
- * See [[file:README.org::#data-representation]]
+ * Desc      : ~/coding/c_prog/tlpi/sockets/ybio.c -
+ * Buffer I/O library
  * ========================================================================= */
-#include "read_line.h" /* IWYU pragma: keep */
+#include "ybio.h"
 #include <errno.h>
+#include <string.h>
 #include <unistd.h>
 
-ssize_t yreadLine(int fd, void *buffer, size_t n) {
+void ybio_init(int fd, ybio_t *p) {
+  p->bio_fd = fd;
+  p->bio_ptr = p->bio_buf;
+  p->bio_cnt = 0;
+}
+
+static size_t ybio_read(ybio_t *p, void *buf, size_t n) {
+  size_t cnt;
+
+  while (p->bio_cnt <= 0) {
+    p->bio_cnt = read(p->bio_fd, p->bio_buf, sizeof(p->bio_buf));
+    if (p->bio_cnt < 0) {
+      if (errno != EINTR)
+        return -1; /* Return error condition */
+    } else if (p->bio_cnt == 0)
+      return 0; /* EOF */
+    else
+      p->bio_ptr = p->bio_buf;
+  }
+
+  cnt = n;
+  if (p->bio_cnt < n)
+    cnt = p->bio_cnt;
+
+  memcpy((char *)buf, p->bio_ptr, cnt);
+  p->bio_cnt -= cnt;
+  p->bio_ptr += cnt;
+
+  return cnt;
+}
+
+ssize_t ybio_readLine(ybio_t *p, void *buffer, size_t n) {
   ssize_t numRead;  /* read() output */
   size_t readTally; /* # bytes read from fd into buffer */
   char ch;          /* temporary slot between read() and buffer */
@@ -29,8 +57,7 @@ ssize_t yreadLine(int fd, void *buffer, size_t n) {
   buf = buffer;  /* cast void for pointer arithmetic */
 
   for (;;) {
-    /* TODO: save syscalls with buffered I/O */
-    numRead = read(fd, &ch, 1);
+    numRead = read(p->bio_fd, &ch, 1);
 
     if (numRead == -1) {
       if (errno == EINTR)

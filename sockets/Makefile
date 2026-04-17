@@ -4,12 +4,14 @@ GEN_EXE = i6d_ucase_sv i6d_ucase_cl \
 	id_echo_cl id_echo_sv \
 	is_echo_cl is_echo_sv is_echo_inetd_sv is_echo_v2_sv \
 	is_seqnum_sv is_seqnum_cl is_seqnum_v2_sv is_seqnum_v2_cl \
+	yis_seqnum_sv yis_seqnum_cl yis_seqnum_v2_sv yis_seqnum_v2_cl \
 	socknames t_gethostbyname t_getservbyname \
 	ud_ucase_sv ud_ucase_cl \
 	yud_ucase_sv yud_ucase_cl \
 	us_xfr_cl us_xfr_sv us_xfr_v2_cl us_xfr_v2_sv \
 	yus_xfr_cl yus_xfr_sv yus_xfr_v2_cl yus_xfr_v2_sv \
-	exr5701_cl exr5701_sv
+	exr5701_cl exr5701_sv \
+	yi6d_ucase_sv yi6d_ucase_cl
 
 LINUX_EXE = list_host_addresses \
 	scm_cred_recv scm_cred_send \
@@ -26,12 +28,15 @@ all : ${EXE}
 allgen : ${GEN_EXE}
 
 i6d_ucase_sv.o i6d_ucase_cl.o : i6d_ucase.h
+yi6d_ucase_sv.o yi6d_ucase_cl.o : i6d_ucase.h
 
 id_echo_cl.o id_echo_sv.o : id_echo.h
 
 is_seqnum_sv.o is_seqnum_cl.o : is_seqnum.h
+yis_seqnum_sv.o yis_seqnum_cl.o : is_seqnum.h
 
 is_seqnum_v2_sv.o is_seqnum_v2_cl.o : is_seqnum_v2.h
+yis_seqnum_v2_sv.o yis_seqnum_v2_cl.o : is_seqnum_v2.h
 
 scm_cred_recv.o scm_cred_send.o : scm_cred.h
 

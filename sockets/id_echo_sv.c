@@ -5,10 +5,10 @@
 * under the terms of the GNU General Public License as published by the   *
 * Free Software Foundation, either version 3 or (at your option) any      *
 * later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
+* the file [[file:../COPYING.gpl-v3]] for details.                                    *
 \*************************************************************************/
 
-/* Listing 60-2 */
+/* Listing 60.2 */
 
 /* id_echo_sv.c
 

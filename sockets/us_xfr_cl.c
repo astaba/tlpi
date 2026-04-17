@@ -1,8 +1,8 @@
 /* =========================================================================
  * Created on: <Tue Apr 07 15:53:30 +01 2026>
- * Time-stamp: <Sat Apr 11 04:00:43 +01 2026 by owner>
+ * Time-stamp: <Mon Apr 13 03:00:48 +01 2026 by owner>
  * Author    : Copyright (C) Michael Kerrisk, 2026
- *             See file COPYING.gpl-v3 for details GNU License.
+ *             See file [[file:../COPYING.gpl-v3]] for details GNU License.
  * Desc      : ~/coding/c_prog/tlpi/sockets/us_xfr_cl.c -
  * Listing 57.4 An example UNIX domain stream socket client.
  * This client transmits contents of stdin to a server socket.

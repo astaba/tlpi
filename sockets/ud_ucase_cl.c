@@ -1,8 +1,8 @@
 /* =========================================================================
  * Created on: <Tue Apr 07 19:12:19 +01 2026>
- * Time-stamp: <Wed Apr  8 02:15:17 +01 2026 by owner>
+ * Time-stamp: <Mon Apr 13 03:00:48 +01 2026 by owner>
  * Author    : Copyright (C) Michael Kerrisk, 2026
- *             See file COPYING.gpl-v3 for details GNU License.
+ *             See file [[file:../COPYING.gpl-v3]] for details GNU License.
  * Desc      : ~/coding/c_prog/tlpi/sockets/ud_ucase_cl.c -
  * Listing 57.7 A UNIX domain client that communicates with the server
  * in [[file:ud_ucase_sv.c]]. This client sends each command-line argument

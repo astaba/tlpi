@@ -1,8 +1,8 @@
 /* =========================================================================
  * Created on: <Tue Apr 07 19:16:26 +01 2026>
- * Time-stamp: <Wed Apr  8 02:15:14 +01 2026 by owner>
+ * Time-stamp: <Mon Apr 13 03:00:48 +01 2026 by owner>
  * Author    : Copyright (C) Michael Kerrisk, 2026
- *             See file COPYING.gpl-v3 for details GNU License.
+ *             See file [[file:../COPYING.gpl-v3]] for details GNU License.
  * Desc      : ~/coding/c_prog/tlpi/sockets/ud_ucase_sv.c -
  * Listing 57.6 A server that uses a UNIX domain datagram socket
  * to receive datagrams, convert their contents to uppercase,

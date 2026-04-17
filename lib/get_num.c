@@ -24,7 +24,7 @@
 /* Print a diagnostic message that contains a function name ('fname'),
    the value of a command-line argument ('arg'), the name of that
    command-line argument ('name'), and a diagnostic error message ('msg'). */
- static void gnFail(const char *fname, const char *msg, const char *arg,
+static void gnFail(const char *fname, const char *msg, const char *arg,
                    const char *name) {
   fprintf(stderr, "%s error", fname);
   if (name != NULL)

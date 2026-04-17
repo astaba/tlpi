@@ -5,10 +5,12 @@
 
 * Table of Contents                                                   :toc_2:
 - [[#file-naming-convention][File Naming Convention]]
-- [[#561-overview-of-communication-domain][56.1 Overview of communication domain]]
-- [[#564-generic-socket-address-structure][56.4 Generic socket address structure]]
-- [[#571-unix-domain-socket-addresses-struct-sockaddr_un][57.1 Unix Domain Socket Addresses: =struct sockaddr_un=]]
-  - [[#unixlocalfile-namespace][UNIX/Local/File Namespace]]
+- [[#56-sockets-introduction][56. Sockets Introduction]]
+  - [[#561-overview-of-communication-domain][56.1 Overview of communication domain]]
+  - [[#564-generic-socket-address-structure][56.4 Generic socket address structure]]
+- [[#571-unix-domain-socket-addresses][57.1 Unix Domain Socket Addresses]]
+  - [[#the-struct-sockaddr_un-data-type][The =struct sockaddr_un= data type]]
+  - [[#handling-sun_path-field-in-unix-local-file-namespace][Handling =sun_path= field in UNIX-Local-File Namespace]]
 - [[#572-stream-sockets-in-the-unix-domain][57.2 Stream Sockets in the UNIX Domain]]
   - [[#explanation][Explanation]]
   - [[#test-run][Test Run]]
@@ -16,6 +18,28 @@
   - [[#functions-prototypes][Functions Prototypes]]
   - [[#why-the-client-must-bind][Why the Client Must =bind()=]]
   - [[#test-run-1][Test Run]]
+- [[#578-exercises][57.8 Exercises]]
+  - [[#exercise-571][Exercise 57.1]]
+  - [[#exercise-572][Exercise 57.2]]
+  - [[#exercise-574][Exercise 57.4]]
+- [[#58-fundamentals-of-tcpip-networks][58. Fundamentals of TCP/IP Networks]]
+  - [[#581-internets][58.1 Internets]]
+  - [[#584-the-network-layer-ip][58.4 The Network Layer: IP]]
+  - [[#586-transport-layer][58.6 Transport Layer]]
+  - [[#587-requests-for-comments-rfcs][58.7 Requests for Comments (RFCs)]]
+  - [[#585-ip-addresses][58.5 IP Addresses]]
+- [[#593-data-representation][59.3 Data Representation]]
+- [[#594-internet-socket-address][59.4 Internet socket address]]
+  - [[#ipv4-socket-address][IPv4 socket address]]
+  - [[#ipv6-socket-address][IPv6 socket address]]
+  - [[#header-file-netinetinh][Header File netinet/in.h]]
+  - [[#the-sockaddr_storage-structure][The =sockaddr_storage= structure]]
+- [[#5911-client-server-example-stream-sockets][59.11 Client-Server Example Stream Sockets]]
+  - [[#server-program][Server program]]
+  - [[#client-program][Client Program]]
+- [[#5912-an-internet-domain-socket-library][59.12 An Internet Domain Socket Library]]
+- [[#5917-exercises][59.17 Exercises]]
+  - [[#exercise-591][Exercise 59.1]]
 
 * File Naming Convention
 :PROPERTIES:
@@ -44,7 +68,8 @@ A suffix indicates whether the program is a client or server:
 Thus, =id_echo_sv.c= is a server program that uses datagram sockets in
 the Internet domain.
 
-* 56.1 Overview of communication domain
+* 56. Sockets Introduction
+** 56.1 Overview of communication domain
 
 - Figure 56.1
 
@@ -57,7 +82,7 @@ the Internet domain.
 | =AF_INET6= | via IPv6      | on hosts connected    | 128-bit IPv6 address + | =sockaddr_in6=    |
 |            |               | via an IPv6 network   | 16-bit port number     |                   |
 
-* 56.4 Generic socket address structure
+** 56.4 Generic socket address structure
 
 The only purpose for the =struct sockaddr= type is to cast the various
 domain-specific address structures to a single type for use as
@@ -72,8 +97,8 @@ typically defined as follows:
   };
 #+end_src
 
-* 57.1 Unix Domain Socket Addresses: =struct sockaddr_un=
-
+* 57.1 Unix Domain Socket Addresses
+** The =struct sockaddr_un= data type
 In the UNIX domain, a socket address takes the form of a pathname, and
 the domain-specific socket address structure is defined as follows:
 
@@ -96,7 +121,7 @@ buffer overruns when writing into this field.
 
 -Reference: [[file:us_socket.c][Listing 57.1 us_socket]].
 
-** UNIX/Local/File Namespace
+** Handling =sun_path= field in UNIX-Local-File Namespace
 - Reference: [[info:libc#Local Namespace Details][libc#Local Namespace Details]].
 
 When you need to pass to library functions like =bind= or =connect=
@@ -481,3 +506,567 @@ those systems to see if the answer differs.
    string on stdin to have “normal” communication with B (the
    server). To test A whether connected or not start the string with
    =a:=.
+
+* 58. Fundamentals of TCP/IP Networks
+** 58.1 Internets
+The web page http://www.isoc.org/internet/history/brief.shtml provides
+a brief history of the Internet and TCP/IP.
+
+** 58.4 The Network Layer: IP
+A short history of IPv6 can be found at
+http://www.laynetworks.com/IPv6.htm.
+
+*** IPv6 Addresses
+The key difference is that IPv6 addresses consist of 128 bits, and the
+first few bits of the address are a format prefix, indicating the
+address type.  (We won’t go into the details of these address types;
+see Appendix A of [Stevens et al., 2004] and RFC 3513 for details.)
+
+- *IPv4*: 4 ×  8 bits =  32bits
+- *IPv6*: 8 × 16 bits = 128bits
+
+#+begin_example
+F000:0:0:0:0:0:A:1 == F000::A:1
+Wildcard address → 0::0 == ::
+#+end_example
+
+Only one instance of the double-colon notation can appear in an IPv6
+address; more than one instance would be ambiguous.
+
+**** Format of IPv4-mapped IPv6 Address
+#+begin_example
+[               all zeros               ][ FFFF ][ IPv4 Address ]
+                80 bits                  16 bits   32 bits
+
+204.152.189.116 → ::FFFF:204.152.189.116
+#+end_example
+
+** 58.6 Transport Layer
+*** 58.6.1 Port numbers
+The up-to-date list of IANA well-known and registered port assignments
+can be obtained online at
+http://www.iana.org/assignments/port-numbers.
+
+IANA specifies the ports in the range 49152 to 65535 as dynamic or
+private, with the intention that these ports can be used by local
+applications and assigned as ephemeral ports. However, various
+implementations allocate ephemeral ports from different ranges. On
+Linux, the range is defined by (and can be modified via) two numbers
+contained in the file =/proc/sys/net/ipv4/ip_local_port_range=.
+
+** 58.7 Requests for Comments (RFCs)
+Each of the Internet protocols that we discuss in this book is defined
+in an RFC document— a formal protocol specification. RFCs are
+published by the RFC Editor (http://www.rfc-editor.org/), which is
+funded by the Internet Society (http://www.isoc.org/). RFCs that
+describe Internet standards are developed under the auspices of the
+Internet Engineering Task Force (IETF, http://www.ietf.org/), a
+community of network designers, operators, vendors, and researchers
+concerned with the evolution and smooth operation of the
+Internet. Membership of the IETF is open to any interested individual.
+
+** 58.5 IP Addresses
+
+*** Multihomed Host and Wildcard Address
+:PROPERTIES:
+:CUSTOM_ID: multihomed-host-and-wildcard-address
+:END:
+- Reference: page 1187.
+
+This is the point where we move from "one computer talking to another"
+to the reality of *Network Architecture*.
+
+To understand these terms, you have to stop thinking of a computer as
+a single point in space and start thinking of it as a *building with
+multiple doors.*
+
+**** 1. What is a "Multihomed" Host?
+:PROPERTIES:
+:CUSTOM_ID: what-is-a-multihomed-host
+:END:
+A *multihomed* host is a computer that is connected to more than one
+network at the same time. This means it has *multiple IP addresses*, one
+for each network interface (Ethernet, Wi-Fi, VPN, Virtual Bridge).
+
+*The Metaphor:* Imagine a house on a corner lot. It has a front door on
+"Main Street" and a side door on "Oak Avenue."
+
+- *Main Street IP:* =192.168.1.5= (Local Wi-Fi)
+- *Oak Avenue IP:* =10.0.0.42= (Company VPN)
+- *The Secret Tunnel:* =127.0.0.1= (Loopback/Localhost)
+
+If you are a server running on this house, you have a choice: do you
+only listen for people knocking on the "Main Street" door, or do you
+want to hear knocks on *every* door?
+
+**** 2. What is the "Wildcard" Address?
+:PROPERTIES:
+:CUSTOM_ID: what-is-the-wildcard-address
+:END:
+The *Wildcard Address* (often written as =0.0.0.0= in IPv4 or =::= in
+IPv6) is a special "catch-all" instruction to the kernel.
+
+When you =bind()= a socket to the Wildcard address:
+
+- You are telling the kernel: *"Listen on EVERY available interface."*
+- If a packet arrives for =192.168.1.5=, the server gets it.
+- If a packet arrives for =10.0.0.42=, the server gets it.
+- If you add a new network card tomorrow, the server will
+  automatically start listening on that one too, without a restart.
+
+**** 3. The Role of =AI_PASSIVE= (=3=)
+:PROPERTIES:
+:CUSTOM_ID: the-role-of-ai_passive-3
+:END:
+In the call to =getaddrinfo()=, you passed =NULL= as the first argument
+(the hostname) and set the =AI_PASSIVE= flag.
+
+- *Without =AI_PASSIVE=:* =getaddrinfo()= would assume you want to
+  *connect* to something, so it would return the loopback address
+  (=127.0.0.1=) by default.
+- *With =AI_PASSIVE=:* It knows you want to *bind* (be a server).
+  Because the hostname is =NULL=, it provides the "Wildcard" addresses
+  (=0.0.0.0= and =::=).
+
+**** 4. Why is this useful? (The "Deep Level" Reason)
+:PROPERTIES:
+:CUSTOM_ID: why-is-this-useful-the-deep-level-reason
+:END:
+If Kerrisk had hard-coded a specific IP address (like =192.168.1.5=),
+and you took your laptop to a coffee shop where the IP changed to
+=172.16.0.10=, *the server would fail to start*. It would try to bind to
+an address the computer no longer "owns."
+
+By using =AI_PASSIVE= and the Wildcard:
+
+1. *Portability:* The code works on any machine regardless of its IP.
+2. *Accessibility:* Users on the VPN and users on the local Wi-Fi can
+   both reach the server.
+3. *Simplicity:* You don't have to write code to "detect" what the
+   computer's current IP is.
+
+**** Summary for your Refactor
+:PROPERTIES:
+:CUSTOM_ID: summary-for-your-refactor
+:END:
+When you see =hints.ai_flags = AI_PASSIVE=, just think: *"Open all the
+doors."* It ensures that no matter how many "homes" (networks) your
+server is connected to, it's ready to receive a connection from any of
+them.
+
+
+* 59.3 Data Representation
+:PROPERTIES:
+:CUSTOM_ID: data-representation
+:END:
+
+- Reference:
+  - [[file:read_line.c][Listing 59.1 read_line.c]]: Reading data a line at a time.
+  - [[file:yread_line.c][Listing 59.1 yread_line.c]]: Reading data a line at a time.
+
+#+begin_src C
+  #include "read_line.h"
+
+  ssize_t readLine(int fd, void *buffer, size_t n);
+
+  /* NOTE: Returns number of bytes copied into buffer
+           (excluding terminating null byte),
+           or 0 on end-of-file, or –1 on error */
+#+end_src
+
+* 59.4 Internet socket address
+- Reference [[info:libc#Internet Address Formats][libc#Internet Address Formats]], [[shell:man 3 sockaddr]].
+
+While =AF_*= are stored in host byte order =*in*_addr= and =*in*_port=
+are stored in network byte order.
+
+** IPv4 socket address
+
+#+begin_src C
+  struct sockaddr_in {
+      sa_family_t     sin_family;     /* AF_INET */
+      in_port_t       sin_port;       /* Port number */
+      struct in_addr  sin_addr;       /* IPv4 address */
+  };
+#+end_src
+
+** IPv6 socket address
+
+#+begin_src C
+  struct sockaddr_in6 {
+      sa_family_t     sin6_family;    /* AF_INET6 */
+      in_port_t       sin6_port;      /* Port number */
+      uint32_t        sin6_flowinfo;  /* IPv6 flow info */
+      struct in6_addr sin6_addr;      /* IPv6 address */
+      uint32_t        sin6_scope_id;  /* Set of interfaces for a scope */
+  };
+#+end_src
+
+** Header File netinet/in.h
+
+- Reference: [[file:/usr/include/netinet/in.h::struct in6_addr][netinet/in.h struct in6_addr]].
+- [[info:libc#Host Address Data Type][libc#Host Address Data Type]].
+- man 3 sockaddr
+
+#+begin_src C
+  #if !__USE_KERNEL_IPV6_DEFS
+  /* This data type is used to store an IPv6 address.  It stores 128
+     bits of data, which can be accessed (via a union) in a variety of
+     ways. */
+  struct in6_addr		/* struct definition */
+    {
+      union			/* Union definition */
+        {
+          uint8_t	__u6_addr8[16];
+          uint16_t __u6_addr16[8];
+          uint32_t __u6_addr32[4];
+        } __in6_u;		/* struct field definition: __in6_u */
+  #define s6_addr			__in6_u.__u6_addr8
+  #ifdef __USE_MISC
+  # define s6_addr16		__in6_u.__u6_addr16
+  # define s6_addr32		__in6_u.__u6_addr32
+  #endif
+    };
+  #endif /* !__USE_KERNEL_IPV6_DEFS */
+
+  extern const struct in6_addr in6addr_any;        /* :: */
+  extern const struct in6_addr in6addr_loopback;   /* ::1 */
+  #define IN6ADDR_ANY_INIT { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } } }
+  #define IN6ADDR_LOOPBACK_INIT { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } }
+
+  #define INET_ADDRSTRLEN 16
+  #define INET6_ADDRSTRLEN 46
+#+end_src
+
+*** Deep dive in C high level
+**** C Keywords and Declarations
+
+Let's sharpen those definitions with "C-standard" precision about line
+-6 (from bottom) of [[*Header File netinet/in.h][netinet/in.h snippet]]. Some of your logic is spot
+on (especially the "prenup" analogy for =const=), but =extern= and the
+process of instantiation have some specific rules you'll want to keep
+straight as you move into multi-file projects.
+
+***** 1. =extern=
+*The Reality:* Close! It tells the *compiler* (not just the LSP) that
+the storage for this variable is allocated in a *different* source
+file.
+
+- It's a "promise" that during the *linking* stage, a real memory
+  address for =in6addr_any= will be found.
+- Without =extern=, if you included this header in five different =.c=
+  files, the compiler would try to create five different variables
+  with the same name, and the linker would throw a "multiple
+  definition" tantrum.
+
+***** 2. =const=
+*The Reality:* Exactly. It marks the memory as *read-only*.
+
+- However, a slight technical correction: it doesn't just protect the
+  /address/, it protects the *data at that address*. You cannot do
+  =in6addr_any.s6_addr[0] = 1;=. The compiler will stop you
+  immediately.
+
+***** 3. =struct in6_addr=
+*Your take:* /The slot layout in memory./
+
+*The Reality:* Perfect. This is the *Type Definition*. It doesn't take
+ up any space yet; it's just the "architectural blueprint" that tells
+ the compiler how many bytes a "house" of this type will need and
+ where the "rooms" (union members) are.
+
+***** 4. =in6addr_any=
+*Your take:* /The declaration that instantiates the memory./ The
+Reality:* This is where it gets tricky. In this specific file
+(=in.h=), this is a *declaration*, but it is *NOT* an instantiation
+(definition).
+
+- Because of the =extern=, *no memory is allocated here*.
+- The actual memory allocation (the instantiation) happens deep inside
+  the C library (glibc), in a file like =in6addr.c=, where it looks
+  like this: =const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;=
+- This header is just a "referral" so your code knows what that memory
+  looks like when you use it.
+
+**** Understanding the =#define= Macros
+Notice the difference between the =extern= line and the
+=IN6ADDR_ANY_INIT= line:
+
+- *=in6addr_any=* is a *Global Variable*. It lives in memory at a
+  specific address. You can take its address with =&in6addr_any=.
+- *=IN6ADDR_ANY_INIT=* is a *Manifest Constant* (a macro). It doesn't
+  exist in memory. When the preprocessor runs, it literally
+  "copy-pastes" those triple braces into your code.
+
+#+begin_quote
+*Analogy:* =in6addr_any= is a specific, physical bucket of zeros sitting
+in a warehouse (the C library). =IN6ADDR_ANY_INIT= is a recipe for how
+to build your own bucket of zeros on the fly.
+#+end_quote
+
+**** The Union "Alias" Hack
+Look at those =#define s6_addr= lines in the header. They are there to
+save your fingers from typing! Instead of writing:
+- =my_addr.__in6_u.__u6_addr8[0]=
+The macro lets you write:
+- =my_addr.s6_addr[0]=
+
+It makes the complex, nested union look like a simple array. This is a
+very common pattern in system headers to provide "shorthand" access to
+deeply nested structures.
+
+***** Wait... why is =INET6_ADDRSTRLEN= 46?*
+:PROPERTIES:
+:CUSTOM_ID: inet-addrstrlen
+:END:
+
+You know an IPv6 address is 32 hex characters, right? So why 46?
+
+- *32* hex characters.
+- *7* colons (e.g., =ffff:ffff:...=).
+- *4* characters for the potential "IPv4-mapped" suffix (like
+  =::ffff:192.168.1.1=).
+- *1* for the null terminator =\0=.
+- The rest is a "safety margin" for scoped IDs (like =%eth0=).
+
+*** What is =IN6ADDR_ANY_INIT=?
+
+#+begin_src C
+  #define IN6ADDR_ANY_INIT                                     \
+    {                                                          \
+      {                                                        \
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }     \
+      }                                                        \
+    }
+#+end_src
+
+It is definitely *nested structs/unions*, not pointers.
+
+In C, braces in an initializer list correspond to the hierarchy of the
+data structure. When you see triple braces like that, it means you are
+drilling down through three layers of "containment":
+- Struct ─→ Union ─→ Array.
+
+**** The Anatomy of =in6_addr=
+To understand those braces, you have to look at how =struct in6_addr= is
+defined in =<netinet/in.h>=. It is designed to be accessed in multiple
+ways (as bytes, as 16-bit words, or as 32-bit words), which requires a
+union.
+
+Look at the =union= definition at line 3 of [[*Header File netinet/in.h][netinet/in.h snippet]].
+
+**** Mapping the Braces to the Code
+When you use =#define IN6ADDR_ANY_INIT=, the compiler maps the braces
+like this:
+
+1. Outer Braces ={ ... }=: Initializes the *=struct in6_addr=*.
+2. Middle Braces ={ ... }=: Initializes the *=union=* inside the
+   struct.
+3. Inner Braces ={ 0, 0, ... }=: Initializes the *first member* of
+   that union, which is the =uint8_t[16]= array.
+
+**** Why is it so "fussy"?
+You might wonder why you can't just use ={0}=. While modern C compilers
+(like GCC) are often smart enough to zero-initialize the rest of a
+structure if you provide just one ={0}=, the POSIX and IPv6 standards
+are very specific.
+
+The triple-brace initialization ensures:
+- *Strict Type Safety*: It explicitly matches the nested architecture
+  of the header file.
+- *Portability*: It prevents compiler warnings about "missing braces
+  around initializer" when using strict flags like =-Wmissing-braces=.
+- *Union Rules*: In C, an initializer for a union initializes its
+  *first* named member. By providing 16 zeros in the third level of
+  braces, you are explicitly filling the =uint8_t __u6_addr8[16]=
+  array.
+
+**** Summary
+- *Brace 1*: "I'm starting the Struct."
+- *Brace 2*: "I'm starting the Union inside the Struct."
+- *Brace 3*: "I'm filling the Array inside the Union."
+
+** The =sockaddr_storage= structure
+- Refeence: [[file:/usr/include/x86_64-linux-gnu/bits/socket.h::struct sockaddr_storage][sockaddr_storage definition]].
+
+This structure is defined to be large enough to hold any type of
+socket address. In particular, this structure allows us to
+transparently store either an IPv4 or an IPv6 socket address, thus
+removing IP version dependencies from our code.
+
+#+begin_src C
+  struct sockaddr_storage
+    {
+      __SOCKADDR_COMMON (ss_);  /* 2-bytes Address family, etc. */
+      char __ss_padding[_SS_PADSIZE]; /* ~118-byte dead space */
+      __ss_aligntype __ss_align; /* 8-bytes Force desired alignment. */
+    };
+#+end_src
+
+- *=_SS_PADSIZE=*: A *Feature Test Macro* or internal constant
+  determining how much "filler" is needed.
+- *=__ss_aligntype=*: A *Compiler-specific Type* (usually
+  =unsigned long int=) used solely for its size/alignment properties.
+- *The Goal*: To provide a "Generic Suitcase" that is big enough for an
+  IPv6 address but acts like a standard =sockaddr=.
+
+-----------------------
+
+* 59.11 Client-Server Example Stream Sockets
+
+- [[info:libc#Host Address Data Type][libc#Host Address Data Type]]
+
+ -- Macro: uint32_t INADDR_ANY
+
+     You can use this constant to stand for "any incoming address" when
+     binding to an address.  *Note Setting Address::.  This is the usual
+     address to give in the ‘sin_addr’ member of ‘struct sockaddr_in’
+     when you want to accept Internet connections.
+
+- Reference:
+  - [[file:is_seqnum.h][Listing 59.5 is_seqnum.h]]
+
+** Server program
+
+- Reference:
+  - [[file:is_seqnum_sv.c][Listing 59.6 is_seqnum_sv]]
+  - [[file:yis_seqnum_sv.c][Listing 59.6 yis_seqnum_sv]]
+
+*** Flow Control
+
+The server program shown in Listing 59-6 performs the following steps:
+
+- Initialize the server’s sequence number either to 1 or to the value
+  supplied in the optional command-line argument (=1=).
+
+- Ignore the SIGPIPE signal (=2=). This prevents the server from
+  receiving the SIGPIPE signal if it tries to write to a socket whose
+  peer has been closed; instead, the write() fails with the error
+  EPIPE.
+
+- Call getaddrinfo() (=4=) to obtain a set of socket address
+  structures for a TCP socket that uses the port number
+  PORT_NUM. (Instead of using a hard-coded port number, we would more
+  typically use a service name.) We specify the AI_PASSIVE flag (=3=)
+  so that the resulting socket will be bound to the wildcard address
+  (Section 58.5 [[#multihomed-host-and-wildcard-address][Multihomed Host and Wildcard Address]]). As a result,
+  if the server is run on a multihomed host, it can accept connection
+  requests sent to any of the host’s network addresses.
+
+- Enter a loop that iterates through the socket address structures
+  returned by the previous step (=5=). The loop terminates when the
+  program finds an address structure that can be used to successfully
+  create and bind a socket (=7=).
+
+- Set the SO_REUSEADDR option for the socket created in the previous
+  step (=6=). We defer discussion of this option until Section 61.10,
+  where we note that a TCP server should usually set this option on
+  its listening socket.
+
+- Mark the socket as a listening socket (=8=).
+
+- Commence an infinite for loop (=9=) that services clients
+  iteratively (Chapter 60). Each client’s request is serviced before
+  the next client’s request is accepted. For each client, the server
+  performs the following steps:
+
+  + Accept a new connection (=10=). The server passes non-NULL
+    pointers for the second and third arguments to accept(), in order
+    to obtain the address of the client. The server displays the
+    client’s address (IP address plus port number) on standard output
+    (=11=).
+
+  + Read the client’s message (=12=), which consists of a
+    newline-terminated string specifying how many sequence numbers the
+    client wants. The server converts this string to an integer and
+    stores it in the variable reqLen (=13=).
+
+  + Send the current value of the sequence number (seqNum) back to the
+    client, encoding it as a newline-terminated string (=14=). The
+    client can assume that it has been allocated all of the sequence
+    numbers in the range seqNum to (seqNum + reqLen – 1).
+
+  + Update the value of the server’s sequence number by adding reqLen
+    to seqNum (=15=).
+
+*** Design Choices: getInt vs. atoi
+
+On [[file:is_seqnum_sv.c::* (1) *][Point (1)]] =getInt()= is used to make sure argument is correct.  The
+strict validation process of this routine will kill the process at the
+slightest inconsistency.  At start up we need to make sure the server
+is in a known state.
+
+Then on [[file:is_seqnum_sv.c::* (13) *][Point (13)]] =atoi()= is used on exactly the same data type.
+This looks like “dirty fix” at first glance but there is a rational:
+- On error =atoi()= returns 0 which dealt with right away.
+- Using =getInt= (the way it is design) would introduce a *Denial of
+  Service (DoS) vulnerability.  Any remote client will be able to kill
+  the server.  That is definitely not wath you want.
+
+=atoi()= is not suitable for production because among other drawbacks
+it can't tell apart src_C{0} from src_C{"0"}.  So the best choice is
+redesign a non terminating version of =getInt=.
+
+** Client Program
+- Reference:
+  - [[file:is_seqnum_cl.c][Listing 59.7 is_seqnum_cl]]
+  - [[file:yis_seqnum_cl.c][Listing 59.7 yis_seqnum_cl]]
+
+*** Flow Control
+The client program is shown in Listing 59-7.  This program accepts two
+arguments.  The first argument, which is the name of the host on which
+the server is running, is mandatory.  The optional second argument is
+the length of the sequence desired by the client.  The default length
+is 1.  The client performs the following steps:
+
+- Call getaddrinfo() to obtain a set of socket address structures
+  suitable for connecting to a TCP server bound to the specified host
+  (=1=). For the port number, the client specifies PORT_NUM.
+
+- Enter a loop (=2=) that iterates through the socket address
+  structures returned by the previous step, until the client finds one
+  that can be used to successfully create (=3=) and connect (=4=) a
+  socket to the server.  Since the client has not bound its socket,
+  the connect() call causes the kernel to assign an ephemeral port to
+  the socket.
+
+- Send an integer specifying the length of the client’s desired
+  sequence (=5=).  This integer is sent as a newline-terminated
+  string.
+
+- Read the sequence number sent back by the server (which is likewise
+  a newlineterminated string) (=6=) and print it on standard output
+  (=7=).
+
+* 59.12 An Internet Domain Socket Library
+
+- References:
+  - [[file:inet_sockets.h][Listing 59.8 inet_sockets.h]].
+  - [[file:inet_sockets.c][Listing 59.9 inet_sockets.c]].
+
+* 59.17 Exercises
+
+** Exercise 59.1
+When reading large quantities of data, the =readLine()= function shown
+in [[file:read_line.c][Listing 59.1]] inefficient, since a system call is required to read
+each character.
+
+A more efficient interface would read a block of characters into a
+buffer and extract a line at a time from this buffer. Such an
+interface might consist of two functions:
+
+1. The first of these functions, which might be called
+   =readLineBufInit(fd, &rlbuf)=, initializes the bookkeeping data
+   structure pointed to by =rlbuf=.  This structure includes space for
+   a data buffer, the size of that buffer, and a pointer to the next
+   “unread” character in that buffer.  It also includes a copy of the
+   file descriptor given in the argument =fd=.
+
+2. The second function, =readLineBuf(&rlbuf)=, returns the next line
+   from the buffer associated with =rlbuf=. If required, this function
+   reads a further block of data from the file descriptor saved in
+   =rlbuf=.
+
+Implement these two functions. Modify the programs in [[file:is_seqnum_sv.c][Listing 59-6]]
+(is_seqnum_sv.c) and [[file:is_seqnum_cl.c][Listing 59-7]] (is_seqnum_cl.c) to use these
+functions.

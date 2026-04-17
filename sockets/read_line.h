@@ -5,10 +5,10 @@
 * under the terms of the GNU Lesser General Public License as published   *
 * by the Free Software Foundation, either version 3 or (at your option)   *
 * any later version. This program is distributed without any warranty.    *
-* See the files COPYING.lgpl-v3 and COPYING.gpl-v3 for details.           *
+* See the files COPYING.lgpl-v3 and [[file:../COPYING.gpl-v3]] for details.           *
 \*************************************************************************/
 
-/* Header file for Listing 59-1 */
+/* Header file for Listing 59.1 */
 
 /* read_line.h
 
@@ -20,5 +20,6 @@
 #include <sys/types.h>
 
 ssize_t readLine(int fd, void *buffer, size_t n);
+ssize_t yreadLine(int fd, void *buffer, size_t n);
 
 #endif
