@@ -1,34 +1,21 @@
-#+TITLE: Introduction to System Programming
+#+TITLE: System Programming Concepts
 #+AUTHOR: Astar Bahouidi
 #+DESCRIPTION: Notes on Chapters 01, 02, 03 from "The Linux Programming Interface" A Linux and UNIX® System Programming by Handbook Michael Kerrisk.
 #+STARTUP: showeverything
 
 * Table Of Contents                                                   :toc_2:
-- [[#errno-and-threads-352][=errno= and Threads (3.5.2)]]
-  - [[#1-what-is-an-lvalue][1. What is an =lvalue=?]]
-  - [[#2-what-is-a-modifiable-lvalue][2. What is a "Modifiable lvalue"?]]
-  - [[#3-the-the-problem-with-errno-and-threads][3. The "The Problem" with =errno= and Threads]]
-  - [[#4-the-macro-solution][4. The "Macro" Solution]]
-  - [[#5-the-leftover-error-the-logic-bug][5. The "Leftover" Error (The logic bug)]]
-  - [[#6-the-hidden-function-overhead-the-efficiency-bug][6. The "Hidden Function" Overhead (The efficiency bug)]]
-  - [[#the-correct-pthread-pattern][The "Correct" Pthread Pattern]]
-  - [[#summary-of-the-modifiable-lvalue][Summary of the "Modifiable Lvalue"]]
-- [[#the-inc-extension-352][The =.inc= extension (3.5.2)]]
-  - [[#why-use-cinc-instead-of-just-h][Why use =.c.inc= instead of just =.h=?]]
-  - [[#how-its-used-in-the-linux-programming-interface][How it's used in "The Linux Programming Interface"]]
-  - [[#why-is-this-done][Why is this done?]]
-  - [[#summary][Summary]]
-- [[#capabilities][Capabilities]]
+- [[#352-common-functions-and-header-files][3.5.2 Common Functions and Header Files]]
+  - [[#error-diagnostic-functions][Error-diagnostic functions]]
+  - [[#the-inc-extension][The =.inc= extension]]
+- [[#installing-linux-capabilities-development-headers][Installing Linux Capabilities Development Headers]]
   - [[#the-fix][The Fix]]
   - [[#why-tlpi-needs-this][Why TLPI needs this]]
   - [[#a-critical-makefile-hint][A Critical "Makefile" Hint]]
-- [[#compiler-extenson-__attribute__][Compiler extenson: =__attribute__=]]
-  - [[#1-the-noreturn-logic][1. The =NORETURN= Logic]]
-  - [[#2-syntax--placement][2. Syntax & Placement]]
-  - [[#3-the-identifier-namespace-the-__-rule][3. The Identifier Namespace (The =__= Rule)]]
-  - [[#4-crucial-distinction-compiler-vsfeature-test-macros][4. Crucial Distinction: Compiler vs. Feature Test Macros]]
+- [[#talking-to-the-compiler-and-to-glibc][Talking to the Compiler and to Glibc]]
+  - [[#compiler-extenson][Compiler extenson]]
+  - [[#macros-syntax][Macros syntax]]
   - [[#final-takeaway][Final Takeaway]]
-- [[#printing-system-data-type-values-362][Printing system data type values (3.6.2)]]
+- [[#362-printing-system-data-type-values][3.6.2 Printing system data type values]]
   - [[#1-the-variadic-erasure][1. The "Variadic Erasure"]]
   - [[#2-the-blind-stack][2. The "Blind" Stack]]
   - [[#3-why-pid_t-is-a-moving-target][3. Why =pid_t= is a "Moving Target"]]
@@ -40,34 +27,38 @@
   - [[#why-this-matters-for-the-tlpi-exercise][Why this matters for the TLPI Exercise]]
   - [[#logic-check-why-so-many-magic2s][Logic Check: Why so many Magic2s?]]
 
-* =errno= and Threads (3.5.2)
+* 3.5.2 Common Functions and Header Files
 
-#+begin_quote
-*Page: 53*
+** Error-diagnostic functions
+- Reference: [[file:lib/error_functions.c]].
 
-#+end_quote
+*** What is a locator-value?
+- Reference: page 53.
 
 This is one of those sentences that sounds like "Computer Science word
 salad" until you see the memory layout. Let's break it down into plain
 English and then look at the C implementation.
 
-** 1. What is an =lvalue=?
-In C, an *=lvalue=* (locator value) is simply an expression that refers
-to a specific memory location.
+**** 1. What is an =lvalue=?
+In C, an *=lvalue=* (locator value) is simply an expression that
+refers to a specific memory location.
 
-- *A variable* =x= is an =lvalue= because you can find where it lives in
-  RAM.
+- *A variable* =x= is an =lvalue= because you can find where it lives
+  in RAM.
 - *The number =5=* is *not* an =lvalue=; it's just a value. You can't
   say "the address of 5."
 
-** 2. What is a "Modifiable lvalue"?
+**** 2. What is a "Modifiable lvalue"?
 It's a memory location that you are allowed to change.
 
-- =int x = 10;= --- =x= is a modifiable =lvalue=. You can do =x = 20;=.
-- =const int y = 10;= --- =y= is an =lvalue= (it has an address), but it
-  is *not modifiable*.
+- =int x = 10;= --- =x= is a modifiable =lvalue=. You can do =x =
+  20;=.
+- =const int y = 10;= --- =y= is an =lvalue= (it has an address), but
+  it is *not modifiable*.
 
-** 3. The "The Problem" with =errno= and Threads
+*** =errno= and Threads
+
+**** 3. The "The Problem" with =errno= and Threads
 In the old days (before threads), =errno= was just a global =int=.
 
 #+begin_src C
@@ -81,7 +72,7 @@ To solve this, POSIX requires that every thread has its *own private*
 version of =errno=. But you can't have a variable name that points to
 different memory for different threads using standard C.
 
-** 4. The "Macro" Solution
+**** 4. The "Macro" Solution
 To make =errno= thread-safe, the library redefines it as a *function
 call*. On a modern Linux system, if you look at =errno.h=, it looks
 something like this:
@@ -91,7 +82,7 @@ extern int * __errno_location (void);
 #define errno (*__errno_location())
 #+end_src
 
-** 5. The "Leftover" Error (The logic bug)
+**** 5. The "Leftover" Error (The logic bug)
 Unlike many system calls, POSIX threads functions *never set =errno=*.
 
 - Standard system calls (like =open()= or =read()=) return =-1= on
@@ -111,7 +102,7 @@ if (errno != 0) // errno is STILL 5 from earlier!
 Your program would trigger the error handler because it's looking at
 "old news" sitting in the =errno= memory location.
 
-** 6. The "Hidden Function" Overhead (The efficiency bug)
+**** 6. The "Hidden Function" Overhead (The efficiency bug)
 As Kerrisk noted, because =errno= is a macro =(*__errno_location())=:
 
 1. The CPU has to jump to a function.
@@ -124,7 +115,7 @@ every time is like driving to the post office just to check if you have
 mail, when the mailman already handed you the letter (the return value
 =s=).
 
-** The "Correct" Pthread Pattern
+**** The "Correct" Pthread Pattern
 This is why the "TLPI style" is mandatory for threads:
 
 #+begin_src C
@@ -136,7 +127,7 @@ if (s != 0)
     nmsetErr(nmsetErr(
 #+end_src
 
-** Summary of the "Modifiable Lvalue"
+**** Summary of the "Modifiable Lvalue"
 Think of it this way:
 
 - *Old C:* =errno= is a *Box*. You just look inside.
@@ -151,7 +142,7 @@ yesterday!"
 
 --------------
 
-* The =.inc= extension (3.5.2)
+** The =.inc= extension
 The =.inc= extension stands for *"Include"*.
 
 When you see a file named =ename.c.inc=, it indicates that the file is
@@ -159,7 +150,7 @@ When you see a file named =ename.c.inc=, it indicates that the file is
 it is a *fragment of C code* designed to be pulled into another =.c=
 file using the =#include= preprocessor directive.
 
-** Why use =.c.inc= instead of just =.h=?
+*** Why use =.c.inc= instead of just =.h=?
 In standard C convention:
 
 - *=.h= files* usually contain *declarations* (function prototypes,
@@ -169,12 +160,12 @@ In standard C convention:
   strings, or logic). You include them to "paste" actual code into a
   specific spot.
 
-** How it's used in "The Linux Programming Interface"
+*** How it's used in "The Linux Programming Interface"
 The =awk= script you just looked at generates the =ename.c.inc= file.
 Michael Kerrisk (the author) then uses it inside a library file (like
 =error_functions.c=) like this:
 
-** Why is this done?
+*** Why is this done?
 1. *Automation:* The list of error names (=EPERM=, =ENOENT=) changes
    depending on which version of Linux or which architecture (x86 vs
    ARM) you are on.
@@ -187,17 +178,12 @@ Michael Kerrisk (the author) then uses it inside a library file (like
    as a separate program, which would fail because it's just an array
    with no =main()= function.
 
-** Summary
+*** Summary
 It is a *"Generated Code Fragment."* The =.c= tells you it contains C
 code, and the =.inc= tells you it's a "partial" file meant to be
 included elsewhere.
 
---------------
-
-* Capabilities
-This error means you are missing the *development headers* for Linux
-Capabilities on your system.
-
+* Installing Linux Capabilities Development Headers
 While the Linux kernel supports capabilities by default, the C headers
 and the library (=libcap=) required to compile programs that use them
 (common in TLPI Chapters 20 and 39) are usually not installed in a base
@@ -258,8 +244,10 @@ the root directory.
 
 --------------
 
-* Compiler extenson: =__attribute__=
-** 1. The =NORETURN= Logic
+* Talking to the Compiler and to Glibc
+
+** Compiler extenson
+*** 1. The =NORETURN= Logic
 =__attribute__((__noreturn__))= is a *GCC/Clang hint*, not standard C.
 It informs the compiler that a function (like =exit= or =errExit=) never
 returns to its caller. This allows the compiler to:
@@ -270,7 +258,7 @@ returns to its caller. This allows the compiler to:
 - *Optimize:* Removes unreachable code paths and avoids generating
   unnecessary function epilogues.
 
-** 2. Syntax & Placement
+*** 2. Syntax & Placement
 The =NORETURN= macro allows for flexible, portable placement:
 
 - *In Prototypes (Suffix):* =void systmErr(systmErr(
@@ -278,7 +266,8 @@ The =NORETURN= macro allows for flexible, portable placement:
 - *In Definitions (Prefix):* =NORETURN static void terminate(...)= tells
   the compiler /generating the body/ that it doesn't need to return.
 
-** 3. The Identifier Namespace (The =__= Rule)
+** Macros syntax
+*** 3. The Identifier Namespace (The =__= Rule)
 Identifiers starting with =__= (or =_= + uppercase) are *reserved for
 the implementation* (compiler/libc).
 
@@ -288,15 +277,23 @@ the implementation* (compiler/libc).
 - *The Philosophy:* If it starts with =__=, it is "not yours." Use them
   to talk to the compiler, but never define them yourself.
 
-** 4. Crucial Distinction: Compiler vs. Feature Test Macros
+*** 4. Compiler vs. Feature Test Macros
 It is vital to distinguish between *where* these macros come from and
 *what* they control:
 
-| Type                  | Examples                         | Source                   | Purpose                                                                                                            |
-|                       | <10>                             | <10>                     | <10>                                                                                                               |
-|-----------------------+----------------------------------+--------------------------+--------------------------------------------------------------------------------------------------------------------|
-| *Compiler Macros*     | =__GNUC__=, =__llvm__=           | Built-in to the compiler | Identifies the compiler and its specific extensions (like attributes).                                             |
-| *Feature Test Macros* | =_POSIX_C_SOURCE=, =_GNU_SOURCE= | Defined by the *User*    | Tells the *Header files* which APIs to expose (e.g., "Give me the Linux-specific functions, not just standard C"). |
+| Type         | Examples           | Source       | Purpose                     |
+|              | <10>               | <10>         | <10>                        |
+|--------------+--------------------+--------------+-----------------------------|
+| Compiler     | ~__GNUC__~,        | Built-in to  | Identifies the compiler and |
+| Macros       | ~__llvm__~         | the compiler | its specific extensions     |
+|              |                    |              | (like attributes).          |
+|--------------+--------------------+--------------+-----------------------------|
+| Feature Test | ~_POSIX_C_SOURCE~, | Defined by   | Tells the *Header files*    |
+| Macros       | ~_GNU_SOURCE~      | the *User*   | which APIs to expose        |
+|              |                    |              | (e.g., "Give me the         |
+|              |                    |              | Linux-specific functions,   |
+|              |                    |              | not just standard C").      |
+|--------------+--------------------+--------------+-----------------------------|
 
 ** Final Takeaway
 Think of =__attribute__= as *address(speech) comments to the compiler.*
@@ -312,9 +309,7 @@ calls.
 logic, ensures silent =-Wall= builds, and follows strict ISO naming
 conventions to remain portable
 
---------------
-
-* Printing system data type values (3.6.2)
+* 3.6.2 Printing system data type values
 You have just peered into the "Unsafe" heart of C. The fact is =printf=
 (and all variadic functions) are essentially *blind*.
 
@@ -406,8 +401,6 @@ cast it explicitly and match the format exactly.
 
 *Welcome to the world of "Defensive C"---where we treat every function
 call like the compiler is trying to misunderstand us!*
-
---------------
 
 * 3.8 Exercise
 #+begin_src C
