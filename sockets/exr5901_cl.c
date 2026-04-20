@@ -1,12 +1,15 @@
 /* =========================================================================
- * Created on: <Wed Apr 15 04:02:07 +01 2026>
- * Time-stamp: <Sat Apr 18 19:54:52 +01 2026 by owner>
+ * Created on: <Sat Apr 18 11:49:10 +01 2026>
+ * Time-stamp: <Mon Apr 20 16:59:05 +01 2026 by owner>
  * Author    : owner
- * Desc      : ~/coding/c_prog/tlpi/sockets/yis_seqnum_cl.c -
+ * Desc      : ~/coding/c_prog/tlpi/sockets/exr5901_cl.c -
  *
- * See [[file:is_seqnum_cl.c]], [[file:yis_seqnum_sv.c]]
+ * Exercise 59.1
+ * Implement buffered I/O in Listing 59.7 [[file:is_seqnum_cl.c]]
+ * For details see [[file:README.org::#exercise-59-1]].
  * ========================================================================= */
 #include "is_seqnum.h"
+#include "ybio.h"
 #include <netdb.h>
 
 int main(int argc, char *argv[argc + 1]) {
@@ -14,6 +17,7 @@ int main(int argc, char *argv[argc + 1]) {
   int sofd, rc;
   char *reqNumStr = NULL, seqNumStr[INT_LEN];
   ssize_t numRead;
+  ybio_t bio;
 
   if (argc < 2 || !strcmp(argv[1], "--help")) {
     usageErr("%s <peer-host-name> [request-number]\n", argv[0]);
@@ -39,7 +43,8 @@ int main(int argc, char *argv[argc + 1]) {
       systmErr("close() failed");
   }
 
-  freeaddrinfo(niResult);
+  /* Initialize state monitor structure for buffered I/O */
+  ybio_init(sofd, &bio);
 
   if (argc > 2) {
     if (tryGetInt(argv[2], GN_GT_0, "req-num-str", NULL) == TGN_SUCCESS)
@@ -52,7 +57,7 @@ int main(int argc, char *argv[argc + 1]) {
   if (write(sofd, "\n", 1) != 1)
     custmErr("partial/failed wrote() newline");
 
-  numRead = yreadLine(sofd, seqNumStr, INT_LEN);
+  numRead = ybio_readl(&bio, seqNumStr, INT_LEN);
   if (numRead < 0)
     systmErr("yreadLine() failed");
   if (numRead == 0)

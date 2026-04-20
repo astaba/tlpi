@@ -5,7 +5,7 @@
 * under the terms of the GNU General Public License as published by the   *
 * Free Software Foundation, either version 3 or (at your option) any      *
 * later version. This program is distributed without any warranty.  See   *
-* the file [[file:../COPYING.gpl-v3]] for details.                                    *
+* the file [[file:../COPYING.gpl-v3]] for details. *
 \*************************************************************************/
 
 /* Listing 57.5 */
@@ -23,12 +23,18 @@
    See Section 38.7 of "The Linux Programming Interface" for more details
    on this subject.)
 */
-#include <sys/un.h>
-#include <sys/socket.h>
-#include <ctype.h>
+#ifndef UD_UCASE_H
+#define UD_UCASE_H
+
 #include "../lib/tlpi_hdr.h"
+#include <ctype.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 
-#define BUF_SIZE 10             /* Maximum size of messages exchanged
-                                   between client and server */
-
+#define BUF_SIZE                                                               \
+  10                    /* Maximum size of messages exchanged                  \
+                           between client and server */
+#define SUN_PATHSIZE 92 /* sockaddr_un portable path size */
 #define SV_SOCK_PATH "/tmp/ud_ucase"
+
+#endif /* UD_UCASE_H */

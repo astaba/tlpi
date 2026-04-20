@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Mon Apr 13 02:30:26 +01 2026>
- * Time-stamp: <Mon Apr 13 04:06:25 +01 2026 by owner>
+ * Time-stamp: <Mon Apr 20 16:58:42 +01 2026 by owner>
  * Author    : Copyright (C) Michael Kerrisk, 2026
  *             See file [[file:../COPYING.gpl-v3]] for details GNU License.
  * Desc      : ~/coding/c_prog/tlpi/sockets/is_seqnum.h -

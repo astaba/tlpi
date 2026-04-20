@@ -5,10 +5,11 @@
 
 * Table of Contents                                                   :toc_2:
 - [[#file-naming-convention][File Naming Convention]]
+- [[#tcpip-references][TCP/IP References]]
 - [[#56-sockets-introduction][56. Sockets Introduction]]
   - [[#561-overview-of-communication-domain][56.1 Overview of communication domain]]
   - [[#564-generic-socket-address-structure][56.4 Generic socket address structure]]
-- [[#571-unix-domain-socket-addresses][57.1 Unix Domain Socket Addresses]]
+- [[#571-unix-domain-socket-addresses][57.1 UNIX Domain Socket Addresses]]
   - [[#the-struct-sockaddr_un-data-type][The =struct sockaddr_un= data type]]
   - [[#handling-sun_path-field-in-unix-local-file-namespace][Handling =sun_path= field in UNIX-Local-File Namespace]]
 - [[#572-stream-sockets-in-the-unix-domain][57.2 Stream Sockets in the UNIX Domain]]
@@ -40,6 +41,8 @@
 - [[#5912-an-internet-domain-socket-library][59.12 An Internet Domain Socket Library]]
 - [[#5917-exercises][59.17 Exercises]]
   - [[#exercise-591][Exercise 59.1]]
+  - [[#exercise-592][Exercise 59.2]]
+  - [[#exercise-593][Exercise 59.3]]
 
 * File Naming Convention
 :PROPERTIES:
@@ -67,6 +70,14 @@ A suffix indicates whether the program is a client or server:
 
 Thus, =id_echo_sv.c= is a server program that uses datagram sockets in
 the Internet domain.
+
+* TCP/IP References
+
+There is a wealth of resources references at *Section 59.15* on TCP/IP
+and the sockets API.
+
+Linux-specific information can be found in the following manual pages:
+socket(7), ip(7), raw(7), tcp(7), udp(7), and packet(7).
 
 * 56. Sockets Introduction
 ** 56.1 Overview of communication domain
@@ -97,7 +108,7 @@ typically defined as follows:
   };
 #+end_src
 
-* 57.1 Unix Domain Socket Addresses
+* 57.1 UNIX Domain Socket Addresses
 ** The =struct sockaddr_un= data type
 In the UNIX domain, a socket address takes the form of a pathname, and
 the domain-specific socket address structure is defined as follows:
@@ -132,12 +143,31 @@ address in the local namespace as the sum of the size of the
 size!)  of the file name string.  This can be done using the macro
 =SUN_LEN=:
 
-*WARNING:* Never use =SUN_LEN= on Path from the Abstract Namespace.
-
 #+begin_src C
   struct sockaddr_un addr;	/* Cleared and populated */
   int rc = bind(sfd, (struct sockadrr*)&addr, SUNLEN(&addr));
 #+end_src
+
+*** Linux Exclusive UNIX Abstract Namespace
+When passing the address length from the abstract namespace to
+functions like =bind()=, =connect()= or =sendto()= neither use
+=SUN_LEN= nor =sizeof()=.
+
+See [[#test-run-exercise-57-1][Test Run Exercises 57.1]] for an example of abstract namespace
+address length computed with src_C{sizeof(struct sockaddr_un)}. All
+='\0'= (=0= from =memset()=) are represented by =@= from the first
+character all the way down to every single =0='s in the tail. Not
+optimal!
+
+Compute address length /manually/ like this:
+
+#+begin_src C
+  socklen_t socklen;
+  socklen = offsetof(struct sockaddr_un, sun_path) + 1 + strlen("path");
+#+end_src
+
+See a good example at [[file:exr5701_cl.c][Exercise 57.1 client]] both on =bind()= and
+=sendto()= calls.
 
 * 57.2 Stream Sockets in the UNIX Domain
 :PROPERTIES:
@@ -203,8 +233,8 @@ $ kill %1 #or kill SIGTERM <pid>
 diff CLIENT_LOAD SERVER_LOG
 #+end_example
 
-At this point null as shell status code =$?= means
-identity. Successful test.
+At this point null as shell status code =$?= means no difference was
+found.  Successful test.
 
 * 57.3 Datagram Sockets in the UNIX Domain
 
@@ -413,13 +443,17 @@ and use the =ss= (socket statistics) command in another:
   ss -a --unix | grep ud_ucase
 #+end_src
 
-Look for the *Recv-Q* and *Send-Q* columns. * *Recv-Q:* You will see
-this number climb until it hits the max limit of the receiving
-socket. * *The Hang:* The moment *Recv-Q* hits the ceiling, your
-sender's process state will switch to =D= (uninterruptible sleep) or
-=S= (interruptible sleep) while it waits for the buffer to clear.
+Look for the *Recv-Q* and *Send-Q* columns:
+- *Recv-Q:* You will see this number climb until it hits the max limit
+  of the receiving socket.
+- *The Hang:* The moment *Recv-Q* hits the ceiling, your sender's
+  process state will switch to =D= (uninterruptible sleep) or =S=
+  (interruptible sleep) while it waits for the buffer to clear.
 
 **** Test Run
+:PROPERTIES:
+:CUSTOM_ID: test-run-exercise-57-1
+:END:
 References: [[file:exr5701_cl.c][Exercise 57.1 client]], [[file:exr5701_sv.c][Exercise 57.1 server]].
 
 Output of =ss -axp | grep exr5701=
@@ -447,7 +481,7 @@ us_xfr_cl]] to use the Linux-specific abstract socket namespace
 (Section 57.6).
 
 *** Answer
-References: [[file:exr5702_cl.c][Exercise 57.2 client]], [[file:exr5702_sv.c][Exercise 57.2 server]].
+References: [[file:exr5702_sv.c][Exercise 57.2 server]], [[file:exr5702_cl.c][Exercise 57.2 client]].
 
 #+begin_src C
   /* HACK: Construct remote address based on abstract socket namespace
@@ -1039,6 +1073,9 @@ is 1.  The client performs the following steps:
   (=7=).
 
 * 59.12 An Internet Domain Socket Library
+:PROPERTIES:
+:CUSTOM_ID: section-59-12
+:END:
 
 - References:
   - [[file:inet_sockets.h][Listing 59.8 inet_sockets.h]].
@@ -1047,12 +1084,15 @@ is 1.  The client performs the following steps:
 * 59.17 Exercises
 
 ** Exercise 59.1
+:PROPERTIES:
+:CUSTOM_ID: exercise-59-1
+:END:
 When reading large quantities of data, the =readLine()= function shown
 in [[file:read_line.c][Listing 59.1]] inefficient, since a system call is required to read
 each character.
 
 A more efficient interface would read a block of characters into a
-buffer and extract a line at a time from this buffer. Such an
+buffer and extract a line at a time from this buffer.  Such an
 interface might consist of two functions:
 
 1. The first of these functions, which might be called
@@ -1063,10 +1103,43 @@ interface might consist of two functions:
    file descriptor given in the argument =fd=.
 
 2. The second function, =readLineBuf(&rlbuf)=, returns the next line
-   from the buffer associated with =rlbuf=. If required, this function
+   from the buffer associated with =rlbuf=.  If required, this function
    reads a further block of data from the file descriptor saved in
    =rlbuf=.
 
-Implement these two functions. Modify the programs in [[file:is_seqnum_sv.c][Listing 59-6]]
+Implement these two functions.  Modify the programs in [[file:is_seqnum_sv.c][Listing 59-6]]
 (is_seqnum_sv.c) and [[file:is_seqnum_cl.c][Listing 59-7]] (is_seqnum_cl.c) to use these
 functions.
+
+*** Answer
+- Reference: [[file:exr5901_sv.c][exr5901_sv]], [[file:exr5901_cl.c][exr5901_cl]].
+
+** Exercise 59.2
+:PROPERTIES:
+:CUSTOM_ID: exercise-59-2
+:END:
+Modify the programs in [[file:is_seqnum_sv.c][Listing 59.6]] (is_seqnum_sv.c) and [[file:is_seqnum_cl.c][Listing 59.7]]
+(is_seqnum_cl.c) to use the =inetListen()= and =inetConnect()=
+functions provided in [[file:inet_sockets.c][Listing 59.9]] (inet_sockets.c).
+
+*** Answer
+- Reference: [[file:exr5902_sv.c][exr5902_sv]], [[file:exr5902_cl.c][exr5902_cl]].
+
+** Exercise 59.3
+:PROPERTIES:
+:CUSTOM_ID: exercise-59-3
+:END:
+Write a UNIX domain sockets library with an API similar to the
+Internet domain sockets library shown in [[#section-59-12][Section 59.12]]. Rewrite the
+programs in [[file:us_xfr_sv.c][Listing 57.3]] (us_xfr_sv.c, on page 1168) and [[file:us_xfr_cl.c][Listing 57.4]]
+(us_xfr_cl.c, on page 1169) to use this library.
+
+*** Answer
+- References:
+  - [[file:yunix_sockets.c][yunix_sockets.c]].
+  - [[file:exr5903_us_xfr_sv.c][exr5903_us_xfr_sv]].
+  - [[file:exr5903_us_xfr_cl.c][exr5903_us_xfr_cl]].
+  - [[file:exr5903_ud_ucase_sv.c][exr5903_ud_ucase_sv]].
+  - [[file:exr5903_ud_ucase_cl.c][exr5903_ud_ucase_cl]].
+  - [[file:exr5903_a_us_xfr_sv.c][exr5903_a_us_xfr_sv]].
+  - [[file:exr5903_a_us_xfr_cl.c][exr5903_a_us_xfr_cl]].

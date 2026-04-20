@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Wed Apr 08 19:56:45 +01 2026>
- * Time-stamp: <Mon Apr 13 04:06:19 +01 2026 by owner>
+ * Time-stamp: <Mon Apr 20 16:49:22 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/exr5701_cl.c -
  * Client for Exercise 57.1: In Section 57.3, we noted that UNIX domain
@@ -17,7 +17,9 @@
 
 int main(int argc, char *argv[argc + 1]) {
   int cl_fd;
+  char localpath[SUN_PATHSIZE];
   struct sockaddr_un cl_addr, sv_addr;
+  socklen_t socklen;
   ssize_t numSent, numRecv;
   char *payload = "Sent me all the data.";
   char buf[4096];
@@ -27,10 +29,11 @@ int main(int argc, char *argv[argc + 1]) {
 
   memset(&cl_addr, 0, sizeof(struct sockaddr));
   cl_addr.sun_family = AF_UNIX;
-  snprintf(cl_addr.sun_path + 1, sizeof(cl_addr.sun_path) - 1,
-           "yud_abstract.%ld", (long)getpid());
+  snprintf(localpath, SUN_PATHSIZE, "yud_abstract.%ld", (long)getpid());
+  strncpy(cl_addr.sun_path + 1, localpath, sizeof(cl_addr.sun_path) - 2);
 
-  if (bind(cl_fd, (struct sockaddr *)&cl_addr, SUN_LEN(&cl_addr)) == -1)
+  socklen = offsetof(struct sockaddr_un, sun_path) + 1 + strlen(localpath);
+  if (bind(cl_fd, (struct sockaddr *)&cl_addr, socklen) == -1)
     systmErr("bind() failed");
 
   memset(&sv_addr, 0, sizeof(struct sockaddr_un));
@@ -38,8 +41,9 @@ int main(int argc, char *argv[argc + 1]) {
   strncpy(sv_addr.sun_path + 1, SV_SOCK_PATH, sizeof(sv_addr.sun_path) - 2);
 
   /* Send the first datagram to advertise local address to peer server. */
+  socklen = offsetof(struct sockaddr_un, sun_path) + 1 + strlen(SV_SOCK_PATH);
   numSent = sendto(cl_fd, payload, strlen(payload), 0,
-                   (struct sockaddr *)&sv_addr, sizeof(struct sockaddr_un));
+                   (struct sockaddr *)&sv_addr, socklen);
 
   /* SUN_LEN(&sv_addr)); WARN: EINVAL Invalid argument to bind() */
   /* NOTE: Never use SUN_LEN() on Path from the Abstract Namespace */
@@ -48,7 +52,7 @@ int main(int argc, char *argv[argc + 1]) {
     systmErr("sendto() failed");
 
   /* Sleep enough for the reception kernel buffer to be flooded by server. */
-  sleep(5);
+  sleep(30);
 
   /* Unclog reception queue */
   while ((numRecv = recvfrom(cl_fd, buf, 4096, MSG_DONTWAIT, NULL, NULL)) > 0) {

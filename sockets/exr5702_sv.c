@@ -1,8 +1,9 @@
 /* =========================================================================
  * Created on: <Wed Apr 08 16:09:22 +01 2026>
- * Time-stamp: <Mon Apr 13 04:06:25 +01 2026 by owner>
+ * Time-stamp: <Mon Apr 20 16:51:00 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/yus_axfr_sv_ex_57_2.c -
+ * 
  * Server for Exercise 57.2 Rewrite the programs in Listing 57.3
  * [[file:us_xfr_sv.c]] and Listing 57.4 [[file:us_xfr_cl.c]]
  * to use the Linux-specific abstract socket namespace (Section 57.6).
@@ -14,6 +15,7 @@
 int main(int argc, char *argv[argc + 1]) {
   int sv_fd, confd;
   struct sockaddr_un localAddr;
+  socklen_t socklen;
   ssize_t numRead;
   char buf[BUF_SIZE];
 
@@ -24,8 +26,8 @@ int main(int argc, char *argv[argc + 1]) {
   localAddr.sun_family = AF_UNIX;
   strncpy(localAddr.sun_path + 1, SV_SOCK_PATH, sizeof(localAddr.sun_path) - 2);
 
-  if (bind(sv_fd, (struct sockaddr *)&localAddr, sizeof(struct sockaddr_un)) ==
-      -1)
+  socklen = offsetof(struct sockaddr_un, sun_path) + 1 + strlen(SV_SOCK_PATH);
+  if (bind(sv_fd, (struct sockaddr *)&localAddr, socklen) == -1)
     systmErr("bind() failed");
 
   if (listen(sv_fd, BACKLOG) == -1)

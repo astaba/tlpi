@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Tue Apr 07 19:16:26 +01 2026>
- * Time-stamp: <Mon Apr 13 03:00:48 +01 2026 by owner>
+ * Time-stamp: <Sat Apr 18 21:52:22 +01 2026 by owner>
  * Author    : Copyright (C) Michael Kerrisk, 2026
  *             See file [[file:../COPYING.gpl-v3]] for details GNU License.
  * Desc      : ~/coding/c_prog/tlpi/sockets/ud_ucase_sv.c -
@@ -10,6 +10,7 @@
  * See also [[file:ud_ucase_cl.c]].
  * ========================================================================= */
 #include "ud_ucase.h"
+#include <sys/un.h>
 
 int main(int argc, char *argv[]) {
   struct sockaddr_un svaddr, claddr;
@@ -35,7 +36,7 @@ int main(int argc, char *argv[]) {
   svaddr.sun_family = AF_UNIX;
   strncpy(svaddr.sun_path, SV_SOCK_PATH, sizeof(svaddr.sun_path) - 1);
 
-  if (bind(svfd, (struct sockaddr *)&svaddr, sizeof(struct sockaddr_un)) == -1)
+  if (bind(svfd, (struct sockaddr *)&svaddr, SUN_LEN(&svaddr)) == -1)
     systmErr("bind");
 
   /* Receive messages, convert to uppercase, and return to client */

@@ -64,5 +64,6 @@ temp/
 *.old
 *.swp
 *~
+DRAFT.*
 
 make-p.*

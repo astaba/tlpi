@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Tue Apr 07 02:14:29 +01 2026>
- * Time-stamp: <Sat Apr 11 04:56:44 +01 2026 by owner>
+ * Time-stamp: <Sat Apr 18 21:08:51 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/us_socket.c -
  * Listing 57.1: Binding a UNIX domain socket
@@ -26,7 +26,8 @@ void SANBOX(void) {
   addr.sun_family = AF_UNIX;
   strncpy(addr.sun_path, SOCKNAME, strlen(SOCKNAME) - 1);
   /* HACK: The "- 1" takes advantage of the memset() to ensure that
-     socket path is null-terminated in the limit of its field size. */
+     at most (if path name is larger than available path) socket path
+     is null-terminated in the limit of its field size. */
 
   /* addrSize = (offsetof(struct sockaddr_un, sun_path) + strlen(addr.sun_path)); */
   /* if (bind(sockfd, (struct sockaddr *)&addr, addrSize) == -1) */
