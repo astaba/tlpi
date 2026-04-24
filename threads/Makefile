@@ -6,7 +6,8 @@ GEN_EXE = detached_attrib one_time_init prod_condvar prod_no_condvar \
 	thread_cancel thread_cleanup thread_incr thread_incr_mutex \
 	thread_incr_rwlock thread_incr_spinlock \
 	thread_lock_speed \
-	thread_multijoin
+	thread_multijoin \
+	exr2901
 
 LINUX_EXE =
 

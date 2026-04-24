@@ -1,0 +1,185 @@
+#+TITLE: Threads
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Chapters 29-33 The Linux Programming Interface by Michael Kerrisk
+#+STARTUP: showall
+
+* Table Of Contents                                                   :toc_2:
+- [[#29-introduction][29 Introduction]]
+  - [[#section-api][Section API]]
+  - [[#296-joining-with-a-terminated-thread][29.6 Joining with a Terminated Thread]]
+  - [[#298-threads-attributes][29.8 Threads Attributes]]
+  - [[#29-exercise][29 Exercise]]
+
+* 29 Introduction
+** Section API
+
+#+begin_src C
+  #include <pthread.h>
+
+  int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
+                        void *(*start)(void *), void *arg);
+  /* Returns 0 on success, or a positive error number on error */
+
+  void pthread_exit(void *retval);
+
+  pthread_t pthread_self(void);
+  /* Returns the thread ID of the calling thread */
+
+  int pthread_equal(pthread_t t1, pthread_t t2);
+  /* Returns nonzero value if t1 and t2 are equal, otherwise 0 */
+
+  int pthread_join(pthread_t thread, void **retval);
+  /* Returns 0 on success, or a positive error number on error */
+
+  int pthread_detach(pthread_t thread);
+  /* Returns 0 on success, or a positive error number on error */
+#+end_src
+
+** 29.6 Joining with a Terminated Thread
+
+[[file:simple_thread.c][Listing 29.1 simple_thread]]: A simple program using Pthreads.
+
+** 29.8 Threads Attributes
+
+[[file:detached_attrib.c][Listing 29.2 detached_attrib]]: Creating a thread with the detached
+attribute.
+
+We’ll just mention that these attributes include information such as
+the location and size of the thread’s stack, the thread’s scheduling
+policy and priority (akin to the process realtime scheduling policies
+and priorities described in Sections 35.2 and 35.3), and whether the
+thread is joinable or detached.
+
+** 29 Exercise
+*** Exercises 29.1
+What possible outcomes might there be if a thread executes the
+following code:
+
+#+begin_src C
+pthread_join(pthread_self(), NULL);
+#+end_src
+
+Write a program to see what actually happens on Linux. If we have a
+variable, tid, containing a thread ID, how can a thread prevent itself
+from making a call, pthread_join(tid, NULL), that is equivalent to the
+above statement?
+
+**** Answer
+:PROPERTIES:
+:VISIBILITY: folded
+:END:
+Reference:
+- [[file:exr2901.c][Exercise 29.1 exr2901]].
+
+Clean code and good exercise. Your commented block is particularly
+valuable --- you ran the naive case, got ~EDEADLK~, and recorded it
+right there in the source. That's good experimental discipline.
+
+A few observations:
+
+***** On the deadlock result
+Linux actually returns ~EDEADLK~ immediately rather than truly
+deadlocking --- it detects the self-join and refuses it. POSIX leaves
+this behavior undefined, so Kerrisk's question "what possible outcomes"
+is genuinely open. On some implementations it could hang forever. Linux
+being defensive here is a quality-of-life choice, not a guarantee.
+
+***** On your guard
+#+begin_src C
+if (!pthread_equal(tid1, pthread_self()))
+#+end_src
+
+This correctly answers the second part of the exercise. Using
+~pthread_equal~ rather than ~tid1 != pthread_self()~ is the right call
+--- POSIX does not guarantee ~pthread_t~ is a scalar type that supports
+~==~ directly. On Linux it happens to be an unsigned long, but your code
+is portable, which matters.
+
+***** One thing worth thinking about
+Your guard protects main from joining itself, but consider --- could
+~tid1~ ever equal ~pthread_self()~ in main here? The newly created
+thread gets a fresh tid, so practically no. But the exercise is really
+teaching you to build the habit of the check for cases where thread IDs
+are passed around as arguments and a thread cannot know in advance
+whether the tid it received is its own.
+
+*** Exercise 29.2
+Aside from the absence of error checking and various variable and structure
+declarations, what is the problem with the following program?
+
+#+begin_src C
+  #include <pthread.h>
+
+  static void *
+
+  threadFunc(void *arg) {
+    struct someStruct *pbuf = (struct someStruct *) arg;
+  /* Do some work with structure pointed to by 'pbuf' */
+  }
+
+  int main(int argc, char *argv[]) {
+    struct someStruct buf;
+    pthread_create(&thr, NULL, threadFunc, (void *) &buf);
+    pthread_exit(NULL);
+  }
+#+end_src
+
+**** Answer: The problem is *stack frame lifetime*.
+:PROPERTIES:
+:VISIBILITY: folded
+:END:
+
+=buf= is a local variable of =main=. It lives on =main='s stack frame.
+When =pthread_exit(NULL)= is called, main's stack frame is destroyed
+--- but the peer thread =threadFunc= received a pointer to that
+now-dead memory and may still be working with it.
+
+So =pbuf= becomes a *dangling pointer* the moment main exits, even
+though the process continues because =pthread_exit= only terminates
+the calling thread, not the process itself. That's the subtlety
+Kerrisk is testing --- most people's instinct is that =pthread_exit=
+is "safe" here precisely because it doesn't kill the process. And it
+is safe for the process. But not for the stack.
+
+The race is:
+
+#+begin_example
+main creates thread → main calls pthread_exit → main's stack destroyed
+                                    ↕
+        threadFunc still reading buf via pbuf → undefined behavior
+#+end_example
+
+**** The fixes in increasing robustness
+:PROPERTIES:
+:VISIBILITY: folded
+:END:
+
+***** 1. Heap allocate
+#+begin_src C
+struct someStruct *buf = malloc(sizeof(*buf));
+pthread_create(&thr, NULL, threadFunc, buf);
+// thread is responsible for free()
+#+end_src
+
+***** 2. Join before exiting
+#+begin_src C
+pthread_create(&thr, NULL, threadFunc, &buf);
+pthread_join(thr, NULL);
+// buf guaranteed alive until thread finishes
+#+end_src
+
+***** 3. Global or static
+#+begin_src C
+static struct someStruct buf;
+#+end_src
+
+Lifetime extends beyond main's frame.
+
+**** Summary
+:PROPERTIES:
+:VISIBILITY: folded
+:END:
+The deeper lesson Kerrisk is planting here is that *stack and thread
+lifetime are orthogonal*. Every previous chapter let you assume a
+stack frame lives exactly as long as its function. Threads break that
+assumption completely and permanently.
