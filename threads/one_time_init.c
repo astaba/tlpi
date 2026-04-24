@@ -5,7 +5,7 @@
 * under the terms of the GNU General Public License as published by the   *
 * Free Software Foundation, either version 3 or (at your option) any      *
 * later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
+* the file [[file:../COPYING.gpl-v3]] for details.                                    *
 \*************************************************************************/
 
 /* Solution for Exercise 31-1 */
@@ -34,7 +34,7 @@ one_time_init(struct once_struct *once_control, void (*init)(void))
 
     s = pthread_mutex_lock(&(once_control->mtx));
     if (s == -1)
-        nmsetErr(s, "pthread_mutex_lock");
+        nmsysErr(s, "pthread_mutex_lock");
 
     if (!once_control->called) {
         (*init)();
@@ -43,7 +43,7 @@ one_time_init(struct once_struct *once_control, void (*init)(void))
 
     s = pthread_mutex_unlock(&(once_control->mtx));
     if (s == -1)
-        nmsetErr(s, "pthread_mutex_unlock");
+        nmsysErr(s, "pthread_mutex_unlock");
 
     return 0;
 }
@@ -80,20 +80,20 @@ main(int argc, char *argv[])
 
     s = pthread_create(&t1, NULL, threadFunc, (void *) 1);
     if (s != 0)
-        nmsetErr(s, "pthread_create");
+        nmsysErr(s, "pthread_create");
 
     s = pthread_create(&t2, NULL, threadFunc, (void *) 2);
     if (s != 0)
-        nmsetErr(s, "pthread_create");
+        nmsysErr(s, "pthread_create");
 
     s = pthread_join(t1, NULL);
     if (s != 0)
-        nmsetErr(s, "pthread_join");
+        nmsysErr(s, "pthread_join");
     printf("First thread returned\n");
 
     s = pthread_join(t2, NULL);
     if (s != 0)
-        nmsetErr(s, "pthread_join");
+        nmsysErr(s, "pthread_join");
     printf("Second thread returned\n");
 
     exit(EXIT_SUCCESS);

@@ -147,7 +147,7 @@ main(int argc, char *argv[])
         pthread_t thr;
         int s = pthread_create(&thr, NULL, threadFunc, argv[j + optind]);
         if (s != 0)
-            nmsetErr(s, "pthread_create");
+            nmsysErr(s, "pthread_create");
     }
 
     pause();

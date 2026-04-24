@@ -137,7 +137,7 @@ main(int argc, char *argv[])
 
             int s = pthread_create(&thr, NULL, threadFunc, (void *) doAlloc);
             if (s != 0)
-                nmsetErr(s, "pthread_create");
+                nmsysErr(s, "pthread_create");
 
             if (doAlloc)
                 allocated = true;

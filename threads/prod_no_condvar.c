@@ -5,7 +5,7 @@
 * under the terms of the GNU General Public License as published by the   *
 * Free Software Foundation, either version 3 or (at your option) any      *
 * later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
+* the file [[file:../COPYING.gpl-v3]] for details.                                    *
 \*************************************************************************/
 
 /* Supplementary program for Chapter 30 */
@@ -38,13 +38,13 @@ producer(void *arg)
 
         int s = pthread_mutex_lock(&mtx);
         if (s != 0)
-            nmsetErr(s, "pthread_mutex_lock");
+            nmsysErr(s, "pthread_mutex_lock");
 
         avail++;        /* Let consumer know another unit is available */
 
         s = pthread_mutex_unlock(&mtx);
         if (s != 0)
-            nmsetErr(s, "pthread_mutex_unlock");
+            nmsysErr(s, "pthread_mutex_unlock");
     }
 
     return NULL;
@@ -66,7 +66,7 @@ main(int argc, char *argv[])
         pthread_t tid;
         int s = pthread_create(&tid, NULL, producer, argv[j]);
         if (s != 0)
-            nmsetErr(s, "pthread_create");
+            nmsysErr(s, "pthread_create");
     }
 
     /* Use a polling loop to check for available units */
@@ -77,7 +77,7 @@ main(int argc, char *argv[])
     for (;;) {
         int s = pthread_mutex_lock(&mtx);
         if (s != 0)
-            nmsetErr(s, "pthread_mutex_lock");
+            nmsysErr(s, "pthread_mutex_lock");
 
         while (avail > 0) {             /* Consume all available units */
 
@@ -93,7 +93,7 @@ main(int argc, char *argv[])
 
         s = pthread_mutex_unlock(&mtx);
         if (s != 0)
-            nmsetErr(s, "pthread_mutex_unlock");
+            nmsysErr(s, "pthread_mutex_unlock");
 
         if (done)
             break;

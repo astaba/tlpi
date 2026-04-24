@@ -5,7 +5,7 @@
 * under the terms of the GNU General Public License as published by the   *
 * Free Software Foundation, either version 3 or (at your option) any      *
 * later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
+* the file [[file:../COPYING.gpl-v3]] for details.                                    *
 \*************************************************************************/
 
 /* Listing 30-4 */
@@ -63,17 +63,17 @@ threadFunc(void *arg)
 
     s = pthread_mutex_lock(&threadMutex);
     if (s != 0)
-        nmsetErr(s, "pthread_mutex_lock");
+        nmsysErr(s, "pthread_mutex_lock");
 
     numUnjoined++;
     thread[idx].state = TS_TERMINATED;
 
     s = pthread_mutex_unlock(&threadMutex);
     if (s != 0)
-        nmsetErr(s, "pthread_mutex_unlock");
+        nmsysErr(s, "pthread_mutex_unlock");
     s = pthread_cond_signal(&threadDied);
     if (s != 0)
-        nmsetErr(s, "pthread_cond_signal");
+        nmsysErr(s, "pthread_cond_signal");
 
     return NULL;
 }
@@ -97,7 +97,7 @@ main(int argc, char *argv[])
         thread[idx].state = TS_ALIVE;
         s = pthread_create(&thread[idx].tid, NULL, threadFunc, (void *) idx);
         if (s != 0)
-            nmsetErr(s, "pthread_create");
+            nmsysErr(s, "pthread_create");
     }
 
     totThreads = argc - 1;
@@ -108,19 +108,19 @@ main(int argc, char *argv[])
     while (numLive > 0) {
         s = pthread_mutex_lock(&threadMutex);
         if (s != 0)
-            nmsetErr(s, "pthread_mutex_lock");
+            nmsysErr(s, "pthread_mutex_lock");
 
         while (numUnjoined == 0) {
             s = pthread_cond_wait(&threadDied, &threadMutex);
             if (s != 0)
-                nmsetErr(s, "pthread_cond_wait");
+                nmsysErr(s, "pthread_cond_wait");
         }
 
         for (idx = 0; idx < totThreads; idx++) {
             if (thread[idx].state == TS_TERMINATED) {
                 s = pthread_join(thread[idx].tid, NULL);
                 if (s != 0)
-                    nmsetErr(s, "pthread_join");
+                    nmsysErr(s, "pthread_join");
 
                 thread[idx].state = TS_JOINED;
                 numLive--;
@@ -132,7 +132,7 @@ main(int argc, char *argv[])
 
         s = pthread_mutex_unlock(&threadMutex);
         if (s != 0)
-            nmsetErr(s, "pthread_mutex_unlock");
+            nmsysErr(s, "pthread_mutex_unlock");
     }
 
     exit(EXIT_SUCCESS);

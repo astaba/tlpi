@@ -60,17 +60,17 @@ threadFunc(union sigval sv)
 
     s = pthread_mutex_lock(&mtx);
     if (s != 0)
-        nmsetErr(s, "pthread_mutex_lock");
+        nmsysErr(s, "pthread_mutex_lock");
 
     expireCnt += 1 + timer_getoverrun(*tidptr);
 
     s = pthread_mutex_unlock(&mtx);
     if (s != 0)
-        nmsetErr(s, "pthread_mutex_unlock");
+        nmsysErr(s, "pthread_mutex_unlock");
 
     s = pthread_cond_signal(&cond);
     if (s != 0)
-        nmsetErr(s, "pthread_cond_signal");
+        nmsysErr(s, "pthread_cond_signal");
 }
 
 int
@@ -115,12 +115,12 @@ main(int argc, char *argv[])
 
     s = pthread_mutex_lock(&mtx);
     if (s != 0)
-        nmsetErr(s, "pthread_mutex_lock");
+        nmsysErr(s, "pthread_mutex_lock");
 
     for (;;) {
         s = pthread_cond_wait(&cond, &mtx);
         if (s != 0)
-            nmsetErr(s, "pthread_cond_wait");
+            nmsysErr(s, "pthread_cond_wait");
         printf("main(): expireCnt = %d\n", expireCnt);
     }
 }

@@ -5,7 +5,7 @@
 * under the terms of the GNU General Public License as published by the   *
 * Free Software Foundation, either version 3 or (at your option) any      *
 * later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
+* the file [[file:../COPYING.gpl-v3]] for details.                                    *
 \*************************************************************************/
 
 /* Supplementary program for Chapter 30 */
@@ -90,7 +90,7 @@ threadFunc(void *arg)
             printf("\n");
 
         } else {        /* Error */
-            nmsetErr(s, "pthread_barrier_wait (%ld)", threadNum);
+            nmsysErr(s, "pthread_barrier_wait (%ld)", threadNum);
         }
     }
 
@@ -126,7 +126,7 @@ main(int argc, char *argv[])
 
     int s = pthread_barrier_init(&barrier, NULL, numThreads);
     if (s != 0)
-        nmsetErr(s, "pthread_barrier_init");
+        nmsysErr(s, "pthread_barrier_init");
 
     /* Create 'numThreads' threads */
 
@@ -134,7 +134,7 @@ main(int argc, char *argv[])
         s = pthread_create(&tid[threadNum], NULL, threadFunc,
                 (void *) threadNum);
         if (s != 0)
-            nmsetErr(s, "pthread_create");
+            nmsysErr(s, "pthread_create");
     }
 
     /* Each thread prints a start-up message. We briefly delay,
@@ -149,7 +149,7 @@ main(int argc, char *argv[])
     for (int threadNum = 0; threadNum < numThreads; threadNum++) {
         s = pthread_join(tid[threadNum], NULL);
         if (s != 0)
-            nmsetErr(s, "pthread_join");
+            nmsysErr(s, "pthread_join");
     }
 
     exit(EXIT_SUCCESS);

@@ -31,15 +31,15 @@ int main(int argc, char *argv[])
 
     int rc = seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EPERM), SCMP_SYS(clone), 0);
     if (rc < 0)
-        nmsetErr(-rc, "seccomp_rule_add");
+        nmsysErr(-rc, "seccomp_rule_add");
 
     rc = seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EACCES), SCMP_SYS(clone3), 0);
     if (rc < 0)
-        nmsetErr(-rc, "seccomp_rule_add");
+        nmsysErr(-rc, "seccomp_rule_add");
 
     rc = seccomp_rule_add(ctx, SCMP_ACT_ERRNO(ENOTSUP), SCMP_SYS(fork), 0);
     if (rc < 0)
-        nmsetErr(-rc, "seccomp_rule_add");
+        nmsysErr(-rc, "seccomp_rule_add");
 
     /* Export the pseudofilter code and BPF binary code,
        each to different file descriptors (if they are open) */
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
     rc = seccomp_load(ctx);
     if (rc < 0)
-        nmsetErr(-rc, "seccomp_load");
+        nmsysErr(-rc, "seccomp_load");
 
     /* Free the user-space seccomp filter state */
 

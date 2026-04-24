@@ -95,7 +95,7 @@ main(int argc, char *argv[])
         pthread_t t1;
         int s = pthread_create(&t1, NULL, threadFunc, (void *) j);
         if (s != 0)
-            nmsetErr(s, "pthread_create");
+            nmsysErr(s, "pthread_create");
     }
 
     sleep(2);

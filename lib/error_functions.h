@@ -33,7 +33,7 @@ void systmWrn(const char *format, ...);
 
 void systmErr(const char *format, ...) NORETURN;
 void _systmerr(const char *format, ...) NORETURN;
-void nmsetErr(int errnum, const char *format, ...) NORETURN;
+void nmsysErr(int errnum, const char *format, ...) NORETURN;
 void custmErr(const char *format, ...) NORETURN;
 void usageErr(const char *format, ...) NORETURN;
 void cmdLineErr(const char *format, ...) NORETURN;

@@ -289,9 +289,9 @@ for TLPI, available at https://man7.org/tlpi/errata/.
 2013-03-18
         threads/detached_attrib.c
                 Fix a typo in a string:
-                        nmsetErr(s, "pthread_attr_getdetachstate");
+                        nmsysErr(s, "pthread_attr_getdetachstate");
                     ==>
-                        nmsetErr(s, "pthread_attr_setdetachstate");
+                        nmsysErr(s, "pthread_attr_setdetachstate");
 
                 Interestingly, this error was not present in the printed
                 version of the code (page 628 of TLPI).

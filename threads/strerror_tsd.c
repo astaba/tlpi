@@ -5,7 +5,7 @@
 * under the terms of the GNU General Public License as published by the   *
 * Free Software Foundation, either version 3 or (at your option) any      *
 * later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
+* the file [[file:../COPYING.gpl-v3]] for details.                                    *
 \*************************************************************************/
 
 /* Listing 31-3 */
@@ -46,7 +46,7 @@ createKey(void)
 
     s = pthread_key_create(&strerrorKey, destructor);
     if (s != 0)
-        nmsetErr(s, "pthread_key_create");
+        nmsysErr(s, "pthread_key_create");
 }
 
 char *
@@ -59,7 +59,7 @@ strerror(int err)
 
     s = pthread_once(&once, createKey);
     if (s != 0)
-        nmsetErr(s, "pthread_once");
+        nmsysErr(s, "pthread_once");
 
     buf = pthread_getspecific(strerrorKey);
     if (buf == NULL) {          /* If first call from this thread, allocate
@@ -70,7 +70,7 @@ strerror(int err)
 
         s = pthread_setspecific(strerrorKey, buf);
         if (s != 0)
-            nmsetErr(s, "pthread_setspecific");
+            nmsysErr(s, "pthread_setspecific");
     }
 
     if (err < 0 || err >= _sys_nerr || _sys_errlist[err] == NULL) {

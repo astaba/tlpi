@@ -5,7 +5,7 @@
 * under the terms of the GNU General Public License as published by the   *
 * Free Software Foundation, either version 3 or (at your option) any      *
 * later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
+* the file [[file:../COPYING.gpl-v3]] for details.                                    *
 \*************************************************************************/
 
 /* Supplementary program for Chapter 33 */
@@ -52,11 +52,11 @@ threadFunc(void *arg)
         if (useMutex) {
             s = pthread_mutex_lock(&mtx);
             if (s != 0)
-                nmsetErr(s, "pthread_mutex_lock");
+                nmsysErr(s, "pthread_mutex_lock");
         } else {
             s = pthread_spin_lock(&splock);
             if (s != 0)
-                nmsetErr(s, "pthread_spin_lock");
+                nmsysErr(s, "pthread_spin_lock");
         }
 
         for (int k = 0; k < numInnerLoops; k++)
@@ -65,11 +65,11 @@ threadFunc(void *arg)
         if (useMutex) {
             s = pthread_mutex_unlock(&mtx);
             if (s != 0)
-                nmsetErr(s, "pthread_mutex_unlock");
+                nmsysErr(s, "pthread_mutex_unlock");
         } else {
             s = pthread_spin_unlock(&splock);
             if (s != 0)
-                nmsetErr(s, "pthread_spin_unlock");
+                nmsysErr(s, "pthread_spin_unlock");
         }
     }
 
@@ -134,23 +134,23 @@ main(int argc, char *argv[])
     if (useMutex) {
         s = pthread_mutex_init(&mtx, NULL);
         if (s != 0)
-            nmsetErr(s, "pthread_mutex_init");
+            nmsysErr(s, "pthread_mutex_init");
     } else {
         s = pthread_spin_init(&splock, 0);
         if (s != 0)
-            nmsetErr(s, "pthread_spin_init");
+            nmsysErr(s, "pthread_spin_init");
     }
 
     for (int j = 0; j < numThreads; j++) {
         s = pthread_create(&thread[j], NULL, threadFunc, NULL);
         if (s != 0)
-            nmsetErr(s, "pthread_create");
+            nmsysErr(s, "pthread_create");
     }
 
     for (int j = 0; j < numThreads; j++) {
         s = pthread_join(thread[j], NULL);
         if (s != 0)
-            nmsetErr(s, "pthread_join");
+            nmsysErr(s, "pthread_join");
     }
 
     if (verbose)

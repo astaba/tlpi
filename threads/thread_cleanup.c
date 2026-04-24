@@ -5,7 +5,7 @@
 * under the terms of the GNU General Public License as published by the   *
 * Free Software Foundation, either version 3 or (at your option) any      *
 * later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
+* the file [[file:../COPYING.gpl-v3]] for details.                                    *
 \*************************************************************************/
 
 /* Listing 32-2 */
@@ -33,7 +33,7 @@ cleanupHandler(void *arg)
     printf("cleanup: unlocking mutex\n");
     s = pthread_mutex_unlock(&mtx);
     if (s != 0)
-        nmsetErr(s, "pthread_mutex_unlock");
+        nmsysErr(s, "pthread_mutex_unlock");
 }
 
 static void *
@@ -47,14 +47,14 @@ threadFunc(void *arg)
 
     s = pthread_mutex_lock(&mtx);       /* Not a cancellation point */
     if (s != 0)
-        nmsetErr(s, "pthread_mutex_lock");
+        nmsysErr(s, "pthread_mutex_lock");
 
     pthread_cleanup_push(cleanupHandler, buf);
 
     while (glob == 0) {
         s = pthread_cond_wait(&cond, &mtx);     /* A cancellation point */
         if (s != 0)
-            nmsetErr(s, "pthread_cond_wait");
+            nmsysErr(s, "pthread_cond_wait");
     }
 
     printf("thread:  condition wait loop completed\n");
@@ -71,7 +71,7 @@ main(int argc, char *argv[])
 
     s = pthread_create(&thr, NULL, threadFunc, NULL);
     if (s != 0)
-        nmsetErr(s, "pthread_create");
+        nmsysErr(s, "pthread_create");
 
     sleep(2);                   /* Give thread a chance to get started */
 
@@ -79,29 +79,29 @@ main(int argc, char *argv[])
         printf("main:    about to cancel thread\n");
         s = pthread_cancel(thr);
         if (s != 0)
-            nmsetErr(s, "pthread_cancel");
+            nmsysErr(s, "pthread_cancel");
 
     } else {                    /* Signal condition variable */
         printf("main:    about to signal condition variable\n");
 
         s = pthread_mutex_lock(&mtx);   /* See the TLPI page 679 erratum */
         if (s != 0)
-            nmsetErr(s, "pthread_mutex_lock");
+            nmsysErr(s, "pthread_mutex_lock");
 
         glob = 1;
 
         s = pthread_mutex_unlock(&mtx); /* See the TLPI page 679 erratum */
         if (s != 0)
-            nmsetErr(s, "pthread_mutex_unlock");
+            nmsysErr(s, "pthread_mutex_unlock");
 
         s = pthread_cond_signal(&cond);
         if (s != 0)
-            nmsetErr(s, "pthread_cond_signal");
+            nmsysErr(s, "pthread_cond_signal");
     }
 
     s = pthread_join(thr, &res);
     if (s != 0)
-        nmsetErr(s, "pthread_join");
+        nmsysErr(s, "pthread_join");
     if (res == PTHREAD_CANCELED)
         printf("main:    thread was canceled\n");
     else

@@ -13,32 +13,35 @@
 /* error_functions.c
 Some standard error handling routines used by various programs. */
 
-/* Per the C standard, a "Normal Termination" via exit(3) should ideally occur
-in serenity, performing the following: closing open streams, flushing
-user-space buffers to the kernel, executing all registered atexit(3) handlers,
-and terminating the process context gracefully.
+/* Per the C standard, a "Normal Termination" via exit(3) should
+ideally occur in serenity, performing the following: closing open
+streams, flushing user-space buffers to the kernel, executing all
+registered atexit(3) handlers, and terminating the process context
+gracefully.
 
 Conversely, an "Abrupt Termination" bypasses these user-space cleanup
-routines. This is achieved either by invoking _exit(2) to kill the process
-immediately at the kernel level, or by calling abort(3), which raises SIGABRT
-to terminate the process abnormally—potentially producing a core dump for
-post-mortem analysis.
+routines. This is achieved either by invoking _exit(2) to kill the
+process immediately at the kernel level, or by calling abort(3), which
+raises SIGABRT to terminate the process abnormally—potentially
+producing a core dump for post-mortem analysis.
 
-Irrespective of the "trumping power" or immediate cancellation effects of
-these terminal calls, the core philosophy of this library is to preempt the
-exit. By utilizing outputError() first, the library ensures that a diagnostic
-output is flushed explicitly so that it is reliably captured by the kernel,
-before the process state is subsequently destroyed by terminating it via
-_exit(2) or abort(3). */
+Irrespective of the "trumping power" or immediate cancellation effects
+of these terminal calls, the core philosophy of this library is to
+preempt the exit. By utilizing outputError() first, the library
+ensures that a diagnostic output is flushed explicitly so that it is
+reliably captured by the kernel, before the process state is
+subsequently destroyed by terminating it via _exit(2) or abort(3). */
 
 #include "error_functions.h"
 #include "ename.c.inc" /* Defines ename and MAX_ENAME */
 #include "tlpi_hdr.h"
 #include <stdarg.h>
 
-/* Dump core if EF_DUMPCORE environment variable is defined and
-   is a nonempty string; otherwise call exit(3) or _exit(2),
-   depending on the value of 'useExit3'. */
+/**
+  Dump core if EF_DUMPCORE environment variable is defined and is a
+  nonempty string; otherwise call exit(3) or _exit(2), depending on
+  the value of 'useExit3'.
+*/
 NORETURN
 static void terminate(Boolean useExit3) {
   char *s;
@@ -90,7 +93,7 @@ static void outputError(Boolean useErr, int err, Boolean flushStdout,
 
 /* Print WARNING diagnostic: errno-based and custom error messages.
 Preserve errno value and let the control flow.
-NOTE: suggested name: sysWarn */
+ */
 void systmWrn(const char *format, ...) {
   va_list argList;
   int savedErrno;
@@ -107,7 +110,7 @@ void systmWrn(const char *format, ...) {
 /* Print EXCEPTION diagnostic: errno-based and custom error messages.
 If EF_DUMPCORE set: abort with SIGABRT and potential core dump.
 Otherwise Cleanup and terminate: using exit(3).
-NOTE: suggested name: sysErr */
+ */
 void systmErr(const char *format, ...) {
   va_list argList;
 
@@ -133,7 +136,7 @@ void systmErr(const char *format, ...) {
   because of an error: the child must terminate without flushing
   stdio buffers that were partially filled by the caller and without
   invoking exit handlers that were established by the caller.
- NOTE: suggested name: _sysErr */
+*/
 void _systmerr(const char *format, ...) {
   va_list argList;
 
@@ -144,11 +147,17 @@ void _systmerr(const char *format, ...) {
   terminate(FALSE);
 }
 
-/* Print EXCEPTION diagnostic: user-provided-errnum and custom error messages.
+/**
+Print EXCEPTION diagnostic: user-provided-errnum and custom error messages.
 If EF_DUMPCORE set: abort with SIGABRT and potential core dump.
 Otherwise Cleanup and terminate: using exit(3).
-NOTE: suggested name: syscusErr */
-void nmsetErr(int errnum, const char *format, ...) {
+
+NOTE: some functions from the Pthread API return errno on failure
+instead of incurring in a costly usage of errno which is defined as a
+macro for function call that returns a locator value. The errnum
+parameter allows us to take advantage of that returned value.
+*/
+void nmsysErr(int errnum, const char *format, ...) {
   va_list argList;
 
   va_start(argList, format);
@@ -161,7 +170,7 @@ void nmsetErr(int errnum, const char *format, ...) {
 /* Print EXCEPTION diagnostic: custom error message only.
 If EF_DUMPCORE set: abort with SIGABRT and potential core dump.
 Otherwise Cleanup and terminate: using exit(3).
-NOTE: suggested name: cusErr */
+ */
 void custmErr(const char *format, ...) {
   va_list argList;
 

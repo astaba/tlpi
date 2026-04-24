@@ -5,7 +5,7 @@
 * under the terms of the GNU General Public License as published by the   *
 * Free Software Foundation, either version 3 or (at your option) any      *
 * later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
+* the file [[file:../COPYING.gpl-v3]] for details.                                    *
 \*************************************************************************/
 
 /* Listing 29-2 */
@@ -33,23 +33,23 @@ main(int argc, char *argv[])
 
     s = pthread_attr_init(&attr);       /* Assigns default values */
     if (s != 0)
-        nmsetErr(s, "pthread_attr_init");
+        nmsysErr(s, "pthread_attr_init");
 
     s = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
     if (s != 0)
-        nmsetErr(s, "pthread_attr_setdetachstate");
+        nmsysErr(s, "pthread_attr_setdetachstate");
 
     s = pthread_create(&thr, &attr, threadFunc, (void *) 1);
     if (s != 0)
-        nmsetErr(s, "pthread_create");
+        nmsysErr(s, "pthread_create");
 
     s = pthread_attr_destroy(&attr);    /* No longer needed */
     if (s != 0)
-        nmsetErr(s, "pthread_attr_destroy");
+        nmsysErr(s, "pthread_attr_destroy");
 
     s = pthread_join(thr, NULL);
     if (s != 0)
-        nmsetErr(s, "pthread_join failed as expected");
+        nmsysErr(s, "pthread_join failed as expected");
 
     exit(EXIT_SUCCESS);
 }

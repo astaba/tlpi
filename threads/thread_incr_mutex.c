@@ -5,7 +5,7 @@
 * under the terms of the GNU General Public License as published by the   *
 * Free Software Foundation, either version 3 or (at your option) any      *
 * later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
+* the file [[file:../COPYING.gpl-v3]] for details.                                    *
 \*************************************************************************/
 
 /* Listing 30-2 */
@@ -32,7 +32,7 @@ threadFunc(void *arg)
     for (j = 0; j < loops; j++) {
         s = pthread_mutex_lock(&mtx);
         if (s != 0)
-            nmsetErr(s, "pthread_mutex_lock");
+            nmsysErr(s, "pthread_mutex_lock");
 
         loc = glob;
         loc++;
@@ -40,7 +40,7 @@ threadFunc(void *arg)
 
         s = pthread_mutex_unlock(&mtx);
         if (s != 0)
-            nmsetErr(s, "pthread_mutex_unlock");
+            nmsysErr(s, "pthread_mutex_unlock");
     }
 
     return NULL;
@@ -56,17 +56,17 @@ main(int argc, char *argv[])
 
     s = pthread_create(&t1, NULL, threadFunc, &loops);
     if (s != 0)
-        nmsetErr(s, "pthread_create");
+        nmsysErr(s, "pthread_create");
     s = pthread_create(&t2, NULL, threadFunc, &loops);
     if (s != 0)
-        nmsetErr(s, "pthread_create");
+        nmsysErr(s, "pthread_create");
 
     s = pthread_join(t1, NULL);
     if (s != 0)
-        nmsetErr(s, "pthread_join");
+        nmsysErr(s, "pthread_join");
     s = pthread_join(t2, NULL);
     if (s != 0)
-        nmsetErr(s, "pthread_join");
+        nmsysErr(s, "pthread_join");
 
     printf("glob = %d\n", glob);
     exit(EXIT_SUCCESS);

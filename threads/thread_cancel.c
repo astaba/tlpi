@@ -5,7 +5,7 @@
 * under the terms of the GNU General Public License as published by the   *
 * Free Software Foundation, either version 3 or (at your option) any      *
 * later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
+* the file [[file:../COPYING.gpl-v3]] for details.                                    *
 \*************************************************************************/
 
 /* Listing 32-1 */
@@ -41,17 +41,17 @@ main(int argc, char *argv[])
 
     s = pthread_create(&thr, NULL, threadFunc, NULL);
     if (s != 0)
-        nmsetErr(s, "pthread_create");
+        nmsysErr(s, "pthread_create");
 
     sleep(3);                           /* Allow new thread to run a while */
 
     s = pthread_cancel(thr);
     if (s != 0)
-        nmsetErr(s, "pthread_cancel");
+        nmsysErr(s, "pthread_cancel");
 
     s = pthread_join(thr, &res);
     if (s != 0)
-        nmsetErr(s, "pthread_join");
+        nmsysErr(s, "pthread_join");
 
     if (res == PTHREAD_CANCELED)
         printf("Thread was canceled\n");

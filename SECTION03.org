@@ -122,9 +122,9 @@ This is why the "TLPI style" is mandatory for threads:
 int s;
 s = pthread_create(&thread, NULL, func, &arg);
 // We don't use perror() or systmErr(systmErr(
-// We use Kerrisk's nmsetErr(nmsetErr(
+// We use Kerrisk's nmsysErr(nmsysErr(
 if (s != 0)
-    nmsetErr(nmsetErr(
+    nmsysErr(nmsysErr(
 #+end_src
 
 **** Summary of the "Modifiable Lvalue"

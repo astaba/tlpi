@@ -80,7 +80,7 @@ main(int argc, char *argv[])
         struct timespec remain;
         int s = clock_nanosleep(CLOCK_REALTIME, flags, &request, &remain);
         if (s != 0 && s != EINTR)
-            nmsetErr(s, "clock_nanosleep");
+            nmsysErr(s, "clock_nanosleep");
 
         if (s == EINTR)
             printf("Interrupted... ");

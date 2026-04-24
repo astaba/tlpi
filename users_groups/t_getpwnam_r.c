@@ -34,7 +34,7 @@ main(int argc, char *argv[])
 
     int s = getpwnam_r(argv[1], &pwd, buf, bufSize, &result);
     if (s != 0)
-        nmsetErr(s, "getpwnam_r");
+        nmsysErr(s, "getpwnam_r");
 
     if (result != NULL)
         printf("Name: %s\n", pwd.pw_gecos);
