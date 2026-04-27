@@ -1,65 +1,56 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU General Public License as published by the   *
-* Free Software Foundation, either version 3 or (at your option) any      *
-* later version. This program is distributed without any warranty.  See   *
-* the file [[file:../COPYING.gpl-v3]] for details.                                    *
-\*************************************************************************/
-
-/* Listing 30-1 */
-
-/* thread_incr.c
-
-   This program employs two POSIX threads that increment the same global
-   variable, without using any synchronization method. As a consequence,
-   updates are sometimes lost.
-
-   See also thread_incr_mutex.c.
-*/
+/* =========================================================================
+ * Created on: <Fri Apr 24 16:51:12 +01 2026>
+ * Time-stamp: <Fri Apr 24 17:07:43 +01 2026 by owner>
+ * Author    : Copyright (C) Michael Kerrisk, 2026.
+ *             See the file [[file:../COPYING.gpl-v3]] for details.
+ * Desc      : ~/coding/c_prog/tlpi/threads/thread_incr.c -
+ *
+ * Listing 30.1 This program employs two POSIX threads that increment
+ * the same global variable, without using any synchronization
+ * method. As a consequence, updates are sometimes lost.
+ * See also [[file:thread_incr_mutex.c]].
+ * ========================================================================= */
+#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
 #include <pthread.h>
-#include "tlpi_hdr.h"
 
-static volatile int glob = 0;   /* "volatile" prevents compiler optimizations
-                                   of arithmetic operations on 'glob' */
-static void *                   /* Loop 'arg' times incrementing 'glob' */
-threadFunc(void *arg)
-{
-    int loops = *((int *) arg);
-    int loc, j;
+/* "volatile" prevents compiler optimizations of arithmetic
+   operations on 'glob' */
+static volatile int glob = 0;
 
-    for (j = 0; j < loops; j++) {
-        loc = glob;
-        loc++;
-        glob = loc;
-    }
+/* Loop 'arg' times incrementing 'glob' */
+static void *threadFunc(void *arg) {
+  int loops = *((int *)arg);
+  int loc, j;
 
-    return NULL;
+  for (j = 0; j < loops; j++) {
+    loc = glob;
+    loc++;
+    glob = loc;
+  }
+
+  return NULL;
 }
 
-int
-main(int argc, char *argv[])
-{
-    pthread_t t1, t2;
-    int loops, s;
+int main(int argc, char *argv[]) {
+  pthread_t t1, t2;
+  int loops, s;
 
-    loops = (argc > 1) ? getInt(argv[1], GN_GT_0, "num-loops") : 10000000;
+  loops = (argc > 1) ? getInt(argv[1], GN_GT_0, "num-loops") : 10000000;
 
-    s = pthread_create(&t1, NULL, threadFunc, &loops);
-    if (s != 0)
-        nmsysErr(s, "pthread_create");
-    s = pthread_create(&t2, NULL, threadFunc, &loops);
-    if (s != 0)
-        nmsysErr(s, "pthread_create");
+  s = pthread_create(&t1, NULL, threadFunc, &loops);
+  if (s != 0)
+    nmsysErr(s, "pthread_create");
+  s = pthread_create(&t2, NULL, threadFunc, &loops);
+  if (s != 0)
+    nmsysErr(s, "pthread_create");
 
-    s = pthread_join(t1, NULL);
-    if (s != 0)
-        nmsysErr(s, "pthread_join");
-    s = pthread_join(t2, NULL);
-    if (s != 0)
-        nmsysErr(s, "pthread_join");
+  s = pthread_join(t1, NULL);
+  if (s != 0)
+    nmsysErr(s, "pthread_join");
+  s = pthread_join(t2, NULL);
+  if (s != 0)
+    nmsysErr(s, "pthread_join");
 
-    printf("glob = %d\n", glob);
-    exit(EXIT_SUCCESS);
+  printf("glob = %d\n", glob);
+  exit(EXIT_SUCCESS);
 }

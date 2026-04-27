@@ -9,6 +9,11 @@
   - [[#296-joining-with-a-terminated-thread][29.6 Joining with a Terminated Thread]]
   - [[#298-threads-attributes][29.8 Threads Attributes]]
   - [[#29-exercise][29 Exercise]]
+- [[#30-threads-synchronization][30 Threads Synchronization]]
+  - [[#section-api-1][Section API]]
+  - [[#301-protecting-accesses-to-shared-variables-mutexes][30.1 Protecting Accesses to Shared Variables: Mutexes]]
+  - [[#302-signaling-changes-of-state-condition-variables][30.2 Signaling Changes of State: Condition Variables]]
+  - [[#exercises][Exercises]]
 
 * 29 Introduction
 ** Section API
@@ -96,11 +101,11 @@ This correctly answers the second part of the exercise. Using
 is portable, which matters.
 
 ***** One thing worth thinking about
-Your guard protects main from joining itself, but consider --- could
-~tid1~ ever equal ~pthread_self()~ in main here? The newly created
+Your guard protects ~main~ from joining itself, but consider --- could
+~tid1~ ever equal ~pthread_self()~ in ~main~ here? The newly created
 thread gets a fresh tid, so practically no. But the exercise is really
-teaching you to build the habit of the check for cases where thread IDs
-are passed around as arguments and a thread cannot know in advance
+teaching you to build the habit of the check for cases where thread
+IDs are passed around as arguments and a thread cannot know in advance
 whether the tid it received is its own.
 
 *** Exercise 29.2
@@ -171,9 +176,8 @@ pthread_join(thr, NULL);
 ***** 3. Global or static
 #+begin_src C
 static struct someStruct buf;
+// Lifetime extends beyond main's frame.
 #+end_src
-
-Lifetime extends beyond main's frame.
 
 **** Summary
 :PROPERTIES:
@@ -183,3 +187,253 @@ The deeper lesson Kerrisk is planting here is that *stack and thread
 lifetime are orthogonal*. Every previous chapter let you assume a
 stack frame lives exactly as long as its function. Threads break that
 assumption completely and permanently.
+
+* 30 Threads Synchronization
+
+** Section API
+#+begin_src C
+  #include <pthread.h>
+
+  int pthread_mutex_lock(pthread_mutex_t *mutex);
+  int pthread_mutex_unlock(pthread_mutex_t *mutex);
+
+  /* Initialize statically allocated mutex */
+  pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+  /* Initialize automatic or dynamic mutex */
+  int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr);
+  /* Cleanup mutex initialized automatically or dynamically. */
+  int pthread_mutex_destroy(pthread_mutex_t *mutex);
+
+  int pthread_cond_signal(pthread_cond_t *cond);
+  int pthread_cond_broadcast(pthread_cond_t *cond);
+  int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
+
+  int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr);
+  int pthread_cond_destroy(pthread_cond_t *cond);
+
+  /* All return 0 on success, or a positive error number on error */
+#+end_src
+
+** 30.1 Protecting Accesses to Shared Variables: Mutexes
+Reference:
+- [[file:thread_incr.c][Listing 30.1 thread_incr]]: Incorrectly incrementing a global variable
+  from two threads.
+- [[file:ythread_incr.c][Listing 30.1y ythread_incr]].
+
+
+*** 30.1.2 Locking and Unlocking a Mutex
+References:
+- [[file:thread_incr_mutex.c][Listing 30.2 thread_incr_mutex]]: Using a mutex to protect access to a
+  global variable.
+- [[file:ythread_incr_mutex.c][Listing 30.2y ythread_incr_mutex]].
+
+*** 30.1.7 Mutex Types
+Listing 30.3 demonstrates how to set the type of a mutex, in
+this case to create an error-checking mutex.
+
+#+begin_src C
+  #include "../lib/tlpi_hdr.h"
+  #include <pthread.h>
+
+  pthread_mutex_t mtx;
+  pthread_mutexattr_t mtxAttr;
+  int s, type;
+
+  s = pthread_mutexattr_init(&mtxAttr);
+    if (s != 0)
+    errExitEN(s, "pthread_mutexattr_init");
+
+  s = pthread_mutexattr_settype(&mtxAttr, PTHREAD_MUTEX_ERRORCHECK);
+  if (s != 0)
+    errExitEN(s, "pthread_mutexattr_settype");
+
+  s = pthread_mutex_init(mtx, &mtxAttr);
+   if (s != 0)
+    errExitEN(s, "pthread_mutex_init");
+
+  s = pthread_mutexattr_destroy(&mtxAttr); /* No longer needed */
+    if (s != 0)
+    errExitEN(s, "pthread_mutexattr_destroy");
+#+end_src
+
+** 30.2 Signaling Changes of State: Condition Variables
+
+- [[file:prod_no_condvar.c][Suplprog 30.2.A prod_no_condvar]]: A simple POSIX threads
+  producer-consumer example that doesn't use a condition variable.
+
+The ~units~ consumer loop (~for (;;)~) in the main routine
+works, but it wastes CPU time, because the main thread continually
+loops, checking the state of the variable avail. A condition variable
+remedies this problem. It allows a thread to sleep (wait) until
+another thread notifies (signals) it that it must do something (i.e.,
+that some “condition” has arisen that the sleeper must now respond
+to).
+
+- [[file:prod_condvar.c][Suplprog 30.2.B prod_condvar]]: A simple POSIX threads
+  producer-consumer example using a condition variable.
+
+A condition variable is always used in conjunction with a mutex. The
+mutex provides mutual exclusion for accessing the shared variable,
+while the condition variable is used to signal changes in the
+variable’s state. (The use of the term signal here has nothing to do
+with the signals described in Chapters 20 to 22; rather, it is used in
+the sense of indicate.)
+
+*** 30.2.4 Example Program: Joining Any Terminated Thread
+- [[file:thread_multijoin.c][Listing 30.4 thread_multijoin]]: A main thread that can join with any
+  terminated thread.
+
+Finally, note that although the threads in the example program are
+created as joinable and are immediately reaped on termination using
+=pthread_join()=, we don’t need to use this approach in order to find
+out about thread termination. We could have made the threads detached,
+removed the use of =pthread_join()=, and simply used the thread array
+(and associated global variables) as the means of recording the
+termination of each thread.
+
+**** Main thread =totThreads= and =numLive= global variables
+:PROPERTIES:
+:CUSTOM_ID: main-thread-totthreads-and-numlive-global-variables
+:END:
+
+These variables are not shared but only ever used by the main thread.
+
+- =totThreads=: Keep the total number of threads created. Required
+  whithin the zombie-threads joiner-loop of the main thread to loop
+  the entire thread-monitor array. The reason is thread termination is
+  completely unrelated with their index order. That is why the
+  thread-monitor-array walking-loop (within the zombie-threads
+  joiner-loop) compares idx (its iterator) to totThreads and not to
+  numLive.
+
+- =numLive=: Decrementally updates the total number of threads
+  created. Required in the main thread to keep track of reaped threads
+  and providing the zombie-threads joiner-loop with a terminating
+  condition.
+
+**** Why are they global if only ever used by main thread?
+:PROPERTIES:
+:CUSTOM_ID: why-are-they-global-if-only-ever-used-by-main-thread
+:END:
+
+#+begin_quote
+/Is it pedagogical to foster good practice for real scenarios where it
+is more often the case?/
+#+end_quote
+
+It's partly pedagogical but there's a more concrete reason too. They
+live alongside the shared variables =numUnjoined= and =thread= which
+genuinely need global scope. Keeping all program-state variables at
+the same level is a *cohesion* choice --- the alternative of passing
+them down as locals or parameters would fragment the mental model of
+"here is the complete state of this program." In a real server these
+would likely become fields of a single program-state struct anyway.
+
+**** Real Point of Mutual Exclusion
+:PROPERTIES:
+:CUSTOM_ID: real-point-of-mutual-exclusion
+:END:
+
+Why is =thread[idx].sleepTime= accessed without a lock in
+=threadFunc=?
+
+#+begin_quote
+/Is it because these specific memory slots are "constant" and
+"private" to every single thread, and independent from any shared
+variables?/
+#+end_quote
+
+Your attempted answer is exactly right and precisely stated. The key
+insight is *write-once before thread creation, read-only after*. Main
+writes =sleepTime= and =state= for each slot before calling
+=pthread_create=. Once the thread is live, it only reads its own
+=sleepTime= --- no other thread touches that slot's =sleepTime= ever
+again. There is no concurrent write anywhere in the program's lifetime
+for that field, so no protection needed.
+
+***** Mutex Important General Principle
+:PROPERTIES:
+:CUSTOM_ID: mutex-important-general-principle
+:END:
+
+*Mutual exclusion protects concurrent writes or concurrent write and
+read, not reads of immutable data.*
+
+**** Index transmission via cast is contrived
+:PROPERTIES:
+:CUSTOM_ID: index-transmission-via-cast-is-contrived
+:END:
+
+How to pass additional arguments orthodoxly?
+
+You're right that =(void *)idx= is a hack that only works because an int
+fits in a pointer on the target platform --- which POSIX does not
+formally guarantee. The orthodox solution when you need richer
+per-thread arguments is exactly the struct-pointer pattern:
+
+#+begin_src C
+typedef struct {
+    int idx;
+    int someOtherArg;
+    char *message;
+} ThreadArg;
+
+ThreadArg *arg = malloc(sizeof(*arg));
+arg->idx = idx;
+arg->someOtherArg = 42;
+pthread_create(&tid, NULL, threadFunc, arg);
+// thread is responsible for free()
+#+end_src
+
+Each thread gets its own heap-allocated argument struct. Kerrisk uses
+the cast shortcut here precisely because the exercise is about joining
+and state management, not argument passing --- he doesn't want the
+boilerplate to obscure the point.
+
+**** No malloc cleanup
+:PROPERTIES:
+:CUSTOM_ID: no-malloc-cleanup
+:END:
+Why no =free(thread)=?
+
+#+begin_quote
+/Perhaps because at this point (instruction pointer) it doesn't matter
+for the pedagogical purposes./
+#+end_quote
+
+Correct on both counts --- pedagogical shortcut and timing. But there's
+a sharper reason worth adding to your note: =exit()= is called, not
+=return=. =exit= tears down the process immediately --- all heap memory
+is reclaimed by the OS, all file descriptors closed. So the leak is
+genuinely inconsequential here. In a library function or a server that
+doesn't exit, omitting =free= would be indefensible.
+
+The real discipline is: =free= everything that =malloc=ed it, unless
+process termination is guaranteed and imminent. Kerrisk knows exactly
+what he's doing here --- the absence of =free= is a conscious choice,
+not an oversight.
+
+**** Summary
+All four of your readings were sound. The third one about index
+transmission shows particularly sharp instinct --- that cast is one of
+those things that works on Linux x86-64 today and is technically
+nonportable, and recognizing it as contrived is exactly right.
+
+** Exercises
+*** Exercise 30.1
+Modify the program in [[file:thread_incr.c][Listing 30.1 thread_incr]] so that each loop in
+the thread’s start function outputs the current value of glob and some
+identifier that uniquely identifies the thread. The unique identifier
+for the thread could be specified as an argument to the
+pthread_create() call used to create the thread. For this program,
+that would require changing the argument of the thread’s start
+function to be a pointer to a structure containing the unique
+identifier and a loop limit value. Run the program, redirecting output
+to a file, and then inspect the file to see what happens to glob as
+the kernel scheduler alternates execution between the two threads.
+
+**** Answer
+:PROPERTIES:
+:VISIBILITY: folded
+:END:
+- [[file:exr3001.c][Exercise 30.1]].

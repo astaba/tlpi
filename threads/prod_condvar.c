@@ -1,115 +1,88 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU General Public License as published by the   *
-* Free Software Foundation, either version 3 or (at your option) any      *
-* later version. This program is distributed without any warranty.  See   *
-* the file [[file:../COPYING.gpl-v3]] for details.                                    *
-\*************************************************************************/
-
-/* Supplementary program for Chapter 30 */
-
-/* prod_condvar.c
-
-   A simple POSIX threads producer-consumer example using a condition variable.
-*/
-#include <time.h>
-#include <pthread.h>
+/* =========================================================================
+ * Created on: <Sat Apr 25 14:22:56 +01 2026>
+ * Time-stamp: <Sun Apr 26 03:11:02 +01 2026 by owner>
+ * Author    : Copyright(C) Michael Kerrisk, 2026
+ *             See the file [[file:../COPYING.gpl-v3]] for details
+ * Desc      : ~/coding/c_prog/tlpi/threads/prod_condvar.c -
+ *             Supplementary program for Chapter 30
+ *
+ * A simple POSIX threads producer-consumer example using a condition
+ * variable.
+ * See also [[file:prod_no_condvar.c]].
+ * ========================================================================= */
+#include "pthread_wrappers.h"
 #include <stdbool.h>
-#include "tlpi_hdr.h"
+#include <time.h>
 
 static pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 static int avail = 0;
 
-static void *
-producer(void *arg)
-{
-    int cnt = atoi((char *) arg);
+static void *producer(void *arg) {
+  int cnt = atoi((char *)arg);
 
-    for (int j = 0; j < cnt; j++) {
-        sleep(1);
+  for (int j = 0; j < cnt; j++) {
+    sleep(1);
 
-        /* Code to produce a unit omitted */
+    /* Code to produce a unit omitted */
 
-        int s = pthread_mutex_lock(&mtx);
-        if (s != 0)
-            nmsysErr(s, "pthread_mutex_lock");
+    Pthread_mutex_lock(&mtx);
+    avail++; /* Let consumer know another unit is available */
+    Pthread_mutex_unlock(&mtx);
 
-        avail++;        /* Let consumer know another unit is available */
+    Pthread_cond_signal(&cond); /* Wake sleeping consumer */
+  }
 
-        s = pthread_mutex_unlock(&mtx);
-        if (s != 0)
-            nmsysErr(s, "pthread_mutex_unlock");
-
-        s = pthread_cond_signal(&cond);         /* Wake sleeping consumer */
-        if (s != 0)
-            nmsysErr(s, "pthread_cond_signal");
-    }
-
-    return NULL;
+  return NULL;
 }
 
-int
-main(int argc, char *argv[])
-{
-    time_t t = time(NULL);
+int main(int argc, char *argv[argc + 1]) {
+  if (argc < 2)
+    usageErr("%s <n> [ <n> ... ]\n"
+             "For each arg a peer thread is created and passed\n"
+             "<n> as the number of units to create while the\n"
+             "main thread consumes all of them.\n",
+             argv[0]);
 
-    int totRequired = 0;        /* Total number of units that all threads
-                                   will produce */
-    /* Create all threads */
+  time_t t = time(NULL);
+  /* Total number of units that all threads will produce */
+  int totRequired = 0;
 
-    for (int j = 1; j < argc; j++) {
-        totRequired += atoi(argv[j]);
+  /* Create all threads */
+  for (int j = 1; j < argc; j++) {
+    totRequired += atoi(argv[j]);
+    pthread_t tid;
+    Pthread_create(&tid, NULL, producer, argv[j]);
+  }
 
-        pthread_t tid;
-        int s = pthread_create(&tid, NULL, producer, argv[j]);
-        if (s != 0)
-            nmsysErr(s, "pthread_create");
+  /* Loop to consume available units */
+
+  int numConsumed = 0; /* Total units so far consumed */
+  bool done = false;
+
+  for (;;) {
+    Pthread_mutex_lock(&mtx);
+
+    while (avail == 0) /* Wait for something to consume */
+      Pthread_cond_wait(&cond, &mtx);
+
+    /* At this point, 'mtx' is locked... */
+
+    while (avail > 0) { /* Consume all available units */
+      /* Do something with produced unit */
+      avail--;
+      numConsumed++;
+      printf("T=%ld: numConsumed=%d\n", (long)(time(NULL) - t), numConsumed);
+      done = numConsumed >= totRequired;
     }
 
-    /* Loop to consume available units */
+    Pthread_mutex_unlock(&mtx);
 
-    int numConsumed = 0;        /* Total units so far consumed */
-    bool done = false;
+    if (done)
+      break;
+    /* Perhaps do other work here that does not require mutex lock */
+  }
 
-    for (;;) {
-        int s = pthread_mutex_lock(&mtx);
-        if (s != 0)
-            nmsysErr(s, "pthread_mutex_lock");
-
-        while (avail == 0) {            /* Wait for something to consume */
-            s = pthread_cond_wait(&cond, &mtx);
-            if (s != 0)
-                nmsysErr(s, "pthread_cond_wait");
-        }
-
-        /* At this point, 'mtx' is locked... */
-
-        while (avail > 0) {             /* Consume all available units */
-
-            /* Do something with produced unit */
-
-            numConsumed ++;
-            avail--;
-            printf("T=%ld: numConsumed=%d\n", (long) (time(NULL) - t),
-                    numConsumed);
-
-            done = numConsumed >= totRequired;
-        }
-
-        s = pthread_mutex_unlock(&mtx);
-        if (s != 0)
-            nmsysErr(s, "pthread_mutex_unlock");
-
-        if (done)
-            break;
-
-        /* Perhaps do other work here that does not require mutex lock */
-
-    }
-
-    exit(EXIT_SUCCESS);
+  exit(EXIT_SUCCESS);
 }

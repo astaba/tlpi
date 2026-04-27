@@ -67,3 +67,6 @@ temp/
 DRAFT.*
 
 make-p.*
+sockets/CLIENT_LOAD
+sockets/SERVER_LOG
+threads/LOGTHREAD
