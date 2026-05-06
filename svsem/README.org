@@ -1,0 +1,13 @@
+#+TITLE: System V Semaphores
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Section 47 The Linux Programming Interface by Michael Kerrisk
+#+STARTUP: showall
+
+* Table of Contents                                                   :toc_2:
+- [[#471-overview][47.1 Overview]]
+
+* 47.1 Overview
+
+- [[file:svsem_demo.c][Listing 47.1 svsem_demo]]: Creating and operating on System V
+  semaphores.
+- [[file:semun.h][Listing 47.2 semun.h]]: Definition of the semun union.
