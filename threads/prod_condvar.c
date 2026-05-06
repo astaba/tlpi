@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Sat Apr 25 14:22:56 +01 2026>
- * Time-stamp: <Sun Apr 26 03:11:02 +01 2026 by owner>
+ * Time-stamp: <Mon May  4 19:21:21 +01 2026 by owner>
  * Author    : Copyright(C) Michael Kerrisk, 2026
  *             See the file [[file:../COPYING.gpl-v3]] for details
  * Desc      : ~/coding/c_prog/tlpi/threads/prod_condvar.c -
@@ -64,7 +64,8 @@ int main(int argc, char *argv[argc + 1]) {
   for (;;) {
     Pthread_mutex_lock(&mtx);
 
-    while (avail == 0) /* Wait for something to consume */
+    /* Wait for something to consume. If cond blocks mtx unlocks. */
+    while (avail == 0)
       Pthread_cond_wait(&cond, &mtx);
 
     /* At this point, 'mtx' is locked... */

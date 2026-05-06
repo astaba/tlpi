@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Sun Apr 26 03:31:50 +01 2026>
- * Time-stamp: <Sun Apr 26 16:38:27 +01 2026 by owner>
+ * Time-stamp: <Mon May  4 21:10:13 +01 2026 by owner>
  * Author    : Copyright(C) Michael Kerrisk, 2026
  *             See the file [[file:../COPYING.gpl-v3]] for details
  * Desc      : ~/coding/c_prog/tlpi/threads/thread_multijoin.c -
@@ -58,24 +58,7 @@ static struct {      /* Info about each thread */
   int sleepTime;     /* Number seconds to live before terminating */
 } *thread;           /* Instantiate pointer to anonymous struct (no tag) */
 
-/* Start function for thread */
-static void *threadFunc(void *arg) {
-  int idx = (int)arg;
-
-  /* NOTE: Shared data unprotected access? No. See:
-   * [[file:README.org::#real-point-of-mutual-exclusion]] */
-  sleep(thread[idx].sleepTime); /* Simulate doing some work */
-  printf("Thread %d terminating\n", idx);
-
-  Pthread_mutex_lock(&threadMutex);
-  numUnjoined++;
-  thread[idx].state = TS_TERMINATED;
-  Pthread_mutex_unlock(&threadMutex);
-
-  Pthread_cond_signal(&threadDied);
-
-  return NULL;
-}
+static void *threadFunc(void *arg);
 
 int main(int argc, char *argv[]) {
   int idx;
@@ -124,4 +107,23 @@ int main(int argc, char *argv[]) {
   /* NOTE: No malloc cleanup? See:
      [[file:README.org::#no-malloc-cleanup]] */
   exit(EXIT_SUCCESS);
+}
+
+/* Start function for thread */
+static void *threadFunc(void *arg) {
+  int idx = (int)arg;
+
+  /* NOTE: Shared data unprotected access? No. See:
+   * [[file:README.org::#real-point-of-mutual-exclusion]] */
+  sleep(thread[idx].sleepTime); /* Simulate doing some work */
+  printf("Thread %d terminating\n", idx);
+
+  Pthread_mutex_lock(&threadMutex);
+  numUnjoined++;
+  thread[idx].state = TS_TERMINATED;
+  Pthread_mutex_unlock(&threadMutex);
+
+  Pthread_cond_signal(&threadDied);
+
+  return NULL;
 }

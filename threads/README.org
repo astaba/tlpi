@@ -3,19 +3,33 @@
 #+DESCRIPTION: Chapters 29-33 The Linux Programming Interface by Michael Kerrisk
 #+STARTUP: showall
 
-* Table Of Contents                                                   :toc_2:
-- [[#29-introduction][29 Introduction]]
+* Table Of Contents                                                   :toc_3:
+- [[#29-introduction][29 INTRODUCTION]]
   - [[#section-api][Section API]]
   - [[#296-joining-with-a-terminated-thread][29.6 Joining with a Terminated Thread]]
   - [[#298-threads-attributes][29.8 Threads Attributes]]
-  - [[#29-exercise][29 Exercise]]
-- [[#30-threads-synchronization][30 Threads Synchronization]]
+  - [[#2911-exercise][29.11 Exercise]]
+    - [[#exercises-291][Exercises 29.1]]
+    - [[#exercise-292][Exercise 29.2]]
+- [[#30-threads-synchronization][30 THREADS SYNCHRONIZATION]]
   - [[#section-api-1][Section API]]
   - [[#301-protecting-accesses-to-shared-variables-mutexes][30.1 Protecting Accesses to Shared Variables: Mutexes]]
+    - [[#3012-locking-and-unlocking-a-mutex][30.1.2 Locking and Unlocking a Mutex]]
+    - [[#3017-mutex-types][30.1.7 Mutex Types]]
   - [[#302-signaling-changes-of-state-condition-variables][30.2 Signaling Changes of State: Condition Variables]]
-  - [[#exercises][Exercises]]
+    - [[#3024-example-program-joining-any-terminated-thread][30.2.4 Example Program: Joining Any Terminated Thread]]
+  - [[#304-exercises][30.4 Exercises]]
+    - [[#exercise-301][Exercise 30.1]]
+- [[#31-thread-safety-and-per-thread-storage][31 THREAD SAFETY AND PER-THREAD STORAGE]]
+  - [[#section-api-2][Section API]]
+  - [[#313-thread-specific-data][31.3 Thread-Specific Data]]
+    - [[#3134-employing-the-thread-specific-data-api][31.3.4 Employing the Thread-Specific Data API]]
+  - [[#314-thread-local-storage][31.4 Thread-Local Storage]]
+  - [[#316-exercises][31.6 Exercises]]
+    - [[#exercise-311][Exercise 31.1]]
+    - [[#exercise-312][Exercise 31.2]]
 
-* 29 Introduction
+* 29 INTRODUCTION
 ** Section API
 
 #+begin_src C
@@ -55,7 +69,7 @@ policy and priority (akin to the process realtime scheduling policies
 and priorities described in Sections 35.2 and 35.3), and whether the
 thread is joinable or detached.
 
-** 29 Exercise
+** 29.11 Exercise
 *** Exercises 29.1
 What possible outcomes might there be if a thread executes the
 following code:
@@ -109,15 +123,16 @@ IDs are passed around as arguments and a thread cannot know in advance
 whether the tid it received is its own.
 
 *** Exercise 29.2
+:PROPERTIES:
+:CUSTOM_ID: exercise-29-2
+:END:
 Aside from the absence of error checking and various variable and structure
 declarations, what is the problem with the following program?
 
 #+begin_src C
   #include <pthread.h>
 
-  static void *
-
-  threadFunc(void *arg) {
+  static void *threadFunc(void *arg) {
     struct someStruct *pbuf = (struct someStruct *) arg;
   /* Do some work with structure pointed to by 'pbuf' */
   }
@@ -188,7 +203,7 @@ lifetime are orthogonal*. Every previous chapter let you assume a
 stack frame lives exactly as long as its function. Threads break that
 assumption completely and permanently.
 
-* 30 Threads Synchronization
+* 30 THREADS SYNCHRONIZATION
 
 ** Section API
 #+begin_src C
@@ -419,7 +434,7 @@ transmission shows particularly sharp instinct --- that cast is one of
 those things that works on Linux x86-64 today and is technically
 nonportable, and recognizing it as contrived is exactly right.
 
-** Exercises
+** 30.4 Exercises
 *** Exercise 30.1
 Modify the program in [[file:thread_incr.c][Listing 30.1 thread_incr]] so that each loop in
 the thread’s start function outputs the current value of glob and some
@@ -437,3 +452,138 @@ the kernel scheduler alternates execution between the two threads.
 :VISIBILITY: folded
 :END:
 - [[file:exr3001.c][Exercise 30.1]].
+
+Clean solution. The struct argument pattern is orthodox and correct ---
+no casting integers to pointers, proper heap-adjacent stack allocation,
+each thread gets its own slot. Good.
+
+Several observations:
+
+***** The HACK comment is astute
+
+Increasing thread count to amplify race probability is genuinely the
+right intuition. With 2 threads the window of vulnerability is narrow
+and races are sporadic. With 5 threads you multiply the interleaving
+possibilities combinatorially. The race becomes almost guaranteed. This
+is exactly how stress tests for concurrent code work in practice.
+
+***** =volatile= is doing less than you think
+
+#+begin_src C
+static volatile int glob = 0;
+#+end_src
+
+=volatile= prevents the compiler from caching =glob= in a register
+across iterations --- it forces a memory read/write each time. That's
+useful for making the race *visible* in the output. But it does not
+provide atomicity. The H→U→S sequence is still three separate operations
+even with =volatile=. So =volatile= here is correct for the experiment's
+observability but would be wrong as a synchronization mechanism. Good
+that the mutex is the real fix when uncommented.
+
+***** The printf inside the loop is interesting
+
+#+begin_src C
+printf("Thread[%d]: glob = %d\n", idx, glob);
+#+end_src
+
+This actually *increases* race probability because =printf= is
+relatively slow and involves a syscall, giving the scheduler more
+opportunities to context switch between the load of =glob= for the print
+and the actual current value. So the printed value of =glob= may not
+even match what the thread just wrote. The output file will show =glob=
+jumping non-monotonically across threads --- which is exactly what
+Kerrisk wants you to observe.
+
+***** One subtle stack lifetime point
+
+#+begin_src C
+arg_t args[PEER_NUM];  // stack allocated in main
+#+end_src
+
+This is safe here because main joins all threads before returning. But
+it's worth noting explicitly in your mental model --- if main had
+called =pthread_exit= instead of joining, this would be the exact
+dangling pointer problem from [[#exercise-29-2][Exercise 29.2]]. Your join loop is what
+keeps it correct.
+
+***** The OK/BOOM check is a nice touch
+
+Clean experimental design. Did you actually get BOOM consistently
+without the mutex, and clean OK with it uncommented?
+
+* 31 THREAD SAFETY AND PER-THREAD STORAGE
+
+** Section API
+
+#+begin_src C
+  #include <pthread.h>
+
+  pthread_once_t once_control = PTHREAD_ONCE_INIT;
+
+  int pthread_once(pthread_once_t *once_control, void (*init)(void));
+  int pthread_key_create(pthread_key_t *key, void (*destructor)(void *));
+  int pthread_setspecific(pthread_key_t key, const void *value);
+  /* Return 0 on success, or a positive error number on error */
+  void *pthread_getspecific(pthread_key_t key);
+  /* Returns pointer, or NULL if no thread-specific data isassociated with key */
+#+end_src
+
+** 31.3 Thread-Specific Data
+*** 31.3.4 Employing the Thread-Specific Data API
+
+In version 2.32, glibc removed the symbols =_sys_nerr= and
+=_sys_errlist=. As a consequence, the code example shown on these
+pages (Listing 31.1, 31.2, 31.3) will no longer compile on systems
+that have glibc 2.32 or later.
+
+- [[file:strerror.c][Listing 31.1 DEPRECATED strerror]]: An implementation of =strerror()=
+  that is not thread-safe.
+- [[file:strerror_test.c][Listing 31.2 DEPRECATED strerror_test]]: Calling =strerror()= from two
+  different threads.
+- [[file:strerror_tsd.c][Listing 31.3 DEPRECATED strerror_tsd]]: A thread-safe implementation of
+  =strerror()= using thread-specific data.
+
+** 31.4 Thread-Local Storage
+
+- [[file:strerror_tls.c][Listing 31.4 DEPRECATED strerror_tls]]: A thread-safe implementation
+  of strerror() using thread-local storage.
+
+
+** 31.6 Exercises
+
+*** Exercise 31.1
+Implement a function, =one_time_init(control, init)=, that performs
+the equivalent of =pthread_once()=. The =control= argument should be a
+pointer to a statically allocated structure containing a Boolean
+variable and a =mutex=. The Boolean variable indicates whether the
+function init has already been called, and the =mutex= controls access
+to that variable. To keep the implementation simple, you can ignore
+possibilities such as =init()= failing or being canceled when first
+called from a thread (i.e., it is not necessary to devise a scheme
+whereby, if such an event occurs, the next thread that calls
+=one_time_init()= reattempts the call to =init()=).
+
+**** Answer
+- [[file:exr3101.c][exr3101]], [[file:exr3101_hdr.h][exr3101_hdr]], [[file:exr3101_test.c][exr3101_test]], tested using the logic from the
+  next exercise.
+
+
+*** Exercise 31.2
+Use thread-specific data to write thread-safe versions of =dirname()=
+and =basename()= (Section 18.14).
+
+For reference:
+
+Execute code block with =C-c C-c= on code block then open result
+buffer =*Man ...*=.
+
+#+begin_src emacs-lisp
+  (man "dirname(3)")
+#+end_src
+
+#+RESULTS:
+: #<buffer *Man 3 dirname*>
+
+**** Answer
+- [[file:exr3102.c][exr3102]], [[file:exr3102_hdr.h][exr3102_hdr]], [[file:exr3102_test.c][exr3102_test]].

@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Fri Apr 24 21:51:25 +01 2026>
- * Time-stamp: <Sat Apr 25 19:31:03 +01 2026 by owner>
+ * Time-stamp: <Wed May  6 18:02:38 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/threads/pthread_wrappers.c -
  * ========================================================================= */
@@ -68,6 +68,27 @@ void Pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex) {
     nmsysErr(s, "pthread_cond_wait() failed");
 }
 
+/* Error handling wrapper around pthread_once() */
+void Pthread_once(pthread_once_t *once_control, void (*init)(void)) {
+  int s = pthread_once(once_control, init);
+  if (s != 0)
+    nmsysErr(s, "pthread_once() failed");
+}
+
+/* Error handling wrapper around pthread_key_create() */
+void Pthread_key_create(pthread_key_t *key, void (*destructor)(void *)) {
+  int s = pthread_key_create(key, destructor);
+  if (s != 0)
+    nmsysErr(s, "pthread_key_create() failed");
+}
+
+/* Error handling wrapper around pthread_setspecific() */
+void Pthread_setspecific(pthread_key_t key, const void *value) {
+  int s = pthread_setspecific(key, value);
+  if (s != 0)
+    nmsysErr(s, "pthread_setspecific() failed");
+}
+
 /* CONSISTENCY WRAPPERS ======================= */
 
 /* Consistency wrapper around pthread_exit() */
@@ -86,4 +107,10 @@ pthread_t Pthread_self(void) {
 int Pthread_equal(pthread_t t1, pthread_t t2) {
   /* Returns nonzero value if t1 and t2 are equal, otherwise 0 */
   return pthread_equal(t1, t2);
+}
+
+/* Consistency wrapper around pthread_getspecific(). Returns pointer, or
+   NULL if no thread-specific data isassociated with key */
+void *Pthread_getspecific(pthread_key_t key) {
+  return pthread_getspecific(key);
 }
