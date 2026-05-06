@@ -1,41 +1,32 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU General Public License as published by the   *
-* Free Software Foundation, either version 3 or (at your option) any      *
-* later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
-\*************************************************************************/
-
-/* Listing 53-5 */
-
-/* psem_getvalue.c
-
-   Obtain the value of a POSIX named semaphore.
-
-   On Linux, named semaphores are supported with kernel 2.6 or later, and
-   a glibc that provides the NPTL threading implementation.
-*/
+/* =========================================================================
+ * Created on: <Wed Apr 29 16:00:17 +01 2026>
+ * Time-stamp: <Wed Apr 29 16:01:42 +01 2026 by owner>
+ * Author    : Copyright (C) Michael Kerrisk, 2026.
+ *             See the file [[file:../COPYING.gpl-v3]] for details.
+ * Desc      : ~/coding/c_prog/tlpi/psem/psem_getvalue.c -
+ *
+ * Listing 53.5: Obtain the value of a POSIX named semaphore.
+ *
+ * On Linux, named semaphores are supported with kernel 2.6 or later,
+ * and a glibc that provides the NPTL threading implementation.
+ * ========================================================================= */
+#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
 #include <semaphore.h>
-#include "tlpi_hdr.h"
 
-int
-main(int argc, char *argv[])
-{
-    int value;
-    sem_t *sem;
+int main(int argc, char *argv[]) {
+  int value;
+  sem_t *sem;
 
-    if (argc != 2)
-        usageErr("%s sem-name\n", argv[0]);
+  if (argc != 2)
+    usageErr("%s sem-name\n", argv[0]);
 
-    sem = sem_open(argv[1], 0);
-    if (sem == SEM_FAILED)
-        systmErr("sem_open");
+  sem = sem_open(argv[1], 0);
+  if (sem == SEM_FAILED)
+    systmErr("sem_open");
 
-    if (sem_getvalue(sem, &value) == -1)
-        systmErr("sem_getvalue");
+  if (sem_getvalue(sem, &value) == -1)
+    systmErr("sem_getvalue");
 
-    printf("%d\n", value);
-    exit(EXIT_SUCCESS);
+  printf("%d\n", value);
+  exit(EXIT_SUCCESS);
 }

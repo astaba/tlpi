@@ -1,40 +1,30 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU General Public License as published by the   *
-* Free Software Foundation, either version 3 or (at your option) any      *
-* later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
-\*************************************************************************/
-
-/* Listing 53-4 */
-
-/* psem_post.c
-
-   Increase the value of a POSIX named semaphore.
-
-   See also psem_wait.c.
-
-   On Linux, named semaphores are supported with kernel 2.6 or later, and
-   a glibc that provides the NPTL threading implementation.
-*/
+/* =========================================================================
+ * Created on: <Wed Apr 29 15:45:21 +01 2026>
+ * Time-stamp: <Wed Apr 29 15:47:20 +01 2026 by owner>
+ * Author    : Copyright (C) Michael Kerrisk, 2026.
+ *             See the file [[file:../COPYING.gpl-v3]] for details.
+ * Desc      : ~/coding/c_prog/tlpi/psem/psem_post.c -
+ *
+ * Listing 53.4: Increase the value of a POSIX named semaphore.
+ * See also [[file:psem_wait.c]].
+ *
+ * On Linux, named semaphores are supported with kernel 2.6 or later,
+ * and a glibc that provides the NPTL threading implementation.
+ * ========================================================================= */
+#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
 #include <semaphore.h>
-#include "tlpi_hdr.h"
 
-int
-main(int argc, char *argv[])
-{
-    sem_t *sem;
+int main(int argc, char *argv[]) {
+  sem_t *sem;
 
-    if (argc != 2)
-        usageErr("%s sem-name\n", argv[0]);
+  if (argc != 2)
+    usageErr("%s sem-name\n", argv[0]);
 
-    sem = sem_open(argv[1], 0);
-    if (sem == SEM_FAILED)
-        systmErr("sem_open");
+  sem = sem_open(argv[1], 0);
+  if (sem == SEM_FAILED)
+    systmErr("sem_open");
 
-    if (sem_post(sem) == -1)
-        systmErr("sem_post");
-    exit(EXIT_SUCCESS);
+  if (sem_post(sem) == -1)
+    systmErr("sem_post");
+  exit(EXIT_SUCCESS);
 }

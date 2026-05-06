@@ -1,0 +1,315 @@
+#+TITLE: POSIX Semaphores
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Section 53 The Linux Programming Interface by Michael Kerrisk
+#+STARTUP: showall
+
+* Table of Contents                                                   :toc_2:
+- [[#section-api][Section API]]
+- [[#532-named-semaphores][53.2 Named Semaphores]]
+  - [[#5321-opening-a-named-semaphore][53.2.1 Opening a named semaphore]]
+  - [[#5323-removing-a-named-semaphore][53.2.3 Removing a Named Semaphore]]
+- [[#533-semaphore-operations][53.3 Semaphore Operations]]
+  - [[#5331-waiting-on-a-semaphore][53.3.1 Waiting on a Semaphore]]
+  - [[#5332-posting-a-semaphore][53.3.2 Posting a Semaphore]]
+  - [[#5333-retrieving-the-current-value-of-a-semaphore][53.3.3 Retrieving the Current Value of a Semaphore]]
+- [[#534-unnamed-semaphores][53.4 Unnamed Semaphores]]
+  - [[#5341-initializing-an-unnamed-semaphore][53.4.1 Initializing an Unnamed Semaphore]]
+- [[#exercises][Exercises]]
+  - [[#exercise-532][Exercise 53.2]]
+
+* Section API
+
+#+begin_src C
+  #include <fcntl.h> /* Defines O_* constants */
+  #include <sys/stat.h> /* Defines mode constants */
+  #include <semaphore.h>
+  #define _XOPEN_SOURCE 600	/* For sem_timedwait */
+
+  sem_t *sem_open(const char *name, int oflag, ...
+                  /* mode_t mode, unsigned int value */ );
+  /* Returns pointer to semaphore on success, or SEM_FAILED on error */
+
+  int sem_close(sem_t *sem);
+  int sem_unlink(const char *name);
+  int sem_wait(sem_t *sem);
+  int sem_trywait(sem_t *sem);
+  int sem_timedwait(sem_t *sem, const struct timespec *abs_timeout);
+  int sem_post(sem_t *sem);
+  int sem_getvalue(sem_t *sem, int *sval);
+
+  /* Unamed semaphores */
+  int sem_init(sem_t *sem, int pshared, unsigned int value);
+  int sem_destroy(sem_t *sem);
+
+  /* Return 0 on success, or –1 on error */
+#+end_src
+
+* 53.2 Named Semaphores
+** 53.2.1 Opening a named semaphore
+*** Some Prerequisites
+**** How =getopt= works
+
+The "magic" of =getopt()= is that it
+treats your command line like a deck of cards it can shuffle.
+
+To see the reordering (permutation) clearly, let's look at a command
+that mixes flags and files.
+
+***** The Setup
+:PROPERTIES:
+:CUSTOM_ID: the-setup
+:END:
+Imagine a program =shredder= that takes:
+- =-v= (verbose, no argument)
+- =-l level= (requires an argument)
+- Positional arguments (filenames)
+
+*The Command:* =./shredder file1.txt -v -l 9 file2.txt=
+
+***** The Step-by-Step Shuffle
+:PROPERTIES:
+:CUSTOM_ID: the-step-by-step-shuffle
+:END:
+Initially, =argv= looks like this:
+
+| Index     |          0 |           1 |    2 |    3 |   4 |           5 |
+|-----------+------------+-------------+------+------+-----+-------------|
+| *Content* | =shredder= | =file1.txt= | =-v= | =-l= | =9= | =file2.txt= |
+
+1. *Call 1:* =getopt= sees =file1.txt= at =argv[1]=. On most Linux
+   systems (GNU), it says "I'll deal with this later" and skips it to
+   find the next option.
+2. *Call 2:* It finds =-v=. It returns ='v'=.
+3. *Call 3:* It finds =-l= and sees the required argument =9=. It
+   returns ='l'= and sets =optarg= to ="9"=.
+4. *The Return:* Now it returns =-1= because there are no more flags.
+
+***** The Resulting =argv= (The Magic)
+:PROPERTIES:
+:CUSTOM_ID: the-resulting-argv-the-magic
+:END:
+After =getopt()= returns =-1=, it has physically rearranged the =argv=
+array in memory to push all non-options to the end:
+
+| Index     |          0 |    1 |    2 |   3 | *4*         |           5 |
+|-----------+------------+------+------+-----+-------------+-------------|
+| *Content* | =shredder= | =-v= | =-l= | =9= | =file1.txt= | =file2.txt= |
+| *State*   |            |      |      |     | *=optind=*  |             |
+
+***** Why =optind= is the "Wall"
+:PROPERTIES:
+:CUSTOM_ID: why-optind-is-the-wall
+:END:
+At this point: * =optind= is *4*. * =argc= is *6*. * Everything from
+=argv[optind]= to =argv[argc-1]= is a file you need to process.
+
+If you had a loop like =for (int i = optind; i < argc; i++)=, it would
+correctly grab =file1.txt= and =file2.txt=, even though they were
+scattered all over the original command.
+
+***** Important "Gotchas"
+:PROPERTIES:
+:CUSTOM_ID: important-gotchas
+:END:
+- *The =--= Delimiter:* If the user types =./shredder -v -- -l 9=,
+  =getopt= stops at =--=. It treats =-l= and =9= as literal filenames.
+  =optind= would point to =-l=.
+- *Disabling the Shuffle:* If you hate this reordering, you can start
+  your "optstring" with a =+= (e.g., =getopt(argc, argv, "+vl:")=). This
+  forces =getopt()= to stop the moment it hits the first non-option
+  (=file1.txt=), leaving the rest of the array untouched.
+
+**** The POSIX "Name" Requirement
+POSIX semaphores, shared memory, and message queues require a name
+that starts with a forward slash (/). However, the standard is
+intentionally vague about where that name lives. It doesn't have to be
+a real file in a real directory; it just needs to be a unique string
+that multiple unrelated processes can use to find the same resource.
+
+*** Example Program
+The program in [[file:psem_create.c][Listing 53.1 psem_create]] provides a simple command-line
+interface to the =sem_open()= function. The command format for this
+program is shown in the =usageError()= function.
+
+*** Shell Session Log
+The following shell session log demonstrates the use of this program.
+We first use the umask command to deny all permissions to users in the
+class other.  We then exclusively create a semaphore and examine the
+contents of the Linux-specific virtual directory that contains named
+semaphores.
+
+#+begin_example
+$ umask 007
+$ ./psem_create -cx /demo 666      # 666 means read+write for all users
+$ ls -l /dev/shm/sem.*
+-rw-rw---- 1 mtk users 16 Jul 6 12:09 /dev/shm/sem.demo
+#+end_example
+
+The output of the =ls= command shows that the process umask overrode
+the specified permissions of read plus write for the user class other.
+If we try once more to exclusively create a semaphore with the same
+name, the operation fails, because the name already exists.
+
+#+begin_example
+$ ./psem_create -cx /demo 666
+ERROR [EEXIST File exists] sem_open     # Failed because of O_EXCL
+#+end_example
+
+** 53.2.3 Removing a Named Semaphore
+[[file:psem_unlink.c][Listing 53.2 psem_unlink]] demonstrates th use of =sem_unlink()= to
+unlink a POSIX named semaphore.
+
+* 53.3 Semaphore Operations
+** 53.3.1 Waiting on a Semaphore
+The program in [[file:psem_wait.c][Listing 53.3 psem_wait]] provides a command-line
+interface to the sem_wait() function.
+
+** 53.3.2 Posting a Semaphore
+The program in [[file:psem_post.c][Listing 53.4 psem_post]] provides a command-line
+interface to the =sem_post()= function. We demonstrate the use of this
+program shortly.
+
+** 53.3.3 Retrieving the Current Value of a Semaphore
+The program in [[file:psem_getvalue.c][Listing 53.5 psem_getvalue]] uses =sem_getvalue()= to
+retrieve the value of the semaphore named in its command-line
+argument, and then displays that value on standard output.
+
+*** Shell Session log
+The following shell session log demonstrates the use of the programs
+we have shown so far in this chapter. We begin by creating a semaphore
+whose initial value is zero, and then start a program in the
+background that attempts to decrement the semaphore:
+
+#+begin_example
+$ ./psem_create -c /demo 600 0
+$ ./psem_wait /demo &
+[1] 31208
+#+end_example
+
+The background command blocks, because the semaphore value is
+currently 0 and therefore can’t be decreased.
+
+We then retrieve the semaphore value:
+
+#+begin_example
+$ ./psem_getvalue /demo
+0
+#+end_example
+
+We see the value =0= above. On some other implementations, we might
+see the value =–1=, indicating that one process is waiting on the
+semaphore.
+
+We then execute a command that increments the semaphore. This causes
+the blocked =sem_wait()= in the background program to complete:
+
+#+begin_example
+$ ./psem_post /demo
+$ 31208 sem_wait() succeeded
+#+end_example
+
+(The last line of output above shows the shell prompt mixed with the
+output of the background job.)
+
+We press =Enter= to see the next shell prompt, which also causes the
+shell to report on the terminated background job, and then perform
+further operations on the semaphore:
+
+#+begin_example
+                                # Press Enter
+[1]- Done ./psem_wait /demo
+$ ./psem_post /demo             # Increment semaphore
+$ ./psem_getvalue /demo         # Retrieve semaphore value
+1
+$ ./psem_unlink /demo           # We’re done with this semaphore
+#+end_example
+
+* 53.4 Unnamed Semaphores
+** 53.4.1 Initializing an Unnamed Semaphore
+In Section 30.1.2, we presented a program ([[file:../threads/thread_incr_mutex.c][Listing 30.2]], see also
+[[file:~/coding/c_prog/tlpi/threads/ythread_incr_mutex.c][Listing 30.2y]]) that used mutexes to protect a critical section in
+which two threads accessed the same global variable. The program in
+[[file:thread_incr_psem.c][Listing 53.6 thread_incr_psem]] solves the same problem using an unnamed
+thread-shared semaphore (See also [[file:ythread_incr_psem.c][ythread_incr_psem]]).
+
+* Exercises
+** Exercise 53.2
+Modify the program in [[file:psem_wait.c][Listing 53.3 psem_wait]] to use =sem_timedwait()=
+instead of =sem_wait()=. The program should take an additional
+command-line argument that specifies a (relative) number of seconds to
+be used as the timeout for the =sem_timedwait()= call.
+
+*** Answer
+:PROPERTIES:
+:VISIBILITY: folded
+:END:
+
+- [file:exr5302.c].
+
+Clean and correct. The structure is solid. Several observations:
+
+**** Absolute time and EINTR loop
+:PROPERTIES:
+:CUSTOM_ID: absolute-time-and-eintr-loop
+:END:
+
+#+begin_src C
+while ((rc = sem_timedwait(sem, &ts)) == -1 && errno == EINTR)
+    continue;
+#+end_src
+
+Most beginners omit this. A signal can interrupt =sem_timedwait=
+returning =EINTR= before the timeout expires and before the semaphore
+is acquired. The loop correctly retries. And critically --- you're
+reusing the *same* =ts= on retry, which is correct because =ts= is an
+absolute deadline, not a relative duration. The timeout doesn't reset
+on each retry, it remains anchored to the original wall clock target.
+
+This is a subtle but important distinction. Had you used a relative
+timeout you'd need to recalculate =ts= on each retry. =CLOCK_REALTIME=
+absolute semantics save you from that complexity.
+
+**** =clock_gettime= before =getInt=
+
+You snapshot the current time first, then parse the argument. Trivial
+difference here but the habit is correct --- in real code you want the
+deadline anchored to before any potentially slow operations.
+
+**** Casting time types
+:PROPERTIES:
+:CUSTOM_ID: casting-time-types
+:END:
+
+#+begin_src C
+unsigned int wait_secs;
+#+end_src
+
+Then:
+
+#+begin_src C
+ts.tv_sec += wait_secs;
+#+end_src
+
+=ts.tv_sec= is of type =time_t= which is a signed type. Adding an
+=unsigned int= to it is safe here in practice but a pedantic reading
+flags the mixed signedness. Casting to =time_t= explicitly would be
+cleaner:
+
+#+begin_src C
+ts.tv_sec += (time_t)wait_secs;
+#+end_src
+
+**** The error handling taxonomy
+
+You distinguish three cases precisely:
+
+- =EINTR= → retry
+- =ETIMEDOUT= → report timeout
+- anything else → fatal error
+
+That three-way split is exactly right and matches Kerrisk's own
+pattern throughout TLPI.
+
+Good exercise. The =sem_timedwait= pattern is directly applicable to
+any real server that needs bounded waiting --- lock acquisition with
+timeout, resource pool checkout, that kind of thing.

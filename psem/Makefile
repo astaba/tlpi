@@ -1,7 +1,9 @@
 include ../Makefile.inc
 
 GEN_EXE = psem_getvalue psem_create psem_post psem_unlink \
-	  psem_timedwait psem_trywait psem_wait thread_incr_psem
+	  psem_timedwait psem_trywait psem_wait thread_incr_psem \
+	  ythread_incr_psem ypsem_timedwait \
+	  exr5302
 
 LINUX_EXE =
 
