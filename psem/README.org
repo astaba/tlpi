@@ -49,8 +49,8 @@
 *** Some Prerequisites
 **** How =getopt= works
 
-The "magic" of =getopt()= is that it
-treats your command line like a deck of cards it can shuffle.
+The "magic" of =getopt()= is that it treats your command line like a
+deck of cards it can shuffle.
 
 To see the reordering (permutation) clearly, let's look at a command
 that mixes flags and files.
@@ -100,8 +100,11 @@ array in memory to push all non-options to the end:
 :PROPERTIES:
 :CUSTOM_ID: why-optind-is-the-wall
 :END:
-At this point: * =optind= is *4*. * =argc= is *6*. * Everything from
-=argv[optind]= to =argv[argc-1]= is a file you need to process.
+At this point:
+- =optind= is *4*.
+- =argc= is *6*.
+- Everything from =argv[optind]= to =argv[argc-1]= is a file you need
+  to process.
 
 If you had a loop like =for (int i = optind; i < argc; i++)=, it would
 correctly grab =file1.txt= and =file2.txt=, even though they were
@@ -112,8 +115,8 @@ scattered all over the original command.
 :CUSTOM_ID: important-gotchas
 :END:
 - *The =--= Delimiter:* If the user types =./shredder -v -- -l 9=,
-  =getopt= stops at =--=. It treats =-l= and =9= as literal filenames.
-  =optind= would point to =-l=.
+  =getopt= stops at =--= . It treats =-l= and =9= as literal filenames.
+  =optind= would point to =-l= .
 - *Disabling the Shuffle:* If you hate this reordering, you can start
   your "optstring" with a =+= (e.g., =getopt(argc, argv, "+vl:")=). This
   forces =getopt()= to stop the moment it hits the first non-option
