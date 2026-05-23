@@ -4,7 +4,10 @@ GEN_EXE = catch_rtsigs demo_SIGFPE ignore_pending_sig intquit \
 	nonreentrant \
 	ouch sig_receiver sig_sender sig_speed_sigsuspend \
 	sigmask_longjmp sigmask_siglongjmp \
-	t_kill t_sigaltstack t_sigsuspend t_sigqueue t_sigwaitinfo
+	t_kill t_sigaltstack t_sigsuspend t_sigqueue t_sigwaitinfo \
+	youch yintquit \
+	ysig_receiver ysig_sender \
+	exr2001 exr2002 exr2003_resethand exr2003_nodefer exr2004 \
 
 LINUX_EXE = signalfd_sigval
 
