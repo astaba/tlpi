@@ -39,6 +39,10 @@
   - [[#server-program][Server program]]
   - [[#client-program][Client Program]]
 - [[#5912-an-internet-domain-socket-library][59.12 An Internet Domain Socket Library]]
+- [[#5913-obsolete-apis-for-host-and-service-conversions][59.13 Obsolete APIs for Host and Service Conversions]]
+  - [[#obsolete-apis][Obsolete APIs]]
+  - [[#59132-the-gethostbyname-and-gethostbyaddr-functions][59.13.2 The gethostbyname() and gethostbyaddr() Functions]]
+  - [[#59133-the-getservbyname-and-getservbyport-functions][59.13.3 The getservbyname() and getservbyport() Functions]]
 - [[#5917-exercises][59.17 Exercises]]
   - [[#exercise-591][Exercise 59.1]]
   - [[#exercise-592][Exercise 59.2]]
@@ -140,7 +144,7 @@ the =LENGTH= of a =struct sockaddr_un= previousy cleared and
 populated, you should compute that LENGTH parameter for the socket
 address in the local namespace as the sum of the size of the
 =sun_family= component and the *string length* (_not_ the allocation
-size!)  of the file name string.  This can be done using the macro
+size!) of the file name string.  This can be done using the macro
 =SUN_LEN=:
 
 #+begin_src C
@@ -718,10 +722,17 @@ are stored in network byte order.
 
 #+begin_src C
   struct sockaddr_in {
-      sa_family_t     sin_family;     /* AF_INET */
-      in_port_t       sin_port;       /* Port number */
-      struct in_addr  sin_addr;       /* IPv4 address */
+     sa_family_t     sin_family;     /* AF_INET */
+     in_port_t       sin_port;       /* Port number */
+     struct in_addr  sin_addr;       /* IPv4 address */
   };
+
+  struct in_addr {
+    in_addr_t s_addr;
+  };
+
+  typedef uint16_t in_port_t;
+
 #+end_src
 
 ** IPv6 socket address
@@ -734,6 +745,11 @@ are stored in network byte order.
       struct in6_addr sin6_addr;      /* IPv6 address */
       uint32_t        sin6_scope_id;  /* Set of interfaces for a scope */
   };
+
+  struct in6_addr {
+    uint8_t   s6_addr[16];
+  };
+
 #+end_src
 
 ** Header File netinet/in.h
@@ -921,7 +937,7 @@ The triple-brace initialization ensures:
 - *Brace 3*: "I'm filling the Array inside the Union."
 
 ** The =sockaddr_storage= structure
-- Refeence: [[file:/usr/include/x86_64-linux-gnu/bits/socket.h::struct sockaddr_storage][sockaddr_storage definition]].
+- Reference: [[file:/usr/include/x86_64-linux-gnu/bits/socket.h::struct sockaddr_storage][sockaddr_storage definition]].
 
 This structure is defined to be large enough to hold any type of
 socket address. In particular, this structure allows us to
@@ -970,58 +986,58 @@ removing IP version dependencies from our code.
 
 The server program shown in Listing 59-6 performs the following steps:
 
-- Initialize the server’s sequence number either to 1 or to the value
-  supplied in the optional command-line argument (=1=).
+a. Initialize the server’s sequence number either to 1 or to the value
+   supplied in the optional command-line argument (=1=).
 
-- Ignore the SIGPIPE signal (=2=). This prevents the server from
-  receiving the SIGPIPE signal if it tries to write to a socket whose
-  peer has been closed; instead, the write() fails with the error
-  EPIPE.
+b. Ignore the SIGPIPE signal (=2=). This prevents the server from
+   receiving the SIGPIPE signal if it tries to write to a socket whose
+   peer has been closed; instead, the write() fails with the error
+   EPIPE.
 
-- Call getaddrinfo() (=4=) to obtain a set of socket address
-  structures for a TCP socket that uses the port number
-  PORT_NUM. (Instead of using a hard-coded port number, we would more
-  typically use a service name.) We specify the AI_PASSIVE flag (=3=)
-  so that the resulting socket will be bound to the wildcard address
-  (Section 58.5 [[#multihomed-host-and-wildcard-address][Multihomed Host and Wildcard Address]]). As a result,
-  if the server is run on a multihomed host, it can accept connection
-  requests sent to any of the host’s network addresses.
+c. Call getaddrinfo() (=4=) to obtain a set of socket address
+   structures for a TCP socket that uses the port number
+   PORT_NUM. (Instead of using a hard-coded port number, we would more
+   typically use a service name.) We specify the AI_PASSIVE flag (=3=)
+   so that the resulting socket will be bound to the wildcard address
+   (Section 58.5 [[#multihomed-host-and-wildcard-address][Multihomed Host and Wildcard Address]]). As a result,
+   if the server is run on a multihomed host, it can accept connection
+   requests sent to any of the host’s network addresses.
 
-- Enter a loop that iterates through the socket address structures
-  returned by the previous step (=5=). The loop terminates when the
-  program finds an address structure that can be used to successfully
-  create and bind a socket (=7=).
+d. Enter a loop that iterates through the socket address structures
+   returned by the previous step (=5=). The loop terminates when the
+   program finds an address structure that can be used to successfully
+   create and bind a socket (=7=).
 
-- Set the SO_REUSEADDR option for the socket created in the previous
-  step (=6=). We defer discussion of this option until Section 61.10,
-  where we note that a TCP server should usually set this option on
-  its listening socket.
+e. Set the SO_REUSEADDR option for the socket created in the previous
+   step (=6=). We defer discussion of this option until Section 61.10,
+   where we note that a TCP server should usually set this option on
+   its listening socket.
 
-- Mark the socket as a listening socket (=8=).
+f. Mark the socket as a listening socket (=8=).
 
-- Commence an infinite for loop (=9=) that services clients
-  iteratively (Chapter 60). Each client’s request is serviced before
-  the next client’s request is accepted. For each client, the server
-  performs the following steps:
+g. Commence an infinite for loop (=9=) that services clients
+   iteratively (Chapter 60). Each client’s request is serviced before
+   the next client’s request is accepted. For each client, the server
+   performs the following steps:
 
-  + Accept a new connection (=10=). The server passes non-NULL
-    pointers for the second and third arguments to accept(), in order
-    to obtain the address of the client. The server displays the
-    client’s address (IP address plus port number) on standard output
-    (=11=).
+   - Accept a new connection (=10=). The server passes non-NULL
+     pointers for the second and third arguments to accept(), in order
+     to obtain the address of the client. The server displays the
+     client’s address (IP address plus port number) on standard output
+     (=11=).
 
-  + Read the client’s message (=12=), which consists of a
-    newline-terminated string specifying how many sequence numbers the
-    client wants. The server converts this string to an integer and
-    stores it in the variable reqLen (=13=).
+   - Read the client’s message (=12=), which consists of a
+     newline-terminated string specifying how many sequence numbers the
+     client wants. The server converts this string to an integer and
+     stores it in the variable reqLen (=13=).
 
-  + Send the current value of the sequence number (seqNum) back to the
-    client, encoding it as a newline-terminated string (=14=). The
-    client can assume that it has been allocated all of the sequence
-    numbers in the range seqNum to (seqNum + reqLen – 1).
+   - Send the current value of the sequence number (seqNum) back to the
+     client, encoding it as a newline-terminated string (=14=). The
+     client can assume that it has been allocated all of the sequence
+     numbers in the range seqNum to (seqNum + reqLen – 1).
 
-  + Update the value of the server’s sequence number by adding reqLen
-    to seqNum (=15=).
+   - Update the value of the server’s sequence number by adding reqLen
+     to seqNum (=15=).
 
 *** Design Choices: getInt vs. atoi
 
@@ -1053,24 +1069,24 @@ the server is running, is mandatory.  The optional second argument is
 the length of the sequence desired by the client.  The default length
 is 1.  The client performs the following steps:
 
-- Call getaddrinfo() to obtain a set of socket address structures
-  suitable for connecting to a TCP server bound to the specified host
-  (=1=). For the port number, the client specifies PORT_NUM.
+a. Call getaddrinfo() to obtain a set of socket address structures
+   suitable for connecting to a TCP server bound to the specified host
+   (=1=). For the port number, the client specifies PORT_NUM.
 
-- Enter a loop (=2=) that iterates through the socket address
-  structures returned by the previous step, until the client finds one
-  that can be used to successfully create (=3=) and connect (=4=) a
-  socket to the server.  Since the client has not bound its socket,
-  the connect() call causes the kernel to assign an ephemeral port to
-  the socket.
+b. Enter a loop (=2=) that iterates through the socket address
+   structures returned by the previous step, until the client finds one
+   that can be used to successfully create (=3=) and connect (=4=) a
+   socket to the server.  Since the client has not bound its socket,
+   the connect() call causes the kernel to assign an ephemeral port to
+   the socket.
 
-- Send an integer specifying the length of the client’s desired
-  sequence (=5=).  This integer is sent as a newline-terminated
-  string.
+c. Send an integer specifying the length of the client’s desired
+   sequence (=5=).  This integer is sent as a newline-terminated
+   string.
 
-- Read the sequence number sent back by the server (which is likewise
-  a newlineterminated string) (=6=) and print it on standard output
-  (=7=).
+d. Read the sequence number sent back by the server (which is likewise
+   a newlineterminated string) (=6=) and print it on standard output
+   (=7=).
 
 * 59.12 An Internet Domain Socket Library
 :PROPERTIES:
@@ -1081,6 +1097,92 @@ is 1.  The client performs the following steps:
   - [[file:inet_sockets.h][Listing 59.8 inet_sockets.h]].
   - [[file:inet_sockets.c][Listing 59.9 inet_sockets.c]].
 
+* 59.13 Obsolete APIs for Host and Service Conversions
+
+- [[info:libc#Host Address Functions][libc#Host Address Functions]]
+- [[info:libc#Host Names][libc#Host Names]]
+
+** Obsolete APIs
+
+#+begin_src C
+  #include <arpa/inet.h>
+
+  int inet_aton(const char *str, struct in_addr *addr);
+  /* Returns 1 (true) if str is a valid dotted-decimal address, or 0
+     (false) on error */
+  char *inet_ntoa(struct in_addr addr);
+  /* Returns pointer to (statically allocated) dotted-decimal string
+     version of addr */
+
+  #include <netdb.h>
+
+  extern int h_errno;
+  struct hostent *gethostbyname(const char *name);
+  struct hostent *gethostbyaddr(const char *addr, socklen_t len, int type);
+  /* Both return pointer to (statically allocated) hostent structure on
+     success, or NULL on error */
+
+  struct hostent {
+    char *h_name; /* Official (canonical) name of host */
+    char **h_aliases; /* NULL-terminated array of pointers
+                         to alias strings */
+    int h_addrtype; /* Address type (AF_INET or AF_INET6) */
+    int h_length; /* Length (in bytes) of addresses pointed
+                     to by h_addr_list (4 bytes for AF_INET,
+                     16 bytes for AF_INET6) */
+    char **h_addr_list; /* NULL-terminated array of pointers to
+                           host IP addresses (in_addr or in6_addr
+                           structures) in network byte order */
+  };
+  #define h_addr h_addr_list[0]
+
+  #define _BSD_SOURCE /* Or _SVID_SOURCE or _GNU_SOURCE */
+  #include <netdb.h>
+
+  void herror(const char *str);
+  const char *hstrerror(int err);
+  /* Returns pointer to h_errno error string corresponding to err */
+
+  #include <netdb.h>
+
+  struct servent *getservbyname(const char *name, const char *proto);
+  struct servent *getservbyport(int port, const char *proto);
+  /* Both return pointer to a (statically allocated) servent structure
+     on success, or NULL on not found or error */
+
+  struct servent {
+    char *s_name; /* Official service name */
+    char **s_aliases; /* Pointers to aliases (NULL-terminated) */
+    int s_port; /* Port number (in network byte order) */
+    char *s_proto; /* Protocol */
+  };
+#+end_src
+
+** 59.13.2 The gethostbyname() and gethostbyaddr() Functions
+
+[[file:t_gethostbyname.c][Listing 59.10 t_gethostbyname]] demonstrates the use of =gethostbyname=.
+This program displays hostent information for each of the hosts named
+on its command line.  The following shell session demonstrates the use
+of this program:
+
+#+begin_example
+$ ./t_gethostbyname www.jambit.com
+Canonical name: jamjam1.jambit.com
+alias(es): www.jambit.com
+address type: AF_INET
+address(es): 62.245.207.90
+#+end_example
+
+- [[file:yt_gethostbyname.c][Listing 59.10 yt_gethostbyname]].
+
+** 59.13.3 The getservbyname() and getservbyport() Functions
+
+The =getservbyname()= and =getservbyport()= functions retrieve records
+from the ~/etc/services~ file (Section 59.9). These functions are
+nowadays made obsolete by =getaddrinfo()= and =getnameinfo()=.
+
+- Supplementary program for Chapter 59: [[file:t_getservbyname.c][t_getservbyname]].
+
 * 59.17 Exercises
 
 ** Exercise 59.1
@@ -1088,8 +1190,8 @@ is 1.  The client performs the following steps:
 :CUSTOM_ID: exercise-59-1
 :END:
 When reading large quantities of data, the =readLine()= function shown
-in [[file:read_line.c][Listing 59.1]] inefficient, since a system call is required to read
-each character.
+in [[file:read_line.c][Listing 59.1]] is inefficient, since a system call is required to
+read each character.
 
 A more efficient interface would read a block of characters into a
 buffer and extract a line at a time from this buffer.  Such an
@@ -1112,7 +1214,8 @@ Implement these two functions.  Modify the programs in [[file:is_seqnum_sv.c][Li
 functions.
 
 *** Answer
-- Reference: [[file:exr5901_sv.c][exr5901_sv]], [[file:exr5901_cl.c][exr5901_cl]].
+- [[file:ybio.h][ybio.h]], [[file:ybio.c][ybio]].
+- [[file:exr5901_sv.c][exr5901_sv]], [[file:exr5901_cl.c][exr5901_cl]].
 
 ** Exercise 59.2
 :PROPERTIES:

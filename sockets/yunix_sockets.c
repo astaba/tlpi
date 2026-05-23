@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Sat Apr 18 21:22:53 +01 2026>
- * Time-stamp: <Mon Apr 20 14:45:28 +01 2026 by owner>
+ * Time-stamp: <Sat May  9 20:54:08 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/yunix_sockets.c -
  *
@@ -21,7 +21,7 @@ int yunixaddress(const char *path, struct sockaddr_un *addr) {
   memset(addr, 0, sizeof(struct sockaddr_un));
   addr->sun_family = AF_UNIX;
   if (strlen(path) < sizeof(addr->sun_path)) {
-    strncpy(addr->sun_path, path, sizeof(addr->sun_path) - 1);
+    strncpy(addr->sun_path, path, sizeof(addr->sun_path));
     return 0;
   } else {
     errno = ENAMETOOLONG;
@@ -58,7 +58,7 @@ int yunixbind(const char *path, struct sockaddr_un *addr, int type) {
   int sfd, savedErrno;
   socklen_t socklen;
 
-  if (strlen(path) > sizeof(addr->sun_path) - 1) {
+  if (strlen(path) + 1 > sizeof(addr->sun_path)) {
     errno = ENAMETOOLONG;
     return -1;
   }
@@ -96,8 +96,8 @@ int yunixAaddress(const char *path, struct sockaddr_un *addr) {
 
   memset(addr, 0, sizeof(struct sockaddr_un));
   addr->sun_family = AF_UNIX;
-  if (strlen(path) < sizeof(addr->sun_path) - 1) {
-    strncpy(addr->sun_path + 1, path, sizeof(addr->sun_path) - 2);
+  if ( 1 + strlen(path) < sizeof(addr->sun_path)) {
+    strncpy(addr->sun_path + 1, path, sizeof(addr->sun_path));
     return 0;
   } else {
     errno = ENAMETOOLONG;

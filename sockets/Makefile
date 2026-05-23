@@ -15,7 +15,8 @@ GEN_EXE = i6d_ucase_sv i6d_ucase_cl \
 	exr5901_cl exr5901_sv \
 	exr5902_cl exr5902_sv \
 	exr5903_us_xfr_cl exr5903_us_xfr_sv \
-	exr5903_ud_ucase_sv exr5903_ud_ucase_cl
+	exr5903_ud_ucase_sv exr5903_ud_ucase_cl \
+	yt_gethostbyname
 
 LINUX_EXE = list_host_addresses \
 	scm_cred_recv scm_cred_send \

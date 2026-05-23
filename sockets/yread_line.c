@@ -1,13 +1,17 @@
 /* =========================================================================
  * Created on: <Fri Apr 10 17:49:24 +01 2026>
- * Time-stamp: <Fri Apr 17 23:36:53 +01 2026 by owner>
+ * Time-stamp: <Sat May  9 19:53:05 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/yread_line.c -
  *
  * What ever happen this routine returns a null-terminated string of
- * memoty bytes. Thus, it is enough to check for terminating '\n' to
- * ckeck for truncated data.
- * See [[file:README.org::#data-representation]]
+ * memory bytes. Thus, it is enough to check for terminating '\n' to
+ * ckeck for truncated data.  See
+ * [[file:README.org::#data-representation]] WARNING: This is
+ * vulnerable to a malicious input with no EOL. In case O_NONBLOCK
+ * flag is not set on the fd and fd does not close (like a socket fd),
+ * read() will block for ever.
+ * See [[file:../../csapp/conc/README.org::#homework-problem-12-23]]
  * ========================================================================= */
 #include "read_line.h" /* IWYU pragma: keep */
 #include <errno.h>
@@ -19,7 +23,7 @@ ssize_t yreadLine(int fd, void *buffer, size_t n) {
   char ch;          /* temporary slot between read() and buffer */
   char *buf;        /* buffer modification tracker */
 
-  /* Make buffer has at least 1 available slot */
+  /* Make sure buffer has at least 1 available slot */
   if (n <= 0 || buffer == NULL) {
     errno = EINVAL;
     return -1;

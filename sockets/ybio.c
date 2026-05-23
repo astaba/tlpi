@@ -1,9 +1,15 @@
 /* =========================================================================
  * Created on: <Fri Apr 17 23:36:30 +01 2026>
- * Time-stamp: <Sat Apr 18 12:46:48 +01 2026 by owner>
+ * Time-stamp: <Sat May  9 20:26:20 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/sockets/ybio.c -
- * Buffer I/O library
+ *
+ * Buffer I/O library.  WARNING: Vulnerable to partial input of text
+ * without EOL. In such an occurrence read() will block as long as the
+ * fd remains open. Potential fix: have fd preliminary set with
+ * O_NONBLOCK flag, which will make read() return -1 with errno ==
+ * EAGAIN on empty stream from fd refusing to close. Then assure
+ * granular interpretation of return status.
  * ========================================================================= */
 #include "ybio.h"
 #include <errno.h>
