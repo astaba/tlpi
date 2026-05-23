@@ -8,6 +8,7 @@ GEN_EXE = catch_rtsigs demo_SIGFPE ignore_pending_sig intquit \
 	youch yintquit \
 	ysig_receiver ysig_sender \
 	exr2001 exr2002 exr2003_resethand exr2003_nodefer exr2004 \
+	exr2101_test
 
 LINUX_EXE = signalfd_sigval
 
@@ -49,6 +50,9 @@ sigmask_siglongjmp.o : sigmask_longjmp.c
 
 nonatomic_uint64 : nonatomic_uint64.c
 	${CC} -m32 -o $@ $< ${CFLAGS} ${IMPL_LDLIBS}
+
+exr2101_test: yabort.o
+yabort.o: exr_signals.h
 
 clean :
 	${RM} ${EXE} *.o

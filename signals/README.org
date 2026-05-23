@@ -16,6 +16,11 @@
   - [[#2013-changing-signal-dispositions][20.13 Changing Signal Dispositions]]
   - [[#2014-waiting-for-a-signal][20.14 Waiting for a Signal]]
   - [[#2016-exercises][20.16 Exercises]]
+- [[#21-signal-handlers][21 SIGNAL HANDLERS]]
+  - [[#211-designing-signal-handlers][21.1 Designing Signal Handlers]]
+  - [[#212-other-methods-of-terminating-a-signal-handler][21.2 Other Methods of Terminating a Signal Handler]]
+  - [[#213-handling-a-signal-on-an-alternate-stack-sigaltstack][21.3 Handling a Signal on an Alternate Stack: sigaltstack()]]
+  - [[#217-exercises][21.7 Exercises]]
 
 * 20 FUNDAMENTAL CONCEPTS
 ** 20.3 Changing Signal Dispositions: signal()
@@ -788,3 +793,415 @@ must follow three steps:
 3. *Set the updated configuration* back using
    =sigaction(sig, &act, NULL)=.
 
+* 21 SIGNAL HANDLERS
+
+** 21.1 Designing Signal Handlers
+
+It is utterly important to keep signal handlers as simple as possible
+to gard against the risk of race conditions.  In this regard, two
+design path stand out:
+
+- The signal handler *sets a global flag and exits*.  On the other
+  side the =main()= routine periodically checks that flag to reset it
+  and take appropriate actions.  If the main routine is busy
+  monitoring some I/O channels, set-check-reset can be perform through
+  pipe which writing end lies in the signal handler to receive a
+  single byte.
+
+- The signal handler *perform some kind of cleanup* and either
+  *terminates the process* or uses *nonlocal jump to unwind the stack
+  and return to predetermined location* in the main program.
+
+*** 21.1.1 Signals Are Not Queued (Revisited)
+As stated in Section 20.10 (unless we specify =SA_NODEFER= to the
+=sigaction()= call) a signal is automatically blocked while its
+handler runs and if the same signal is triggered multiple time during
+that very period, the signal is recorded only once to the pending bit
+vector and all other instances are discarded and vanish. This *discard
+and vanish* not only happens while the handler is runnning but as long
+as the pending vector bit is on.
+
+*** 21.1.2 Reentrant and Async-Signal-Safe Functions
+
+**** Reentrant and nonreentrant functions
+Classical UNIX programs have a /single thread of execution/: the CPU
+processes instructions for a *single and syntactic-branching-dependent
+logical flow of execution* through the program.  For /multithread/
+program, there are *multiple, independent, concurrent logical flows of
+execution* within the *same process which is the same address space*.
+
+Because a signal handler may asynchronously interrupt the execution of
+a program at any point in time, *the main program and the signal
+handler in effect form two independent* (although not concurrent)
+*threads of execution within the same process*.
+
+***** Reentrancy Definition
+The *SUSv3* definition of a reentrant function is one “whose effect,
+when called by two or more threads, is guaranteed to be as if each of
+the threads executed the function one after the other in an undefined
+order, even if the actual execution is interleaved.”
+
+***** Nonreentrantcy Specific Conditions
+A function may be /nonreentrant/ if it *updates global or static* data
+structures.  Conversely, a function that employs only local variables
+is garanteed to be reentrant.  The reason is two or more threads
+running concurrently run the risk of corrupting the shared variables
+each of them rely upon the return expected results.  The outcome is
+undefined at best and potentially catastrophic.  Whatch out for the
+following cases:
+
+- *Fucntions that rely on global variable*: In the C library the
+  =malloc()= package functions like =free()= are a good example.  They
+  all rely on properly updating the *linked list data structure* to
+  record blocks manipulation on the heap allocated through *memory
+  mapping*.  An async-signal interrupting a call to =malloc()= to call
+  =malloc()= in turn would likely corrupt that data structure.
+
+- *Functions that return results through statically allocated memory*:
+  Examples are fucntions like =ctime()= or =gethostbyname()= which
+  result point to a static memory space available in the global
+  scope.  As a result, in concurrent multithread program a race
+  condition between previous thread reading the result and
+  =gethostbyname()= writing the next thread result, would definitely
+  overwrite some thread results.
+
+- *Functions that maintain static data structures for their internal
+  bookkeeping*: The most obvious example are members of the /stdio/
+  library like =printf()=, =scanf()= and others which maintain
+  internal data structures for buffered I/O.  When running =printf()=
+  inside a signal handler, had the async signal interrupted a
+  =printf()= call, you incur the risk of seeing weird output or even
+  worse program crash.
+
+- Even if we are not using nonreentrant library functions, reentrancy
+  issues can still be relevant.  If a signal handler updates
+  programmer-defined global data structures that are also updated
+  within the main program, then we can say that the signal handler is
+  nonreentrant with respect to the main program.
+
+***** Example Program
+[[file:nonreentrant.c][Listing 21.1 nonreentrant]] demonstrates the nonreentrant nature of the
+crypt() function (Section 8.5). As command-line arguments, this
+program accepts two strings.
+
+**** Standard async-signal-safe functions
+
+An async-signal-safe function is one that the implementation
+guarantees to be safe when called from a signal handler. A function is
+async-signal-safe either *because it is reentrant or because it is not
+interruptible by a signal handler*.
+
+**** Use of errno inside signal handlers
+
+Because they may update errno, *use of the async-signal-safe
+functions* listed in Table 21-1 ([[shell:man 7 signal-safety]]) *can
+nevertheless render a signal handler nonreentrant*, since they may
+*overwrite the errno value that was set by a function called from the
+main program*. The workaround is to save the value of errno on entry
+to a signal handler that uses any of the functions in Table 21-1 and
+restore the errno value on exit from the handler, as in the following
+example:
+
+#+begin_src C
+  void handler(int sig) {
+    int savedErrno;
+    savedErrno = errno;
+
+    /* Now we can execute a function that might modify errno */
+
+    errno = savedErrno;
+  }
+#+end_src
+
+*** 21.1.3 Global Variables and the sig_atomic_t Data Type
+
+To garantee the /atomicity/ of all *read* and *write*, a global flag
+variable that is shared between the main program and a signal handler
+should be declared as follows:
+
+#+begin_src C
+  volatile sig_atomic_t flag;
+#+end_src
+
+All that we are guaranteed to be safely allowed to do with a
+=sig_atomic_t= variable is *plain and simple assignment statement to
+read or write* within the signal handler or the main
+program. Increment (=++=) and decrement (=--=) operators are not
+concerned.
+
+** 21.2 Other Methods of Terminating a Signal Handler
+
+- Use =_exit()= to terminate a process.
+- Use =kill()= or =raise()= to send a signal that kill process.
+- Jump away (skip the *return operation code*) from the signal handler
+  with /nonlocal goto/.
+- Use =abort()= to terminate the process with core dump.
+
+*** 21.2.1 Performing a Nonlocal Goto from a Signal Handler
+
+Nonlocal jump using =setjmp()= and =longjmp()= (Section 6.8) comes
+handy even from a signal handler. For example when the shell receives
+/Ctrl-C/ it leaves whatever it was up to and jump to the statement
+displaying a new shell prompt for the user.
+
+Now, remember when you enter a signal handler the kernel automatically
+adds the invoking signal, as well as all signals specified in
+=act.sa_mask=, to the process /mask/ to block them and removes them
+all (unblock them) when the signal returns.
+
+The problem when jumping out of a signal handler with =longjmp()= that
+is mask is not restored and blocked signals after entry remain blocked
+after jump. To solve it *POSIX.1-1990* define that following fnctions:
+
+#+begin_src C
+  #include <setjmp.h>
+
+  int sigsetjmp(sigjmp_buf env, int savesigs);
+  /* Returns 0 on initial call, nonzero on return via siglongjmp() */
+
+  void siglongjmp(sigjmp_buf env, int val);
+#+end_src
+
+The difference with =setjmp()= is in the type of the =env= argument
+(=sigjmp_buf= instead of =jmp_buf=) and the second argument.  If
+=savesigs= is nonzero, then the process signal mask that is current at
+the time of the =sigsetjmp()= call is saved in =env= and restored by a
+later =siglongjmp()= call specifying the same =env= argument.  If
+=savesigs= is 0, then the process signal mask is not saved and
+restored.
+
+**** Non-Async-Signal-Safe On Return
+
+#+begin_quote
+The =longjmp()= and =siglongjmp()= functions are not listed among the
+async-signalsafe functions in Table 21-1.  This is because calling any
+non-async-signal-safe function after performing a nonlocal goto
+carries the same risks as calling that function from within the signal
+handler.
+#+end_quote
+
+It is talking about the *ordinary application code* that starts
+running /immediately after/ the jump finishes and lands you back in
+=main()= out of =setjmp()= and =sigsetjmp()= conditional
+statement. From thereon your are in a minefield.
+
+Let's break down the exact mechanism of this "delayed hazard" to see
+what Michael Kerrisk means.
+
+***** 1. The Deeper Rational: The "Unexploded Ordnance" Problem
+Your intuition is correct: =siglongjmp= modifies global state (the
+stack pointer and CPU registers).  But the reason POSIX highlights the
+danger of what you call /after/ the jump is because of how the jump
+interacts with *internal standard library locks*.
+
+Imagine this sequence of events:
+
+1. In your normal =main()= loop, your program calls =printf("Hello")=.
+2. Under the hood, =printf()= acquires a hidden, internal *mutex lock*
+   on =stdout= so that data doesn't get corrupted.
+3. While =printf()= holds this lock, a signal (like =SIGINT=) arrives.
+   The kernel pauses =main()= right in the middle of =printf()=.
+4. Your signal handler catches it and executes a =siglongjmp()=.
+5. *The Catastrophe:* The jump warps execution back to the =sigsetjmp=
+   checkpoint. The stack is cleared, the signal handler is dead, and
+   your program keeps running in =main()=.
+
+*But look what was left behind:* The internal mutex lock inside
+=printf()= was never released because the function was abruptly
+abandoned. It is stuck in a permanently "locked" state.
+
+***** 3. Answering Your Question Directly
+Now, look at the very next line of code your application executes in
+=main()= after the jump:
+
+#+begin_src C
+printf("Recovered from signal!\n"); 
+#+end_src
+
+This is the function "called after performing a nonlocal goto."
+
+What happens when this line executes? It tries to safely print to
+=stdout=, so it attempts to acquire the hidden internal lock. But that
+lock is still held by the ghost of the previous =printf()= that you
+aborted with the jump!
+
+Your program will now *deadlock and freeze forever*, waiting for a
+lock that will never be released.
+
+***** Summary: Why they aren't Async-Signal-Safe
+A function is considered *async-signal-safe* only if it can be
+interrupted at any microsecond without corrupting the state of the
+operating system or the process.
+
+=siglongjmp()= is not async-signal-safe because it allows you to
+aggressively rip the steering wheel away from the program while it is
+inside a fragile, locked section of /another/ non-safe function (like
+=printf=, =malloc=, or =fopen=).
+
+If you then try to use /any/ of those standard functions again after
+landing, your program will crash or lock up because you left their
+internal state fractured.
+
+**** Example Program
+
+- [[file:sigmask_longjmp.c][Listing 21.2 sigmask_longjmp.c]] (for both binaries =sigmask_longjmp=
+  and =sigmask_siglongjmp=).
+
+Listing 21.2 also demonstrates a useful technique for use with a
+signal handler that performs a nonlocal goto. Because a signal can be
+generated at any time, it may actually occur before the target of the
+goto has been set up by =sigsetjmp()= (or =setjmp()=). To prevent this
+possibility (which would cause the handler to perform a nonlocal goto
+using an uninitialized =env= buffer), we employ a guard variable,
+=canJump=, to indicate whether the =env= buffer has been
+initialized. If =canJump= is false, then instead of doing a nonlocal
+goto, the handler simply returns. An alternative approach is to
+arrange the program code so that the call to =sigsetjmp()= (or
+=setjmp()=) occurs before the signal handler is established. However,
+in complex programs, it may be difficult to ensure that these two
+steps are performed in that order, and the use of a guard variable may
+be simpler.
+
+*** 21.2.2 Terminating a Process Abnormally: abort()
+
+*The conundrum*:
+
+#+begin_quote
+If =abort()= resets to =SIG_DFL= immediately, it accidentally kills
+your custom handler. But if it doesn't reset to =SIG_DFL= and you had
+=SIG_IGN= turned on, the =raise(SIGABRT)= does absolutely nothing.
+#+end_quote
+
+You have just laid your finger on the exact architectural puzzle that
+the authors of the C standard library had to solve. You are not lost
+at all; your logic is perfectly tracking the exact contradiction.
+
+To resolve this chicken-and-egg conundrum, =abort()= doesn't just
+blindly smash everything to =SIG_DFL= at the start. Instead, it looks
+at what your process is currently doing and uses a *two-step check*.
+
+Here is exactly how =abort()= sneaks through the paradox:
+
+**** The 2-Step Execution Flow
+When you call =abort()=, the library performs a quick inspection of
+your current signal disposition table using =sigaction()= internally.
+
+***** Step 1: Handling the =SIG_IGN= Case
+After unblocking the signal if it's on the process signal mask,
+=abort()= checks: /"Is the current disposition set to =SIG_IGN=?"/
+
+- *If YES:* It immediately forces the disposition to =SIG_DFL=. Why?
+  Because you didn't provide a custom handler anyway! There is no
+  "cleanup routine" to protect. By changing it to =SIG_DFL=, the
+  upcoming =raise()= is guaranteed to work and kill the process.
+- *If NO (You provided a custom handler):* It *leaves your handler
+  alone*. It does /not/ set it to =SIG_DFL= yet.
+
+***** Step 2: Firing the First Shot
+Now, =abort()= calls =raise(SIGABRT)=.
+
+- If you had =SIG_IGN=, it is now =SIG_DFL=, and the process dies
+  right here.
+- If you had a custom handler, the kernel stops =abort()='s execution
+  and jumps over to execute *your handler code*.
+
+**** What happens after your handler?
+This is where the second part of the mechanism comes into play. If
+your handler executes its cleanup and finishes, it *returns* control
+back to the =abort()= function line that immediately follows the first
+=raise()=.
+
+If =abort()= wakes up and realizes it is still alive, it knows two
+things for certain:
+
+1. The user had a custom handler.
+2. That handler returned instead of jumping away.
+
+Now that your handler has had its chance to run and finish its
+cleanup, =abort()= no longer needs to protect it. /This/ is the exact
+moment it clears your handler out, resets the disposition to
+=SIG_DFL=, and fires the second =raise(SIGABRT)= to finish the job.
+
+**** The Pseudocode Solution
+If you look at the logical flow written out as code, you can see how
+the chicken-and-egg problem completely evaporates:
+
+#+begin_src C
+  void abort(void) {
+    struct sigaction act;
+    sigset_t mask;
+
+    // Unblock SIGABRT first so the signal can actually deliver
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGABRT);
+    sigprocmask(SIG_UNBLOCK, &mask, NULL);
+
+    // Get current disposition to resolve the conundrum
+    sigaction(SIGABRT, NULL, &act);
+
+    // STEP 1: If the user is ignoring it, destroy the ignore.
+    // If they have a custom handler, LEAVE IT ALONE so it can run.
+    if (act.sa_handler == SIG_IGN) {
+      act.sa_handler = SIG_DFL;
+      sigaction(SIGABRT, &act, NULL);
+    }
+
+    // STEP 2: Fire the first shot.
+    raise(SIGABRT);
+
+    /* ---------------------------------------------------------
+       If the user had a custom handler, execution Pauses here,
+       runs their handler, and returns right here.
+       --------------------------------------------------------- */
+
+    // STEP 3: If we get here, the custom handler finished and returned.
+    // We gave it its chance, now we force-kill the process.
+    act.sa_handler = SIG_DFL;
+    sigaction(SIGABRT, &act, NULL);
+
+    // Final shot. Guaranteed termination.
+    raise(SIGABRT);
+  }
+#+end_src
+
+Seeing that conditional check in Step 1 shows you how it targets
+=SIG_IGN= specifically while granting a "safe passage" to your custom
+handler.
+
+** 21.3 Handling a Signal on an Alternate Stack: sigaltstack()
+
+- Reference: [[shell:man 2 sigaltstack]]. Very good explanation of the concept.
+
+When a signal handler is invoked the kernel creates a frame for it on
+the some process stack. However, in the event the process exented its
+limits beyond its allocated resource limit, the stack overflow would
+make impossible running any signal handler.
+
+This is specifically critical when you need to run some cleanup or
+graceful resource shutdown (some syscalls) before whatever happen to
+kill you process because of stackoverflow and the sanctioning
+=SIGSEGV= that entails. In that case =sigaltstack()= enables you to
+create an alternate stack on the heap for the running of your
+=SIGSEGV= handler.
+
+- [[file:t_sigaltstack.c][Listing 21.3 t_sigaltstack]]: Using sigaltstack().
+
+#+begin_example
+$ ulimit -s unlimited                  ←─ Not necessary
+$ ./t_sigaltstack
+Top of standard stack is near 0xbffff6b8
+Alternate stack is at 0x804a948-0x804cfff
+Call 1 - top of stack near 0xbff0b3ac
+Call 2 - top of stack near 0xbfe1714c
+Many intervening lines of output removed
+Call 2144 - top of stack near 0x4034120c
+
+#+end_example
+
+** 21.7 Exercises
+
+*** Exercise 21.1
+Implement =abort()=.
+
+**** Answer
+- [[file:yabort.c][yabort]], [[file:exr2101_test.c][exr2101_test]].
