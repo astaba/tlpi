@@ -15,21 +15,26 @@
 * Kerrisk's ~Makefile~ chain
 ** First build
 *** Trace ~Makefile~ rules
-It all started with this convoluted ~Makefile~ rule.
+It all started when compiling [[file:copy.c][copy]] using [[file:Makefile][Makefile]] and this convoluted
+rule.
+
 #+begin_example
 make copy
 cc -std=c99 -D_XOPEN_SOURCE=600 -D_DEFAULT_SOURCE -g -I../lib -pedantic -Wall -W -Wmissing-prototypes -Wimplicit-fallthrough -Wno-unused-parameter    copy.c ../libtlpi.a   -o copy
 #+end_example
 
-/From the actual state of both ~./Makefile.inc~ and ~./fileio/Makefile~
-tracing the usage of ~TLPI_DIR~ and the misleading ~LDLIBS~ variables
-was an educative journey./
+From the actual state of both [[file:~/coding/c_prog/Makefile.inc][Makefile.inc]] and [[file:Makefile][Makefile]] tracing the
+usage of ~TLPI_DIR~ and the misleading ~LDLIBS~ variables was an
+educative journey.
 
 **** The mystery
+
+#+begin_quote
 /How on earth did the files in this piece of string ~"copy.c
 ../libtlpi.a"~ got there?/
+#+end_quote
 
-The starting point is the following rule from ~./fileio/Makefile~:
+The starting point is the following [[file:Makefile::${EXE} : ${TLPI_LIB}][Makefile]] rule:
 
 #+begin_src makefile
 ${EXE} : ${TLPI_LIB}        # True as a rough approximation
@@ -42,42 +47,37 @@ produces such an effective and verbose output it must have been provided
 **** The Deep-State of Makefile
 
 To coerce ~make~ into revealing the secrets of its magic on your
-system run the following command in a directory with no ~makefile~:
-=make -p=.
+system run the following command in a directory with no /Makefile/:
+=make -p= (Ref: [[file:makedump/Makedump.org::*Data Base][Makefile Data Base]]).
 
-A thousand-line output, a trove of all the variables (both build command
-and flags), implicit rules and pattern rules. For ease of reading with
-syntax highlighting:
-
-#+begin_src sh
-make -p > foo && mv foo makefile.md
-# Then enclose into mark-down bash code-block.
-#+end_src
-
-After peeking for a while I spotted these two recipes:
+After peeking for a while I spotted these two related statements: one
+variable definition and one recipe
 
 #+begin_src makefile
-# makefile (from 'Makefile', line 147)
-LINK.c = $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
-# ...
+  LINK.c = $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
 
-%: %.c
-#  recipe to execute (from 'Makefile', line 331):
-    $(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+  # ...
+
+  %: %.c
+              $(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
 #+end_src
 
 **** Correlation
-The first 3 empty spaces in between:
+The first 3 empty spaces in between
+
 #+begin_quote
 -Wno-unused-parameter    copy.c
 #+end_quote
+
 matches the 3 empty variables src_makefile{$(CPPFLAGS) $(LDFLAGS)
 $(TARGET_ARCH)}.
 
 The first 2 empty spaces in between
+
 #+begin_quote
 ../libtlpi.a   -o
 #+end_quote
+
 match the 2 empty variables src_makefile{$(LOADLIBES) $(LDLIBS)}.
 
 *** The Verdict: The Power of the Automatic Variable ~$^~
