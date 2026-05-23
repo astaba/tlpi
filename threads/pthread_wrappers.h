@@ -1,13 +1,12 @@
 /* =========================================================================
  * Created on: <Fri Apr 24 22:21:24 +01 2026>
- * Time-stamp: <Wed May  6 18:04:07 +01 2026 by owner>
+ * Time-stamp: <Mon May 18 00:42:15 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/threads/pthread_wrappers.h -
  * ========================================================================= */
 #ifndef PTHREAD_WRAPPERS_H
 #define PTHREAD_WRAPPERS_H
 
-#include "../lib/tlpi_hdr.h"
 #include <pthread.h>
 
 void Pthread_create(pthread_t *thread, const pthread_attr_t *attr,

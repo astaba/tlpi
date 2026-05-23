@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Sun Apr 26 03:31:50 +01 2026>
- * Time-stamp: <Mon May  4 21:10:13 +01 2026 by owner>
+ * Time-stamp: <Mon May 18 00:55:46 +01 2026 by owner>
  * Author    : Copyright(C) Michael Kerrisk, 2026
  *             See the file [[file:../COPYING.gpl-v3]] for details
  * Desc      : ~/coding/c_prog/tlpi/threads/thread_multijoin.c -
@@ -25,6 +25,7 @@
  * 'numLive', which records the number of live threads, falls to 0,
  * the main thread terminates.
  * ========================================================================= */
+#include "../lib/tlpi_hdr.h"	/* IWYU pragma: keep */
 #include "pthread_wrappers.h"
 
 /* Data type to name thread states */

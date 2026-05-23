@@ -1,20 +1,24 @@
 /* =========================================================================
  * Created on: <Wed May 06 16:38:50 +01 2026>
- * Time-stamp: <Wed May  6 17:24:06 +01 2026 by owner>
+ * Time-stamp: <Sat May 23 16:33:49 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/threads/exr3102_test.c -
  *
- * Test for [[file:exr3102.c]]
+ * Test for Exercise 31.2 [[file:name_tsd.c][name_tsd]]
+ * Use thread-specific data to write thread-safe versions of dirname()
+ * and basename() (Section 18.14).
  * ========================================================================= */
-#include "exr3102_hdr.h"
+#include "../lib/tlpi_hdr.h"
+#include "name_tsd.h"
+#include "pthread_wrappers.h"
 
 #define MAX_THREAD 32
 
 static void *threadRoutine(void *arg) {
   char *str = (char *)arg;
 
-  printf("Path: '%s'\tDirname: '%s'\tBasename: '%s'\n", str, ydirname(str),
-         ybasename(str));
+  printf("Path: '%s'\tDirname: '%s'\tBasename: '%s'\n", str, dirname_tsd(str),
+         basename_tsd(str));
   return NULL;
 }
 

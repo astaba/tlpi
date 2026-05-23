@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Sat Apr 25 14:14:46 +01 2026>
- * Time-stamp: <Sun Apr 26 03:12:01 +01 2026 by owner>
+ * Time-stamp: <Mon May 18 06:21:03 +01 2026 by owner>
  * Author    : Copyright(C) Michael Kerrisk, 2026
  *             See the file [[file:../COPYING.gpl-v3]] for details
  * Desc      : ~/coding/c_prog/tlpi/threads/prod_no_condvar.c -
@@ -10,6 +10,7 @@
  * condition variable.
  * See also [[file:prod_condvar.c]].
  * ========================================================================= */
+#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
 #include "pthread_wrappers.h"
 #include <stdbool.h>
 #include <time.h>
@@ -21,9 +22,7 @@ static void *producer(void *arg) {
   int cnt = atoi((char *)arg);
 
   for (int j = 0; j < cnt; j++) {
-    sleep(1);
-
-    /* Code to produce a unit omitted */
+    sleep(1); /* Simulate Code to produce a unit */
 
     Pthread_mutex_lock(&mtx);
     avail++; /* Let consumer know another unit is available */
@@ -64,7 +63,7 @@ int main(int argc, char *argv[]) {
       /* Do something with produced unit */
       numConsumed++;
       avail--;
-      printf("T=%ld: numConsumed=%d\n", (long)(time(NULL) - t), numConsumed);
+      printf("Time=%ld: numConsumed=%d\n", (long)(time(NULL) - t), numConsumed);
       done = numConsumed >= totRequired;
     }
 

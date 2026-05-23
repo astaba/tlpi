@@ -9,7 +9,8 @@ GEN_EXE = detached_attrib one_time_init prod_condvar prod_no_condvar \
 	thread_multijoin \
 	exr2901 \
 	ythread_incr ythread_incr_mutex \
-	exr3001 exr3102 exr3101_test exr3102_test
+	exr3001 exr3102_test \
+	ythread_multijoin
 
 LINUX_EXE =
 
@@ -38,9 +39,9 @@ exr3101_test: exr3101_test.o exr3101.o
 	$(CC) -o $@ $^ ${CFLAGS} ${LDLIBS}
 exr3101_test.o exr3101.o: exr3101_hdr.h
 
-exr3102_test: exr3102_test.o exr3102.o
-	$(CC) -o $@ $^ ${CFLAGS} ${LDLIBS}
-exr3102_test.o exr3102.o: exr3102_hdr.h
+exr3102_test : name_tsd.o
+exr3102_test.o : pthread_wrappers.h name_tsd.h
+name_tsd.o: name_tsd.h
 
 clean :
 	${RM} ${EXE} *.o *~

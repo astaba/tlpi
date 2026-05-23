@@ -1,15 +1,20 @@
 /* =========================================================================
  * Created on: <Tue May 05 20:19:10 +01 2026>
- * Time-stamp: <Wed May  6 18:12:40 +01 2026 by owner>
+ * Time-stamp: <Tue May 12 17:14:08 +01 2026 by owner>
  * Author    : owner
- * Desc      : ~/coding/c_prog/tlpi/threads/exr3102.c -
+ * Desc      : ~/coding/c_prog/tlpi/threads/name_tsd.c -
  *
  * Exercise 31.2: Use thread-specific data to write thread-safe
  * versions of dirname() and basename() (Section 18.14).
  *
  * Test this library with [[file:exr3102_test.c]]
  * ========================================================================= */
-#include "exr3102_hdr.h"
+#include "name_tsd.h"
+#include <netdb.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define MAX_PATH 4096 /* TSD buf max size */
 
@@ -17,27 +22,40 @@
 static void destructor(void *buf) { free(buf); }
 
 static pthread_once_t once_dname = PTHREAD_ONCE_INIT;
-static pthread_once_t once_bname = PTHREAD_ONCE_INIT;
 static pthread_key_t dirnameKey;
-static pthread_key_t basenamekey;
 
-static void createDirKey(void) { Pthread_key_create(&dirnameKey, destructor); }
-static void createBasekey(void) {
-  Pthread_key_create(&basenamekey, destructor);
+static void createDirKey(void) {
+  int s;
+  s = pthread_key_create(&dirnameKey, destructor);
+  if (s != 0) {
+    fprintf(stderr, "pthread_key_create() failed: %s\n", strerror(s));
+    exit(EXIT_FAILURE);
+  }
 }
 
 /* Thread-safe implementation of dirname() using the Thread-Specific
    Data API. */
-char *ydirname(char *path) {
+char *dirname_tsd(char *path) {
   char *buf, *c;
-  Pthread_once(&once_dname, createDirKey);
+  int s;
+  s = pthread_once(&once_dname, createDirKey);
+  if (s != 0) {
+    fprintf(stderr, "pthread_once() failed: %s\n", strerror(s));
+    exit(EXIT_FAILURE);
+  }
 
   buf = pthread_getspecific(dirnameKey);
   if (buf == NULL) {
     buf = calloc(MAX_PATH, sizeof(char));
-    if (buf == NULL)
-      systmErr("calloc() failed");
-    Pthread_setspecific(dirnameKey, buf);
+    if (buf == NULL) {
+      perror("calloc() failed");
+      exit(EXIT_FAILURE);
+    }
+    s = pthread_setspecific(dirnameKey, buf);
+    if (s != 0) {
+      fprintf(stderr, "pthread_setspecific() failed: %s\n", strerror(s));
+      exit(EXIT_FAILURE);
+    }
   }
 
   if (path == NULL || strlen(path) == 0) {
@@ -72,18 +90,41 @@ char *ydirname(char *path) {
   return buf;
 }
 
+static pthread_once_t once_bname = PTHREAD_ONCE_INIT;
+static pthread_key_t basenamekey;
+
+static void createBasekey(void) {
+  int s;
+  s = pthread_key_create(&basenamekey, destructor);
+  if (s != 0) {
+    fprintf(stderr, "pthread_key_create() failed: %s\n", strerror(s));
+    exit(EXIT_FAILURE);
+  }
+}
+
 /* Thread-safe implementation of basename() using the Thread-Specific
    Data API. */
-char *ybasename(char *path) {
+char *basename_tsd(char *path) {
   char *buf, *c;
-  Pthread_once(&once_bname, createBasekey);
+  int s;
+  s = pthread_once(&once_bname, createBasekey);
+  if (s != 0) {
+    fprintf(stderr, "pthread_once() failed: %s\n", strerror(s));
+    exit(EXIT_FAILURE);
+  }
 
   buf = pthread_getspecific(basenamekey);
   if (buf == NULL) {
     buf = calloc(MAX_PATH, sizeof(char));
-    if (buf == NULL)
-      systmErr("calloc() failed");
-    Pthread_setspecific(basenamekey, buf);
+    if (buf == NULL) {
+      perror("calloc() failed");
+      exit(EXIT_FAILURE);
+    }
+  }
+  s = pthread_setspecific(basenamekey, buf);
+  if (s != 0) {
+    fprintf(stderr, "pthread_setspecific() failed: %s\n", strerror(s));
+    exit(EXIT_FAILURE);
   }
 
   if (path == NULL || strlen(path) == 0) {

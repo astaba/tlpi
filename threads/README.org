@@ -99,9 +99,10 @@ A few observations:
 ***** On the deadlock result
 Linux actually returns ~EDEADLK~ immediately rather than truly
 deadlocking --- it detects the self-join and refuses it. POSIX leaves
-this behavior undefined, so Kerrisk's question "what possible outcomes"
-is genuinely open. On some implementations it could hang forever. Linux
-being defensive here is a quality-of-life choice, not a guarantee.
+this behavior undefined, so Kerrisk's question "what possible
+outcomes" is genuinely open. On some implementations it could hang
+forever. Linux being defensive here is a quality-of-life choice, not a
+guarantee.
 
 ***** On your guard
 #+begin_src C
@@ -110,9 +111,9 @@ if (!pthread_equal(tid1, pthread_self()))
 
 This correctly answers the second part of the exercise. Using
 ~pthread_equal~ rather than ~tid1 != pthread_self()~ is the right call
---- POSIX does not guarantee ~pthread_t~ is a scalar type that supports
-~==~ directly. On Linux it happens to be an unsigned long, but your code
-is portable, which matters.
+--- POSIX does not guarantee ~pthread_t~ is a scalar type that
+supports ~==~ directly. On Linux it happens to be an unsigned long,
+but your code is portable, which matters.
 
 ***** One thing worth thinking about
 Your guard protects ~main~ from joining itself, but consider --- could
@@ -278,7 +279,7 @@ this case to create an error-checking mutex.
 
 The ~units~ consumer loop (~for (;;)~) in the main routine
 works, but it wastes CPU time, because the main thread continually
-loops, checking the state of the variable avail. A condition variable
+loops, checking the state of the variable =avail=. A condition variable
 remedies this problem. It allows a thread to sleep (wait) until
 another thread notifies (signals) it that it must do something (i.e.,
 that some “condition” has arisen that the sleeper must now respond
@@ -379,7 +380,7 @@ read, not reads of immutable data.*
 :CUSTOM_ID: index-transmission-via-cast-is-contrived
 :END:
 
-How to pass additional arguments orthodoxly?
+How to pass additional arguments in a type-conformant way?
 
 You're right that =(void *)idx= is a hack that only works because an int
 fits in a pointer on the target platform --- which POSIX does not
@@ -423,7 +424,7 @@ is reclaimed by the OS, all file descriptors closed. So the leak is
 genuinely inconsequential here. In a library function or a server that
 doesn't exit, omitting =free= would be indefensible.
 
-The real discipline is: =free= everything that =malloc=ed it, unless
+The real discipline is: =free= everything that =malloc='ed it, unless
 process termination is guaranteed and imminent. Kerrisk knows exactly
 what he's doing here --- the absence of =free= is a conscious choice,
 not an oversight.
@@ -458,14 +459,6 @@ no casting integers to pointers, proper heap-adjacent stack allocation,
 each thread gets its own slot. Good.
 
 Several observations:
-
-***** The HACK comment is astute
-
-Increasing thread count to amplify race probability is genuinely the
-right intuition. With 2 threads the window of vulnerability is narrow
-and races are sporadic. With 5 threads you multiply the interleaving
-possibilities combinatorially. The race becomes almost guaranteed. This
-is exactly how stress tests for concurrent code work in practice.
 
 ***** =volatile= is doing less than you think
 
@@ -506,11 +499,6 @@ it's worth noting explicitly in your mental model --- if main had
 called =pthread_exit= instead of joining, this would be the exact
 dangling pointer problem from [[#exercise-29-2][Exercise 29.2]]. Your join loop is what
 keeps it correct.
-
-***** The OK/BOOM check is a nice touch
-
-Clean experimental design. Did you actually get BOOM consistently
-without the mutex, and clean OK with it uncommented?
 
 * 31 THREAD SAFETY AND PER-THREAD STORAGE
 
@@ -568,6 +556,11 @@ whereby, if such an event occurs, the next thread that calls
 - [[file:exr3101.c][exr3101]], [[file:exr3101_hdr.h][exr3101_hdr]], [[file:exr3101_test.c][exr3101_test]], tested using the logic from the
   next exercise.
 
+**** TODO Question
+In the event =init()= failed or was cancelled, knowing that mutex are
+owned, I see no way for the owning thread to reach unlocking statement
+without TRUEing once_control.  Therefore how in the world will any
+peer thread be able to attempt it again?
 
 *** Exercise 31.2
 Use thread-specific data to write thread-safe versions of =dirname()=
@@ -586,4 +579,4 @@ buffer =*Man ...*=.
 : #<buffer *Man 3 dirname*>
 
 **** Answer
-- [[file:exr3102.c][exr3102]], [[file:exr3102_hdr.h][exr3102_hdr]], [[file:exr3102_test.c][exr3102_test]].
+- [[file:name_tsd.c][name_tsd]], [[file:name_tsd.h][name_tsd.h]], [[file:exr3102_test.c][exr3102_test]].

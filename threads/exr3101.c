@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Wed May 06 13:40:54 +01 2026>
- * Time-stamp: <Wed May  6 17:34:31 +01 2026 by owner>
+ * Time-stamp: <Thu May  7 00:39:19 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/threads/exr3101.c -
  *
@@ -23,8 +23,9 @@
 
 int one_time_init(oncer_t *control, void (*init)(void)) {
   int s;
-  if (control->once)
-    return 0;
+  /* NOTE: Good optimisation to relieve from lock overhead after first
+     init() */
+  /* if (control->once) return 0; */
 
   s = pthread_mutex_lock(&control->mutex);
   if (s != 0)

@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Fri Apr 24 03:09:56 +01 2026>
- * Time-stamp: <Fri Apr 24 03:43:39 +01 2026 by owner>
+ * Time-stamp: <Mon May 18 00:27:12 +01 2026 by owner>
  * Author    : Copyright (C) Michael Kerrisk, 2026.
  *             See the file [[file:../COPYING.gpl-v3]] for details.
  * Desc      : ~/coding/c_prog/tlpi/threads/simple_thread.c -
@@ -13,7 +13,7 @@
 
 static void *threadFunc(void *arg) {
   char *s = arg;
-  printf("%s", s);
+  printf("[thread_routine] %s", s);
   return (void *)strlen(s);
 }
 
@@ -26,11 +26,11 @@ int main(int argc, char *argv[]) {
   if (s != 0)
     nmsysErr(s, "pthread_create");
 
-  printf("Message from main()\n");
+  printf("[main_routine] Message from main()\n");
   s = pthread_join(t1, &res);
   if (s != 0)
     nmsysErr(s, "pthread_join");
 
-  printf("Thread returned %ld\n", (long)res);
+  printf("[main_routine] Thread returned %ld\n", (long)res);
   exit(EXIT_SUCCESS);
 }

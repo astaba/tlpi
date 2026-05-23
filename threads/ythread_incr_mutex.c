@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Fri Apr 24 22:51:01 +01 2026>
- * Time-stamp: <Sun Apr 26 17:11:22 +01 2026 by owner>
+ * Time-stamp: <Mon May 18 00:55:46 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/threads/ythread_incr_mutex.c -
  *
@@ -10,6 +10,7 @@
  * Compare with [[file:thread_incr.c]], [[file:thread_incr_spinlock.c]],
  * and [[file:thread_incr_rwlock.c]].
  * ========================================================================= */
+#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
 #include "pthread_wrappers.h"
 
 static volatile int glob = 0;

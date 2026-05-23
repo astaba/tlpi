@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Fri Apr 24 16:17:20 +01 2026>
- * Time-stamp: <Sun Apr 26 17:11:22 +01 2026 by owner>
+ * Time-stamp: <Mon May 18 00:42:51 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/threads/ythread_incr.c -
  *
@@ -9,6 +9,7 @@
  * method. As a consequence, updates are sometimes lost.
  * See also [[file:thread_incr_mutex.c]].
  * ========================================================================= */
+#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
 #include "pthread_wrappers.h"
 
 void *thread_routine(void *agr);

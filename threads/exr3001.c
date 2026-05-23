@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Mon Apr 27 00:48:05 +01 2026>
- * Time-stamp: <Mon Apr 27 02:25:48 +01 2026 by owner>
+ * Time-stamp: <Mon May 18 08:57:36 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/threads/exr3001.c -
  *
@@ -18,15 +18,14 @@
  * glob as the kernel scheduler alternates execution between the two
  * threads.
  * ========================================================================= */
+#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
 #include "pthread_wrappers.h"
-#include <bits/pthreadtypes.h>
-#include <pthread.h>
 
 /* HACK: To increase the race condition probability while keeping the
    loops number low, just increase the number of created threads. With
    500 iterations for each threads, the race of 5 threads is enough to
-   fault the glob count. */
-#define PEER_NUM 5
+   fault the glob count (only when scheduler queue really busy.) */
+#define PEER_NUM 8
 
 typedef struct {
   int idx;
@@ -34,7 +33,7 @@ typedef struct {
   pthread_t tid;
 } arg_t;
 
-static volatile int glob = 0;
+static int glob = 0;
 /* static pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER; */
 
 void *threadRoutine(void *arg);
@@ -55,9 +54,9 @@ int main(int argc, char *argv[argc + 1]) {
 
   printf("\n******************** RESULT ********************\n");
   if (glob == PEER_NUM * iterNum)
-    printf("OK:\t%d", glob);
+    printf("OK:\t%d\n", glob);
   else
-    printf("BOOM:\t%d", glob);
+    printf("BOOM:\t%d\n", glob);
 
   exit(EXIT_SUCCESS);
 }
