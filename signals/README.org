@@ -546,7 +546,7 @@ interested in the informations of the other.
 - The =sa_flags= field: flags to control handler invocation.
 - The two preceding fields are interpreted only if =sa_handler= is
   neither =SIG_IGN= nor =SIG_DFL=.
-- The =sa_restore= field: in not intended for application usage.
+- The =sa_restore= field: is not intended for application usage.
 
 *** The =sa_flags=
 
@@ -595,7 +595,7 @@ Those flags can OR'ed in all combinations.
 
 Calling =pause()= suspends execution of the process until the call is
 interrupted by a signal handler (or until an unhandled signal
-terminates the process). The porcess is relegated in the scheduler
+terminates the process). The process is relegated in the scheduler
 waiting queue with no waste of CPU cycles.
 
 ** 20.16 Exercises
