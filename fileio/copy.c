@@ -1,20 +1,13 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU General Public License as published by the   *
-* Free Software Foundation, either version 3 or (at your option) any      *
-* later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
-\*************************************************************************/
-
-/* Listing 4-1 */
-
-/* copy.c
-
-   Copy the file named argv[1] to a new file named in argv[2].
-*/
-
+/* =========================================================================
+ * Created on: <Wed Jun 17 19:04:09 +01 2026>
+ * Time-stamp: <Wed Jun 17 19:06:27 +01 2026 by owner>
+ * Author    : Copyright (C) Michael Kerrisk, 2026.
+ *             See the file [[file:../COPYING.gpl-v3]] for details.
+ * Desc      : ~/coding/c_prog/tlpi/fileio/copy.c -
+ *
+ * Listing 4.1:
+ * Copy the file named argv[1] to a new file named in argv[2].
+ * ========================================================================= */
 #include "../lib/tlpi_hdr.h" // IWYU pragma: keep
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -39,8 +32,8 @@ int main(int argc, char *argv[]) {
     systmErr("opening file %s", argv[1]);
 
   openFlags = O_CREAT | O_WRONLY | O_TRUNC;
-  filePerms =
-      S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH; /* rw-rw-rw- */
+  /* rw-rw-rw- */
+  filePerms = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
   outputFd = open(argv[2], openFlags, filePerms);
   if (outputFd == -1)
     systmErr("opening file %s", argv[2]);

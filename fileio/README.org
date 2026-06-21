@@ -1,16 +1,23 @@
 #+TITLE: File I\O
 #+AUTHOR: Astar Bahouidi
 #+DESCRIPTION: Notes on Chapters 04 and 05 from "The Linux Programming Interface" A Linux and UNIX® System Programming by Handbook Michael Kerrisk.
-#+STARTUP: showeverything
+#+STARTUP: showall
 
 * Table Of Contents                                                   :toc_2:
 - [[#kerrisks-makefile-chain][Kerrisk's ~Makefile~ chain]]
   - [[#first-build][First build]]
   - [[#kerrisks-portability-shield][Kerrisk's portability shield]]
+- [[#41-overview][4.1 Overview]]
+  - [[#section-api][Section API]]
+- [[#42-universality-of-io][4.2 Universality of I/O]]
 - [[#43-opening-a-file][4.3 Opening a file]]
   - [[#listing-42][Listing 4.2]]
 - [[#44-reading-from-a-file-read][4.4 Reading from a File: ~read()~]]
   - [[#only-sees-binary-data][Only sees binary data]]
+- [[#47-changing-the-file-offset-lseek][4.7 Changing the File Offset: =lseek()=]]
+- [[#410-exercises][4.10 Exercises]]
+  - [[#exercise-41][Exercise 4.1]]
+  - [[#exercise-42][Exercise 4.2]]
 
 * Kerrisk's ~Makefile~ chain
 ** First build
@@ -47,8 +54,9 @@ produces such an effective and verbose output it must have been provided
 **** The Deep-State of Makefile
 
 To coerce ~make~ into revealing the secrets of its magic on your
-system run the following command in a directory with no /Makefile/:
-=make -p= (Ref: [[file:makedump/Makedump.org::*Data Base][Makefile Data Base]]).
+system run the following command:
+- =make --print-data-base --question= or =make -pq=
+- (Ref: [[file:~/coding/c_prog/tlpi/Makedump/Makedatabase.org::*Data Base][Makefile Data Base]]).
 
 After peeking for a while I spotted these two related statements: one
 variable definition and one recipe
@@ -171,66 +179,91 @@ how to create a "debug" vs "release" build mode in your Makefile so
 you can switch between ~-g~ (debugging) and ~-O2~ (optimization) with
 a single command?
 
+* 4.1 Overview
+
+- [[file:copy.c][Listing 4.1 copy.c]] Using I/O system calls; [[file:ycopy.c][ycopy.c]] sandbox.
+
+** Section API
+
+#+begin_src c
+  #include <fcntl.h>
+  int creat(const char *pathname, mode_t mode);
+  /* Returns file descriptor, or –1 on error */
+
+  #include <unistd.h>
+  ssize_t read(int fd, void *buffer, size_t count);
+  /* Returns number of bytes read, 0 on EOF, or –1 on error */
+
+  #include <unistd.h>
+  ssize_t write(int fd, void *buffer, size_t count);
+  /* Returns number of bytes written, or –1 on error */
+
+  #include <unistd.h>
+  int close(int fd);
+  /* Returns 0 on success, or –1 on error */
+
+  #include <sys/ioctl.h>
+  int ioctl(int fd, int request, ... /* argp */);
+  /* Value returned on success depends on request, or –1 on error */
+#+end_src
+
+* 4.2 Universality of I/O
+
+This means that the same four system calls — =open()=, =read()=,
+=write()=, and =close()= — are used to perform I/O on all types of
+files, including devices such as terminals. Consequently, if we write
+a program using only these system calls, that program will work on any
+type of file. For example, the following are all valid uses of the
+program in Listing 4.1:
+
+#+begin_example
+$ ./copy test test.old         # Copy a regular file
+$ ./copy a.txt /dev/tty        # Copy a regular file to this terminal
+$ ./copy /dev/tty b.txt        # Copy input from this terminal to a regular file
+$ ./copy /dev/pts/16 /dev/tty  # Copy input from another terminal
+#+end_example
+
 * 4.3 Opening a file
+
+#+begin_src c
+  #include <sys/stat.h>
+  #include <fcntl.h>
+  int open(const char *pathname, int flags, ... /* mode_t mode */);
+  /* Returns file descriptor on success, or –1 on error */
+#+end_src
+
 ** Listing 4.2
-‘Listing 4-2’ shows examples of the use of ~open()~, some of which
+[[file:snippet0402.c][Listing 4.2]] shows examples of the use of ~open()~, some of which
 employ additional flags bits that we describe shortly.
 
-*** Code Snippet
-#+begin_src C
-  /* Listing 4-2 */
-  int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
-    /* Opening a file for read only */
-    char *report = "report.txt";
-    int report_fd = open(report, O_RDONLY);
-    if (report_fd == -1)
+
+1. =open()= return a file descriptor which is guaranteed to be the
+   lowest in use. The advantage of this feature is we can ensure a
+   file is available on a specific file descriptor.
+
+  #+begin_src C
+  if(close(STDIN_FILENO)==-1) /* Release file descriptor 0 */
       systmErr(systmErr(
 
-    /* Opening a personal file for read and write */
-    char *journal = "journal.md";
-    int journal_fd =
-          open(journal, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR, S_IWUSR);
-    if (journal_fd == -1)
+  int fd = open(pathname, O_RDONLY);
+  if(fd == -1)
       systmErr(systmErr(
-
-    /* Opening a new or existing file for update */
-    char *log = "system.log";
-    int log_fd =
-        open(log, O_WRONLY | O_CREAT | O_APPEND | O_TRUNC, S_IRUSR, S_IWUSR);
-    if (log_fd == -1)
-      systmErr(systmErr(
-
-    return 0;
-  }
-#+end_src
-
-*** Notice on ~open()~ behavior
-1. =open()= return a file descriptor which is guaranteed to be the lowest
-in use. The advantage of this feature is we can ensure a file is
-available on a specific file descriptor.
-#+begin_src C
-if(close(STDIN_FILENO)==-1) /* Release file descriptor 0 */
-    systmErr(systmErr(
-
-int fd = open(pathname, O_RDONLY);
-if(fd == -1)
-    systmErr(systmErr(
-#+end_src
+  #+end_src
 
 2. Truncation occurred whether the file opened for reading or writing.
-#+begin_src sh
-echo "Hello Sunshine!" > test.txt
-cat test.txt
-# output -> Hello Sunshine!
-python3 -c "import os; os.open('test.txt, os.O_RDONLY | os.O_TRUNC)"
-cat test.txt # NO OUTPUT
-#+end_src
 
---------------
+  #+begin_src sh
+  echo "Hello Sunshine!" > test.txt
+  cat test.txt
+  # output -> Hello Sunshine!
+  python3 -c "import os; os.open('test.txt, os.O_RDONLY | os.O_TRUNC)"
+  cat test.txt # NO OUTPUT
+  #+end_src
 
 * 4.4 Reading from a File: ~read()~
+
 ** Only sees binary data
-Using the next snippet to input a series of characters fro, say, a
+Using the next snippet to input a series of characters from, say, a
 terminal would not work as expected. The reason is ~read()~ does not
 cater to C convention for string termination.
 
@@ -273,3 +306,47 @@ My stabilized version handles the *three Horsemen of Terminal I/O*:
    output clean.
 3. *The "Crumb" Problem*: drain the TTY buffer so the shell doesn't
    execute your leftovers.
+
+
+* 4.7 Changing the File Offset: =lseek()=
+
+#+begin_src c
+  #include <unistd.h>
+  off_t lseek(int fd, off_t offset, int whence);
+  /* Returns new file offset if successful, or –1 on error */
+#+end_src
+
+- [[file:seek_io.c][Listing 4.3 seek_io.c]]: Demonstration of =read()=, =write()=, and
+  =lseek()=.
+- [[file:yseek_io.c][yseek_io.c]]: Practice.
+
+* 4.10 Exercises
+
+** Exercise 4.1
+
+The =tee= command reads its standard input until end-of-file, writing
+a copy of the input to standard output and to the file named in its
+command-line argument.
+
+Implement =tee= using I/O system calls. By default, =tee= overwrites
+any existing file with the given name. Implement the =–a= command-line
+option (=tee –a file=), which causes tee to append text to the end of
+a file if it already exists.
+
+We show an example of the use of this command when we discuss FIFOs in
+Section 44.7. Refer to Appendix B or better =man getopt(3)= for a
+description of the =getopt()= function, which can be used to parse
+command-line options.
+
+*** Answer
+- [[file:exr0401.c][exr0401.c]];
+
+** Exercise 4.2
+
+Write a program like =cp= that, when used to copy a regular file that
+contains holes (sequences of null bytes), also creates corresponding
+holes in the target file.
+
+*** Answer
+ - [[file:exr0402.c][exr0402.c]]; The [[file:~/coding/c_prog/apue.3e/fileio/lseek_hole.c][lseek_hole.c]] program from /APUE.3e/ was useful to
+   generate a file with hole.

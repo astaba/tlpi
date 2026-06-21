@@ -28,7 +28,7 @@ int main(int argc, char *argv[argc + 1]) {
   mode_t mode;
   ssize_t numRead;
   char buf[BUF_SIZE];
-  
+
   /* Argument validation */
   if (argc != 3 || is_help(argv[1]))
     usageErr("%s src-file dest-file\n", argv[0]);

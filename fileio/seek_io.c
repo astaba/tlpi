@@ -1,39 +1,31 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU General Public License as published by the   *
-* Free Software Foundation, either version 3 or (at your option) any      *
-* later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
-\*************************************************************************/
-
-/* Listing 4-3 */
-
-/* seek_io.c
-
-   Demonstrate the use of lseek() and file I/O system calls.
-
-   Usage: seek_io file {r<length>|R<length>|w<string>|s<offset>}...
-
-   This program opens the file named on its command line, and then performs
-   the file I/O operations specified by its remaining command-line arguments:
-
-           r<length>    Read 'length' bytes from the file at current
-                        file offset, displaying them as text.
-
-           R<length>    Read 'length' bytes from the file at current
-                        file offset, displaying them in hex.
-
-           w<string>    Write 'string' at current file offset.
-
-           s<offset>    Set the file offset to 'offset'.
-
-   Example:
-
-        seek_io myfile wxyz s1 r2
-*/
-#include "../lib/tlpi_hdr.h" // IWYU pragma: keep
+/* =========================================================================
+ * Created on: <Sat Jun 13 23:18:10 +01 2026>
+ * Time-stamp: <Wed Jun 17 19:18:16 +01 2026 by owner>
+ * Author    : Copyright (C) Michael Kerrisk, 2026.
+ *             See the file [[file:../COPYING.gpl-v3]] for details.
+ * Desc      : ~/coding/c_prog/tlpi/fileio/seek_io.c -
+ *
+ * Listing 4.3:
+ * Demonstrate the use of lseek() and file I/O system calls.
+ *
+ * Usage: seek_io file {r<length>|R<length>|w<string>|s<offset>}...
+ *
+ * This program opens the file named on its command line, and then
+ * performs the file I/O operations specified by its remaining
+ * command-line arguments:
+ *
+ * r<length> Read 'length' bytes from the file at current file offset,
+ *           displaying them as text.
+ * R<length> Read 'length' bytes from the file at current file offset,
+ *           displaying them in hex.
+ * w<string> Write 'string' at current file offset.
+ * s<offset> Set the file offset to 'offset'.
+ *
+ * Example:
+ *	     $ ./seek_io myfile wxyz s1 r2
+ *
+ * ========================================================================= */
+#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
 #include <ctype.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -41,6 +33,7 @@
 int main(int argc, char *argv[]) {
   size_t len;
   off_t offset;
+  mode_t filePerms;
   int fd, ap, j;
   unsigned char *buf;
   ssize_t numRead, numWritten;
@@ -48,9 +41,9 @@ int main(int argc, char *argv[]) {
   if (argc < 3 || strcmp(argv[1], "--help") == 0)
     usageErr("%s file {r<length>|R<length>|w<string>|s<offset>}...\n", argv[0]);
 
-  fd = open(argv[1], O_RDWR | O_CREAT,
-            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH |
-                S_IWOTH); /* rw-rw-rw- */
+   /* rw-rw-rw- */
+  filePerms = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+  fd = open(argv[1], O_RDWR | O_CREAT, filePerms);
   if (fd == -1)
     systmErr("open");
 
@@ -100,7 +93,7 @@ int main(int argc, char *argv[]) {
       break;
 
     default:
-      cmdLineErr("Argument must start with [rRws]: %s\n", argv[ap]);
+      cmdLineErr("Argument must start with [Rrsw]: %s\n", argv[ap]);
     }
   }
 
