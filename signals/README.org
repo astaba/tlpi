@@ -21,6 +21,8 @@
   - [[#212-other-methods-of-terminating-a-signal-handler][21.2 Other Methods of Terminating a Signal Handler]]
   - [[#213-handling-a-signal-on-an-alternate-stack-sigaltstack][21.3 Handling a Signal on an Alternate Stack: sigaltstack()]]
   - [[#217-exercises][21.7 Exercises]]
+- [[#22-signals-advanced-features][22 SIGNALS ADVANCED FEATURES]]
+  - [[#227-implementation-and-portability-of-signal][22.7 Implementation and Portability of signal()]]
 
 * 20 FUNDAMENTAL CONCEPTS
 ** 20.3 Changing Signal Dispositions: signal()
@@ -1205,3 +1207,28 @@ Implement =abort()=.
 
 **** Answer
 - [[file:yabort.c][yabort]], [[file:exr2101_test.c][exr2101_test]].
+
+* 22 SIGNALS ADVANCED FEATURES
+
+** 22.7 Implementation and Portability of signal()
+
+- [[file:signal.c][Listing 22.1 signal.c]].
+- [[file:signal_functions.c::75][signal_functions.c]], from within the =tlpi/lib= folder, when building
+  the project static library run =make -DOLD_SIGNAL= to get the older,
+  unreliable signal handler semantics (which are still the default on
+  some System V derivatives). Check static library /symbols/ with =nm
+  -A <static_lib> | grep <symbol>=.
+
+*** sigaction() is the preferred API for establishing a signal handler
+
+Because of the System V versus BSD (and old versus recent glibc)
+portability issues described above, it is good practice always to use
+=sigaction()=, rather than =signal()=, to establish signal handlers.
+
+An alternative is to write our own version of =signal()= ([[file:signal_functions.c::75][Signal()]]),
+probably similar to Listing 22.1, specifying exactly the flags that we
+require, and employ that version with our applications.
+
+ Note, however, that it is portable (and shorter) to use =signal()= to
+ set the disposition of a signal to =SIG_IGN= or =SIG_DFL=, and we’ll
+ often use =signal()= for that purpose.

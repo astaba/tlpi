@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Sat May 23 12:55:00 +01 2026>
- * Time-stamp: <Sat May 23 14:00:02 +01 2026 by owner>
+ * Time-stamp: <Wed May 27 19:49:10 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/signals/exr2101_test.c -
  *
@@ -65,7 +65,7 @@ int main(int argc, char *argv[argc + 1]) {
       (void)sigemptyset(&act.sa_mask);
       act.sa_flags = 0;
       if (sigaction(SIGABRT, &act, NULL) == -1)
-        systmErr("sigaction() failed");
+	systmErr("sigaction() failed");
     } else {
       printf("[%ld]main: Bypassed SIGABRT to exit() gracefully\n", (long)pid);
       return EXIT_SUCCESS;
@@ -79,6 +79,6 @@ int main(int argc, char *argv[argc + 1]) {
   yabort();
 
   printf("[%ld]main: TEST FAILURE Flow control should never get this far!\n",
-         (long)pid);
+	 (long)pid);
   return EXIT_SUCCESS;
 }

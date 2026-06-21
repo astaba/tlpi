@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Thu May 14 17:01:59 +01 2026>
- * Time-stamp: <Sun May 17 20:56:21 +01 2026 by owner>
+ * Time-stamp: <Sat May 23 18:52:35 +01 2026 by owner>
  * Author    : Copyright (C) Michael Kerrisk, 2026.
  *             See the file COPYING.gpl-v3 for details.
  * Desc      : ~/coding/c_prog/tlpi/signals/signal_functions.c -
@@ -62,4 +62,29 @@ printPendingSigs(FILE *of, const char *msg) {
   printSigset(of, "\t\t", &pendingSigs);
 
   return 0;
+}
+
+/**
+ * Signal - A wrapper for sigaction that provides portable signal
+ * handling on Posix-compliant systems.
+ *
+ * Compile with -DOLD_SIGNAL to get the older, unreliable signal
+ * handler semantics (which are still the default on some System V
+ * derivatives).
+ */
+void (*Signal(int sig, void (*handler)(int)))(int) {
+  struct sigaction newDisp, oldDisp;
+
+  newDisp.sa_handler = handler;
+  (void)sigemptyset(&newDisp.sa_mask);
+#ifdef OLD_SIGNAL
+  newDisp.sa_flags = SA_RESETHAND | SA_NODEFER;
+#else
+  newDisp.sa_flags = SA_RESTART;
+#endif
+
+  if (sigaction(sig, &newDisp, &oldDisp) == -1)
+    return SIG_ERR;
+  else
+    return oldDisp.sa_handler;
 }
