@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Mon Apr 13 18:55:58 +01 2026>
- * Time-stamp: <Wed Apr 15 06:26:35 +01 2026 by owner>
+ * Time-stamp: <Fri Jun  5 08:58:18 +01 2026 by owner>
  * Author    : Copyright (C) Michael Kerrisk, 2026
  *             See file [[file:../COPYING.gpl-v3]] for details GNU License.
  * Desc      : ~/coding/c_prog/tlpi/lib/get_num.h -
@@ -34,11 +34,12 @@ long long getLLong(const char *arg, int flags, const char *name);
 long getLong(const char *arg, int flags, const char *name);
 int getInt(const char *arg, int flags, const char *name);
 
-tgn_t tryGetLLong(const char *arg, int flags, const char *name,
-                           long long *out);
-tgn_t tryGetLong(const char *arg, int flags, const char *name,
-                          long *out);
-tgn_t tryGetInt(const char *arg, int flags, const char *name,
-                         int *out);
+tgn_t tryGetLLong(const char *arg, int flags, const char *name, long long *out);
+tgn_t tryGetLong(const char *arg, int flags, const char *name, long *out);
+tgn_t tryGetInt(const char *arg, int flags, const char *name, int *out);
+
+tgn_t tryGetULLong(const char *arg, int flags, const char *name, long long *out);
+tgn_t tryGetULong(const char *arg, int flags, const char *name, long *out);
+tgn_t tryGetUInt(const char *arg, int flags, const char *name, int *out);
 
 #endif
