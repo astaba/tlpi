@@ -1,21 +1,15 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU Lesser General Public License as published   *
-* by the Free Software Foundation, either version 3 or (at your option)   *
-* any later version. This program is distributed without any warranty.    *
-* See the files COPYING.lgpl-v3 and COPYING.gpl-v3 for details.           *
-\*************************************************************************/
-
-/* Header file for Listing 10-2 */
-
-/* curr_time.h
-
-   Header file for curr_time.c.
-*/
+/* =========================================================================
+ * Created on: <Fri Jun 05 18:36:24 +01 2026>
+ * Time-stamp: <Fri Jun  5 19:00:22 +01 2026 by owner>
+ * Author    : Copyright (C) Michael Kerrisk, 2026.
+ *             See the files [[file:../COPYING.lgpl-v3]] and
+ *             [[file:../COPYING.gpl-v3]] for details.
+ * Desc      : ~/coding/c_prog/tlpi/time/curr_time.h -
+ *
+ * Header file for Listing 10.2: Header file for curr_time.c.
+ * ========================================================================= */
 #ifndef CURR_TIME_H
-#define CURR_TIME_H             /* Prevent accidental double inclusion */
+#define CURR_TIME_H /* Prevent accidental double inclusion */
 
 char *currTime(const char *fmt);
 

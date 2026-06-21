@@ -1,75 +1,77 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU General Public License as published by the   *
-* Free Software Foundation, either version 3 or (at your option) any      *
-* later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
-\*************************************************************************/
-
-/* Listing 10-5 */
-
-/* process_time.c
-
-   Demonstrate usage of clock(3) and times(2) to retrieve process virtual times.
-
-   Usage: process_time [num-calls]
-
-   Make 'num-calls' calls to getppid(), and then display process times.
-*/
+/* =========================================================================
+ * Created on: <Sat Jun 06 13:25:17 +01 2026>
+ * Time-stamp: <Thu Jun 11 23:50:04 +01 2026 by owner>
+ * Author    : Copyright (C) Michael Kerrisk, 2026.
+ *             See the file [[file:../COPYING.gpl-v3]] for details.
+ * Desc      : ~/coding/c_prog/tlpi/time/process_time.c -
+ *
+ * Listing 10.5: Demonstrate usage of clock(3) and times(2) to
+ * retrieve process virtual times.
+ *
+ * Usage: process_time [num-calls]
+ *
+ * Make 'num-calls' calls to getppid(), and then display process times.
+ *
+ * TEST: While analysing output in the terminal try to diff
+ * (substract) both arbitrary_uptime outputs, divide the diff by
+ * clockTicks and compare to other results.
+ * ========================================================================= */
+#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
 #include <sys/times.h>
 #include <time.h>
-#include "tlpi_hdr.h"
 
-static void             /* Display 'msg' and process times */
-displayProcessTimes(const char *msg)
-{
-    struct tms t;
-    clock_t clockTime;
-    static long clockTicks = 0;
+static void /* Display 'msg' and process times */
+displayProcessTimes(const char *msg) {
+  /* To retrieve process group CPU times from times() */
+  struct tms ts;
+  /* HACK: System clock ticks: set it once during the process */
+  static long clockTicks = 0;
+  /* WARN: For historical reasons the clock_t types are different: */
+  clock_t clockTime; /* clocks-per-sec returned by clock() */
+  /* clock-ticks internally used and returned by times() */
+  clock_t clockTickTime;
 
-    if (msg != NULL)
-        printf("%s", msg);
+  if (msg != NULL)
+    printf("%s", msg);
 
-    if (clockTicks == 0) {      /* Fetch clock ticks on first call */
-        clockTicks = sysconf(_SC_CLK_TCK);
-        if (clockTicks == -1)
-            systmErr("sysconf");
-    }
+  /* HACK: Fetch clock ticks only on first call then keep value through
+     out process life time courtesy of the 'static' keyword. */
+  if (clockTicks == 0) {
+    clockTicks = sysconf(_SC_CLK_TCK);
+    if (clockTicks == -1)
+      systmErr("sysconf");
+  }
 
-    clockTime = clock();
-    if (clockTime == -1)
-        systmErr("clock");
+  clockTime = clock();
+  if (clockTime == -1)
+    systmErr("clock");
 
-    printf("        clock() returns: %ld clocks-per-sec (%.2f secs)\n",
-            (long) clockTime, (double) clockTime / CLOCKS_PER_SEC);
+  printf("\tclock() returns: %ld clocks-per-sec (%.2f secs)\n", (long)clockTime,
+         (double)clockTime / CLOCKS_PER_SEC);
 
-    if (times(&t) == -1)
-        systmErr("times");
-    printf("        times() yields: user CPU=%.2f; system CPU: %.2f\n",
-            (double) t.tms_utime / clockTicks,
-            (double) t.tms_stime / clockTicks);
+  if ((clockTickTime = times(&ts)) == -1)
+    systmErr("times");
+  printf("\ttimes() yields: user CPU=%.2f; system CPU: %.2f\n",
+         (double)ts.tms_utime / clockTicks, (double)ts.tms_stime / clockTicks);
+  printf("\t\tArbitrary-Uptime: %ld clockticks\n", (long)clockTickTime);
 }
 
-int
-main(int argc, char *argv[])
-{
-    int numCalls, j;
+int main(int argc, char *argv[]) {
+  int numCalls, j;
 
-    printf("CLOCKS_PER_SEC=%ld  sysconf(_SC_CLK_TCK)=%ld\n\n",
-            (long) CLOCKS_PER_SEC, sysconf(_SC_CLK_TCK));
+  printf("CLOCKS_PER_SEC=%ld  sysconf(_SC_CLK_TCK)=%ld\n\n",
+         (long)CLOCKS_PER_SEC, sysconf(_SC_CLK_TCK));
 
-    displayProcessTimes("At program start:\n");
+  displayProcessTimes("At program start:\n");
 
-    /* Call getppid() a large number of times, so that
-       some user and system CPU time are consumed */
+  /* Call getppid() a large number of times, so that
+     some user and system CPU time are consumed */
 
-    numCalls = (argc > 1) ? getInt(argv[1], GN_GT_0, "num-calls") : 100000000;
-    for (j = 0; j < numCalls; j++)
-        (void) getppid();
+  numCalls = (argc > 1) ? getInt(argv[1], GN_GT_0, "num-calls") : 1000000;
+  for (j = 0; j < numCalls; j++)
+    (void)getppid();
 
-    displayProcessTimes("After getppid() loop:\n");
+  displayProcessTimes("After getppid() loop:\n");
 
-    exit(EXIT_SUCCESS);
+  exit(EXIT_SUCCESS);
 }

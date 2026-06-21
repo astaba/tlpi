@@ -1,21 +1,15 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU Lesser General Public License as published   *
-* by the Free Software Foundation, either version 3 or (at your option)   *
-* any later version. This program is distributed without any warranty.    *
-* See the files COPYING.lgpl-v3 and COPYING.gpl-v3 for details.           *
-\*************************************************************************/
-
-/* Listing 10-2 */
-
-/* curr_time.c
-
-   Implement our currTime() function.
-*/
+/* =========================================================================
+ * Created on: <Fri Jun 05 18:35:03 +01 2026>
+ * Time-stamp: <Fri Jun  5 19:00:22 +01 2026 by owner>
+ * Author    : Copyright (C) Michael Kerrisk, 2026.
+ *             See the files [[file:../COPYING.lgpl-v3]] and
+ *             [[file:../COPYING.gpl-v3]] for details.
+ * Desc      : ~/coding/c_prog/tlpi/time/curr_time.c -
+ *
+ * Listing 10.2: Implement our currTime() function.
+ * ========================================================================= */
+#include "curr_time.h" /* Declares function defined here */
 #include <time.h>
-#include "curr_time.h"          /* Declares function defined here */
 
 #define BUF_SIZE 1000
 
@@ -25,20 +19,18 @@
    date and time as for ctime(3), but without the trailing newline).
    Returns NULL on error. */
 
-char *
-currTime(const char *format)
-{
-    static char buf[BUF_SIZE];  /* Nonreentrant */
-    time_t t;
-    size_t s;
-    struct tm *tm;
+char *currTime(const char *format) {
+  static char buf[BUF_SIZE]; /* Nonreentrant */
+  time_t t;
+  size_t s;
+  struct tm *tm;
 
-    t = time(NULL);
-    tm = localtime(&t);
-    if (tm == NULL)
-        return NULL;
+  t = time(NULL);
+  tm = localtime(&t);
+  if (tm == NULL)
+    return NULL;
 
-    s = strftime(buf, BUF_SIZE, (format != NULL) ? format : "%c", tm);
+  s = strftime(buf, BUF_SIZE, (format != NULL) ? format : "%c", tm);
 
-    return (s == 0) ? NULL : buf;
+  return (s == 0) ? NULL : buf;
 }

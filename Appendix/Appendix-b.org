@@ -1,0 +1,104 @@
+#+TITLE: Appendix B
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: "The Linux Programming Interface" A Linux and UNIX® System Programming by Handbook Michael Kerrisk.
+#+STARTUP: showall
+
+* Table Of Content                                                    :toc_3:
+- [[#presentation][Presentation]]
+  - [[#error-condition-the-optopt-variable][Error Condition: the =optopt= variable]]
+  - [[#cancel-default-error-notification-the-opterr-variable][Cancel Default Error Notification: the =opterr= variable]]
+  - [[#starting-optstring-with-colon-][Starting =optstring= with colon =:=]]
+- [[#example-program][Example Program]]
+
+* Presentation
+
+See also [[file:~/coding/c_prog/tlpi/psem/README.org::#how-getopt-works][How getopt works]].
+
+#+begin_src c
+  #include <unistd.h>
+
+  int getopt(int argc, char *argv[], const char *optstring);
+
+  extern char *optarg;
+  extern int optind, opterr, optopt;
+
+#+end_src
+
+** Error Condition: the =optopt= variable
+
+While processing the option list, =getopt()= can detect two kinds of
+errors:
+
+1. an option character that was not specified in =optstring=;
+
+2. a missing option argument (i.e., an option at the end of the com‐
+   mand line without an expected argument).
+
+The *default behavior* to handle such errors is as follows:
+
+a. =getopt()=  prints  an  error message on standard error,
+b. places the erroneous option character in =optopt=,
+c. and returns ='?'=  as the function result.
+
+** Cancel Default Error Notification: the =opterr= variable
+
+There are two ways to achieve it:
+1. Set =opterr= to =0=: By default, =opterr= has a nonzero value but
+   the caller can set it to =0= to prevent =getopt= from printing the
+   default error message. Therefore, the only proper way for error
+   checking is to test whether the function return value is ='?'=.
+2. Set =:= as first character (or optionally following ='+'= or ='-'= ) is =optstring=.
+
+** Starting =optstring= with colon =:=
+
+It has two effects:
+1. In case of parsing error it prevent =getopt()= from printing error
+   message to standard error as dictated by the default behavior.
+
+2. Second effect:
+  =getopt()= will return =?= when it encounters either:
+   a. an option with missing argument;
+   b. an option character unspecified in =optstring=;
+
+   You can make the =?= returned response more explicit and specific
+   by *prepending =:= as first character in the*
+   =optstring=. Consequently, in case of:
+   a. an option with missing argument: =getopt()= returns =:=;
+   b. returing =?= only means an option character unspecified in
+      =optstring= was encountered.
+
+* Example Program
+
+- [[file:t_getopt.c][Listing B.1 t_getopt.c]]: Using getopt().
+
+#+begin_example
+$ ./t_getopt -x -p hello world
+opt =120 (x); optind = 2
+opt =112 (p); optind = 4
+-x was specified (count=1)
+-p was specified with the value "hello"
+First nonoption argument is "world" at argv[4]
+
+$ ./t_getopt -p
+opt = 58 (:); optind = 2; optopt =112 (p)
+Missing argument (-p)
+Usage: ./t_getopt [-p arg] [-x]
+
+$ ./t_getopt -a
+opt = 63 (?); optind = 2; optopt = 97 (a)
+Unrecognized option (-a)
+Usage: ./t_getopt [-p arg] [-x]
+
+$ ./t_getopt -p str -- -x
+opt =112 (p); optind = 3
+-p was specified with the value "str"
+First nonoption argument is "-x" at argv[4]
+
+$ ./t_getopt -p -x
+opt =112 (p); optind = 3
+-p was specified with the value "-x"
+#+end_example
+
+Note that in the last example above, the string –x was interpreted as
+an argument to the –p option, rather than as an option.
+
