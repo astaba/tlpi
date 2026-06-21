@@ -22,7 +22,7 @@ LINUX_LIBCAP = -lcap
 # or "#define _BSD_SOURCE" in the example programs with
 # "#define _DEFAULT_SOURCE".)
 
-IMPL_CFLAGS = -std=c99 -D_XOPEN_SOURCE=600 \
+IMPL_CFLAGS = -std=c17 -D_XOPEN_SOURCE=600 \
 		-D_DEFAULT_SOURCE \
 		-g -I${TLPI_INCL_DIR} \
 		-pedantic \
@@ -47,8 +47,8 @@ IMPL_THREAD_FLAGS = -pthread
 
 IMPL_LDLIBS = ${TLPI_LIB}
 
-LDLIBS =
-
-RM = rm -f
+# Are default value in make database
+# LDLIBS =
+# RM = rm -f
 
 .PHONY: all allgen showall clean
