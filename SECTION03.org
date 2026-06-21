@@ -4,61 +4,45 @@
 #+STARTUP: showeverything
 
 * Table Of Contents                                                   :toc_2:
-- [[#352-common-functions-and-header-files][3.5.2 Common Functions and Header Files]]
-  - [[#error-diagnostic-functions][Error-diagnostic functions]]
-  - [[#the-inc-extension][The =.inc= extension]]
+- [[#35-notes-on-the-example-programs-in-this-book][3.5 Notes on the Example Programs in This Book]]
+  - [[#352-common-functions-and-header-files][3.5.2 Common Functions and Header Files]]
 - [[#installing-linux-capabilities-development-headers][Installing Linux Capabilities Development Headers]]
   - [[#the-fix][The Fix]]
   - [[#why-tlpi-needs-this][Why TLPI needs this]]
   - [[#a-critical-makefile-hint][A Critical "Makefile" Hint]]
-- [[#talking-to-the-compiler-and-to-glibc][Talking to the Compiler and to Glibc]]
-  - [[#compiler-extenson][Compiler extenson]]
-  - [[#macros-syntax][Macros syntax]]
-  - [[#final-takeaway][Final Takeaway]]
-- [[#362-printing-system-data-type-values][3.6.2 Printing system data type values]]
-  - [[#1-the-variadic-erasure][1. The "Variadic Erasure"]]
-  - [[#2-the-blind-stack][2. The "Blind" Stack]]
-  - [[#3-why-pid_t-is-a-moving-target][3. Why =pid_t= is a "Moving Target"]]
-  - [[#4-the-kerrisk-shield-cast-to-the-largest-type][4. The Kerrisk "Shield" (Cast to the Largest Type)]]
-  - [[#5-the-off_t-exception-long-long][5. The =off_t= Exception (=long long=)]]
-  - [[#summary-the-golden-rule-of-printf][Summary: The Golden Rule of =printf=]]
+- [[#36-portability-issues][3.6 Portability Issues]]
+  - [[#361-feature-test-macros][3.6.1 Feature Test Macros]]
+  - [[#362-system-data-type][3.6.2 System Data Type]]
 - [[#38-exercise][3.8 Exercise]]
-  - [[#the-corrected-significance-table][The Corrected "Significance" Table]]
-  - [[#why-this-matters-for-the-tlpi-exercise][Why this matters for the TLPI Exercise]]
-  - [[#logic-check-why-so-many-magic2s][Logic Check: Why so many Magic2s?]]
+  - [[#exercise-31][Exercise 3.1]]
 
-* 3.5.2 Common Functions and Header Files
+* 3.5 Notes on the Example Programs in This Book
 
-** Error-diagnostic functions
+** 3.5.2 Common Functions and Header Files
+
+*** Error-diagnostic functions
 - Reference: [[file:lib/error_functions.c]].
 
-*** What is a locator-value?
+**** What is a locator-value?
 - Reference: page 53.
 
 This is one of those sentences that sounds like "Computer Science word
 salad" until you see the memory layout. Let's break it down into plain
 English and then look at the C implementation.
 
-**** 1. What is an =lvalue=?
-In C, an *=lvalue=* (locator value) is simply an expression that
-refers to a specific memory location.
+In C, an =lvalue= (locator value) is simply an expression that refers
+to a specific memory location. *A variable* =x= is an =lvalue= because
+you can find where it lives in RAM. *The number =5= is not* an
+=lvalue=; it's just a value. You can't say "the address of 5."
 
-- *A variable* =x= is an =lvalue= because you can find where it lives
-  in RAM.
-- *The number =5=* is *not* an =lvalue=; it's just a value. You can't
-  say "the address of 5."
+A *modifiable* =lvalue= is a memory location that you are allowed to
+change: in =int x = 10;= the =x= is a modifiable =lvalue=. You can do
+=x = 20;=. However in =const int y = 10;= the =y= is an =lvalue= (it
+has an address), but it is *not modifiable*.
 
-**** 2. What is a "Modifiable lvalue"?
-It's a memory location that you are allowed to change.
+**** =errno= and Threads
 
-- =int x = 10;= --- =x= is a modifiable =lvalue=. You can do =x =
-  20;=.
-- =const int y = 10;= --- =y= is an =lvalue= (it has an address), but
-  it is *not modifiable*.
-
-*** =errno= and Threads
-
-**** 3. The "The Problem" with =errno= and Threads
+***** 3. The Problem with =errno= and Threads
 In the old days (before threads), =errno= was just a global =int=.
 
 #+begin_src C
@@ -72,7 +56,7 @@ To solve this, POSIX requires that every thread has its *own private*
 version of =errno=. But you can't have a variable name that points to
 different memory for different threads using standard C.
 
-**** 4. The "Macro" Solution
+***** 4. The "Macro" Solution
 To make =errno= thread-safe, the library redefines it as a *function
 call*. On a modern Linux system, if you look at =errno.h=, it looks
 something like this:
@@ -82,7 +66,7 @@ extern int * __errno_location (void);
 #define errno (*__errno_location())
 #+end_src
 
-**** 5. The "Leftover" Error (The logic bug)
+***** 5. The "Leftover" Error (The logic bug)
 Unlike many system calls, POSIX threads functions *never set =errno=*.
 
 - Standard system calls (like =open()= or =read()=) return =-1= on
@@ -102,7 +86,7 @@ if (errno != 0) // errno is STILL 5 from earlier!
 Your program would trigger the error handler because it's looking at
 "old news" sitting in the =errno= memory location.
 
-**** 6. The "Hidden Function" Overhead (The efficiency bug)
+***** 6. The "Hidden Function" Overhead (The efficiency bug)
 As Kerrisk noted, because =errno= is a macro =(*__errno_location())=:
 
 1. The CPU has to jump to a function.
@@ -115,7 +99,7 @@ every time is like driving to the post office just to check if you have
 mail, when the mailman already handed you the letter (the return value
 =s=).
 
-**** The "Correct" Pthread Pattern
+***** The "Correct" Pthread Pattern
 This is why the "TLPI style" is mandatory for threads:
 
 #+begin_src C
@@ -127,7 +111,7 @@ if (s != 0)
     nmsysErr(nmsysErr(
 #+end_src
 
-**** Summary of the "Modifiable Lvalue"
+***** Summary of the "Modifiable Lvalue"
 Think of it this way:
 
 - *Old C:* =errno= is a *Box*. You just look inside.
@@ -140,9 +124,7 @@ value in your hand (=s=). Don't waste time asking the GPS where the Box
 is, especially since that Box might still contain a letter from
 yesterday!"
 
---------------
-
-** The =.inc= extension
+*** The =.inc= extension
 The =.inc= extension stands for *"Include"*.
 
 When you see a file named =ename.c.inc=, it indicates that the file is
@@ -150,22 +132,22 @@ When you see a file named =ename.c.inc=, it indicates that the file is
 it is a *fragment of C code* designed to be pulled into another =.c=
 file using the =#include= preprocessor directive.
 
-*** Why use =.c.inc= instead of just =.h=?
+**** Why use =.c.inc= instead of just =.h=?
 In standard C convention:
 
-- *=.h= files* usually contain *declarations* (function prototypes,
+- =.h= files usually contain *declarations* (function prototypes,
   struct definitions, macros). You include them to tell the compiler
   "what things look like."
-- *=.inc= files* usually contain *definitions/data* (actual arrays, long
+- =.inc= files usually contain *definitions/data* (actual arrays, long
   strings, or logic). You include them to "paste" actual code into a
   specific spot.
 
-*** How it's used in "The Linux Programming Interface"
+**** How it's used in "The Linux Programming Interface"
 The =awk= script you just looked at generates the =ename.c.inc= file.
 Michael Kerrisk (the author) then uses it inside a library file (like
 =error_functions.c=) like this:
 
-*** Why is this done?
+**** Why is this done?
 1. *Automation:* The list of error names (=EPERM=, =ENOENT=) changes
    depending on which version of Linux or which architecture (x86 vs
    ARM) you are on.
@@ -178,7 +160,7 @@ Michael Kerrisk (the author) then uses it inside a library file (like
    as a separate program, which would fail because it's just an array
    with no =main()= function.
 
-*** Summary
+**** Summary
 It is a *"Generated Code Fragment."* The =.c= tells you it contains C
 code, and the =.inc= tells you it's a "partial" file meant to be
 included elsewhere.
@@ -242,12 +224,11 @@ logic check to see if =libcap= is installed, but sometimes you need to
 ensure the library is present before the first time you run =make= in
 the root directory.
 
---------------
+* 3.6 Portability Issues
 
-* Talking to the Compiler and to Glibc
-
-** Compiler extenson
-*** 1. The =NORETURN= Logic
+** 3.6.1 Feature Test Macros
+*** Compiler extension
+**** 1. The =NORETURN= Logic
 =__attribute__((__noreturn__))= is a *GCC/Clang hint*, not standard C.
 It informs the compiler that a function (like =exit= or =errExit=) never
 returns to its caller. This allows the compiler to:
@@ -258,7 +239,7 @@ returns to its caller. This allows the compiler to:
 - *Optimize:* Removes unreachable code paths and avoids generating
   unnecessary function epilogues.
 
-*** 2. Syntax & Placement
+**** 2. Syntax & Placement
 The =NORETURN= macro allows for flexible, portable placement:
 
 - *In Prototypes (Suffix):* =void systmErr(systmErr(
@@ -266,8 +247,8 @@ The =NORETURN= macro allows for flexible, portable placement:
 - *In Definitions (Prefix):* =NORETURN static void terminate(...)= tells
   the compiler /generating the body/ that it doesn't need to return.
 
-** Macros syntax
-*** 3. The Identifier Namespace (The =__= Rule)
+*** Macros syntax
+**** 3. The Identifier Namespace (The =__= Rule)
 Identifiers starting with =__= (or =_= + uppercase) are *reserved for
 the implementation* (compiler/libc).
 
@@ -277,7 +258,7 @@ the implementation* (compiler/libc).
 - *The Philosophy:* If it starts with =__=, it is "not yours." Use them
   to talk to the compiler, but never define them yourself.
 
-*** 4. Compiler vs. Feature Test Macros
+**** 4. Compiler vs. Feature Test Macros
 It is vital to distinguish between *where* these macros come from and
 *what* they control:
 
@@ -295,7 +276,7 @@ It is vital to distinguish between *where* these macros come from and
 |              |                    |              | not just standard C").      |
 |--------------+--------------------+--------------+-----------------------------|
 
-** Final Takeaway
+*** Final Takeaway
 Think of =__attribute__= as *address(speech) comments to the compiler.*
 No code generated but compilation choices reoriented accordingly.
 
@@ -309,14 +290,17 @@ calls.
 logic, ensures silent =-Wall= builds, and follows strict ISO naming
 conventions to remain portable
 
-* 3.6.2 Printing system data type values
+** 3.6.2 System Data Type
+
+*** Printing system data type values
+
 You have just peered into the "Unsafe" heart of C. The fact is =printf=
 (and all variadic functions) are essentially *blind*.
 
 Here is the breakdown of why this is such a dangerous, silent trap in
 systems programming.
 
-** 1. The "Variadic Erasure"
+**** 1. The "Variadic Erasure"
 When you call a normal function like =void foo(int x)=, the compiler
 knows exactly what type to provide. But for
 =printf(const char *format, ...)=, the compiler has no "prototype" for
@@ -328,7 +312,7 @@ As a result, C follows the *Default Argument Promotions*:
 - =float= is promoted to =double=.
 - =int=, =long=, and =long long= are passed *as they are*.
 
-** 2. The "Blind" Stack
+**** 2. The "Blind" Stack
 Imagine the CPU's memory (the stack) when you call =printf=:
 =printf("%d %ld", my_int, my_long);=
 
@@ -344,7 +328,7 @@ only grabs the first 4 bytes of that number. If you provide =%ld= but
 pass an =int=, =printf= grabs 4 bytes of your number *plus 4 bytes of
 random "junk"* sitting next to it in memory!
 
-** 3. Why =pid_t= is a "Moving Target"
+**** 3. Why =pid_t= is a "Moving Target"
 POSIX defines =pid_t= as a "signed integer type." It doesn't say /which/
 one.
 
@@ -357,7 +341,7 @@ If you write =printf("%d", getpid())=:
 - It *breaks and prints garbage* on a system where =pid_t= is a =long=,
   because =printf= will only read half the bits.
 
-** 4. The Kerrisk "Shield" (Cast to the Largest Type)
+**** 4. The Kerrisk "Shield" (Cast to the Largest Type)
 Kerrisk's solution is a defensive "Contract":
 
 1. *Cast to =long=*: By writing =(long) mypid=, you force the compiler
@@ -369,7 +353,7 @@ Because a =long= can always hold a =pid_t= without losing data (on
 almost all systems), this code becomes *portable*. It works regardless
 of how the specific OS defines the underlying type.
 
-** 5. The =off_t= Exception (=long long=)
+**** 5. The =off_t= Exception (=long long=)
 The reason he mentions =off_t= (file offsets) is even more extreme.
 Because disks got so huge (Terabytes), a 32-bit =long= (max 2GB file
 size) wasn't enough. Many systems redefined =off_t= as a 64-bit
@@ -379,7 +363,7 @@ size) wasn't enough. Many systems redefined =off_t= as a 64-bit
   a 10GB offset into a tiny number (corrupting your data).
 - Therefore, for file sizes, we cast to =(long long)= and use =%lld=.
 
-** Summary: The Golden Rule of =printf=
+**** Summary: The Golden Rule of =printf=
 In C systems programming, *never trust the compiler to guess the type of
 a system variable.*
 
@@ -403,6 +387,17 @@ cast it explicitly and match the format exactly.
 call like the compiler is trying to misunderstand us!*
 
 * 3.8 Exercise
+
+** Exercise 3.1
+
+When using the Linux-specific =reboot()= system call to reboot the
+system, the second argument, =magic2=, must be specified as one of a
+set of magic numbers (e.g., =LINUX_REBOOT_MAGIC2=). What is the
+significance of these numbers? (Converting them to hexadecimal
+provides a clue.)
+
+*** Answer
+
 #+begin_src C
    int syscall(SYS_reboot, int magic, int magic2, int op, void *arg);
    int reboot(int op);
@@ -418,7 +413,7 @@ When you look at the *precise* hex values mentioned in the man page, the
 "significance" becomes even more specific to Linus Torvalds' daughters
 and his own life.
 
-** The Corrected "Significance" Table
+**** The Corrected "Significance" Table
 | Constant               | Hexadecimal  | Significance (The Dates)                                |
 |                        |              | <30>                                                    |
 |------------------------+--------------+---------------------------------------------------------|
@@ -428,12 +423,12 @@ and his own life.
 | =LINUX_REBOOT_MAGIC2B= | =0x16041998= | *16-04-1998*: Birth of his second daughter, *Patricia*. |
 | =LINUX_REBOOT_MAGIC2C= | =0x20112000= | *20-11-2000*: Birth of his third daughter, *Celeste*.   |
 
-** Why this matters for the TLPI Exercise
+**** Why this matters for the TLPI Exercise
 The "Clue" Kerrisk is pointing toward is that these aren't random
 numbers generated by a computer; they are *Little Endian* (or
 human-readable hex) representations of *DD-MM-YYYY*.
 
-** Logic Check: Why so many Magic2s?
+**** Logic Check: Why so many Magic2s?
 Every time Linus had a child, he added a new valid "password" to the
 =reboot= system call.
 
