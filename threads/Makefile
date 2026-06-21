@@ -9,7 +9,8 @@ GEN_EXE = detached_attrib one_time_init prod_condvar prod_no_condvar \
 	thread_multijoin \
 	exr2901 \
 	ythread_incr ythread_incr_mutex \
-	exr3001 exr3102_test \
+	exr3001 \
+	exr3101_test exr3102_test \
 	ythread_multijoin
 
 LINUX_EXE =
@@ -23,20 +24,22 @@ allgen : ${GEN_EXE}
 CFLAGS = ${IMPL_CFLAGS} ${IMPL_THREAD_FLAGS}
 LDLIBS = ${IMPL_LDLIBS} ${IMPL_THREAD_FLAGS}
 
+# DEPRECATED: WONTFIX:
 strerror_test: strerror_test.o strerror.o
 	${CC} -o $@ strerror_test.o strerror.o \
 		${CFLAGS} ${LDLIBS}
 
+# DEPRECATED: WONTFIX:
 strerror_test_tsd: strerror_test.o strerror_tsd.o
 	${CC} -o $@ strerror_test.o strerror_tsd.o \
 		${CFLAGS} ${LDLIBS}
 
+# DEPRECATED: WONTFIX:
 strerror_test_tls: strerror_test.o strerror_tls.o
 	${CC} -o $@ strerror_test.o strerror_tls.o \
 		${CFLAGS} ${LDLIBS}
 
-exr3101_test: exr3101_test.o exr3101.o
-	$(CC) -o $@ $^ ${CFLAGS} ${LDLIBS}
+exr3101_test: exr3101.o
 exr3101_test.o exr3101.o: exr3101_hdr.h
 
 exr3102_test : name_tsd.o
@@ -49,4 +52,9 @@ clean :
 showall :
 	@ echo ${EXE}
 
-${EXE} : ${TLPI_LIB}		# True as a rough approximation
+${EXE} :
+
+# ${EXE} : ${TLPI_LIB}		# True as a rough approximation
+
+# ${TLPI_LIB}:
+# 	(cd ${TLPI_INCL_DIR} && ${MAKE})

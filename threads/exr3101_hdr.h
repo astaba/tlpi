@@ -1,13 +1,12 @@
 /* =========================================================================
  * Created on: <Wed May 06 15:23:30 +01 2026>
- * Time-stamp: <Wed May  6 17:22:39 +01 2026 by owner>
+ * Time-stamp: <Sat Jun 13 22:26:17 +01 2026 by owner>
  * Author    : owner
- * Desc      : ~/coding/c_prog/tlpi/threads/exr3101.h -
+ * Desc      : ~/coding/c_prog/tlpi/threads/exr3101_hdr.h -
  * ========================================================================= */
 #ifndef EXR3101_HDR_H
 #define EXR3101_HDR_H
 
-#include "../lib/tlpi_hdr.h"
 #include <pthread.h>
 
 typedef struct {

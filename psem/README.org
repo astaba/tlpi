@@ -48,6 +48,9 @@
 ** 53.2.1 Opening a named semaphore
 *** Some Prerequisites
 **** How =getopt= works
+:PROPERTIES:
+:CUSTOM_ID: how-getopt-works
+:END:
 
 The "magic" of =getopt()= is that it treats your command line like a
 deck of cards it can shuffle.

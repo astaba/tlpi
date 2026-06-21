@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Wed May 06 13:40:54 +01 2026>
- * Time-stamp: <Thu May  7 00:39:19 +01 2026 by owner>
+ * Time-stamp: <Sat Jun 13 22:27:18 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/threads/exr3101.c -
  *
@@ -19,6 +19,7 @@
  *
  * Test with [[file:exr3101_test.c]]
  * ========================================================================= */
+#include "../lib/tlpi_hdr.h"
 #include "exr3101_hdr.h"
 
 int one_time_init(oncer_t *control, void (*init)(void)) {

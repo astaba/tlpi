@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Wed May 06 16:38:50 +01 2026>
- * Time-stamp: <Sat May 23 16:33:49 +01 2026 by owner>
+ * Time-stamp: <Thu Jun  4 00:15:50 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/threads/exr3102_test.c -
  *
@@ -8,7 +8,7 @@
  * Use thread-specific data to write thread-safe versions of dirname()
  * and basename() (Section 18.14).
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"
+#include "../lib/tlpi_hdr.h"	/* IWYU pragma: keep */
 #include "name_tsd.h"
 #include "pthread_wrappers.h"
 
