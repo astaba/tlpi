@@ -1,0 +1,78 @@
+#+TITLE: Pipes And Fifos
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Chapter 44 The Linux Programming Interface by Michael Kerrisk
+#+STARTUP: showall
+
+* Table Of Contents                                                   :toc_2:
+- [[#441-overview][44.1 Overview]]
+- [[#442-creating-and-using-pipes][44.2 Creating and Using Pipes]]
+- [[#443-pipes-as-a-method-of-process-synchronization][44.3 Pipes as a Method of Process Synchronization]]
+- [[#444-using-pipes-to-connect-filters][44.4 Using Pipes to Connect Filters]]
+- [[#445-talking-to-a-shell-command-via-a-pipe-popen][44.5 Talking to a Shell Command via a Pipe: popen()]]
+- [[#446-pipes-and-stdio-buffering][44.6 Pipes and stdio Buffering]]
+- [[#447-fifos][44.7 FIFOs]]
+- [[#448-a-client-server-application-using-fifos][44.8 A Client-Server Application Using FIFOs]]
+- [[#449-nonblocking-io][44.9 Nonblocking I/O]]
+- [[#4410-semantics-of-read-and-write-on-pipes-and-fifos][44.10 Semantics of read() and write() on Pipes and FIFOs]]
+- [[#4411-summary][44.11 Summary]]
+- [[#4412-exercises][44.12 Exercises]]
+
+* 44.1 Overview
+:PROPERTIES:
+:CUSTOM_ID: 441-overview
+:END:
+
+* 44.2 Creating and Using Pipes
+:PROPERTIES:
+:CUSTOM_ID: 442-creating-and-using-pipes
+:END:
+
+* 44.3 Pipes as a Method of Process Synchronization
+:PROPERTIES:
+:CUSTOM_ID: 443-pipes-as-a-method-of-process-synchronization
+:END:
+
+* 44.4 Using Pipes to Connect Filters
+:PROPERTIES:
+:CUSTOM_ID: 444-using-pipes-to-connect-filters
+:END:
+
+* 44.5 Talking to a Shell Command via a Pipe: popen()
+:PROPERTIES:
+:CUSTOM_ID: 445-talking-to-a-shell-command-via-a-pipe-popen
+:END:
+
+* 44.6 Pipes and stdio Buffering
+:PROPERTIES:
+:CUSTOM_ID: 446-pipes-and-stdio-buffering
+:END:
+
+* 44.7 FIFOs
+:PROPERTIES:
+:CUSTOM_ID: 447-fifos
+:END:
+
+* 44.8 A Client-Server Application Using FIFOs
+:PROPERTIES:
+:CUSTOM_ID: 448-a-client-server-application-using-fifos
+:END:
+
+* 44.9 Nonblocking I/O
+:PROPERTIES:
+:CUSTOM_ID: 449-nonblocking-io
+:END:
+
+* 44.10 Semantics of read() and write() on Pipes and FIFOs
+:PROPERTIES:
+:CUSTOM_ID: 4410-semantics-of-read-and-write-on-pipes-and-fifos
+:END:
+
+* 44.11 Summary
+:PROPERTIES:
+:CUSTOM_ID: 4411-summary
+:END:
+
+* 44.12 Exercises
+:PROPERTIES:
+:CUSTOM_ID: 4412-exercises
+:END:

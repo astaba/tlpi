@@ -8,7 +8,7 @@
  * Use thread-specific data to write thread-safe versions of dirname()
  * and basename() (Section 18.14).
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"	/* IWYU pragma: keep */
+#include "tlpi_hdr.h" 	/* IWYU pragma: keep */
 #include "name_tsd.h"
 #include "pthread_wrappers.h"
 

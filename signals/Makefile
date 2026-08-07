@@ -1,13 +1,30 @@
 include ../Makefile.inc
 
-GEN_EXE = catch_rtsigs demo_SIGFPE ignore_pending_sig intquit \
+GEN_EXE = catch_rtsigs \
+	demo_SIGFPE \
+	ignore_pending_sig \
+	intquit \
 	nonreentrant \
-	ouch sig_receiver sig_sender sig_speed_sigsuspend \
-	sigmask_longjmp sigmask_siglongjmp \
-	t_kill t_sigaltstack t_sigsuspend t_sigqueue t_sigwaitinfo \
+	ouch \
+	sig_receiver \
+	sig_sender \
+	sig_speed_sigsuspend \
+	sigmask_longjmp \
+	sigmask_siglongjmp \
+	t_kill \
+	t_sigaltstack \
+	t_sigstack \
+	t_sigsuspend \
+	t_sigqueue \
+	t_sigwaitinfo \
 	youch yintquit \
-	ysig_receiver ysig_sender \
-	exr2001 exr2002 exr2003_resethand exr2003_nodefer exr2004 \
+	ysig_receiver \
+	ysig_sender \
+	exr2001 \
+	exr2002 \
+	exr2003_resethand \
+	exr2003_nodefer \
+	exr2004 \
 	exr2101_test
 
 LINUX_EXE = signalfd_sigval
@@ -43,6 +60,9 @@ nonreentrant : nonreentrant.o
 
 sigmask_siglongjmp.o : sigmask_longjmp.c
 	${CC} -o $@ -DUSE_SIGSETJMP -c sigmask_longjmp.c ${CFLAGS}
+
+t_sigstack.o : t_sigaltstack.c
+	${CC} -o $@ -DNO_SIGALTSTACK -c t_sigaltstack.c ${CFLAGS}
 
 # The 'all' target does not include the following target, because it is
 # intended to be built only on x86 platforms. For example, gcc on AAarch64

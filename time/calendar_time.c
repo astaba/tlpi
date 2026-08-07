@@ -16,7 +16,7 @@
  *	$ TZ=Pacific/Auckland ./calendar_time
  *
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <locale.h>
 #include <sys/time.h>
 #include <time.h>

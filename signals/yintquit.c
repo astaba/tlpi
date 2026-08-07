@@ -13,7 +13,7 @@
  * ========================================================================= */
 #define _GNU_SOURCE
 
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h" 
 #include <signal.h>
 
 static void handler(int sig) {

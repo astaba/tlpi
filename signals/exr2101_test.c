@@ -1,12 +1,20 @@
 /* =========================================================================
  * Created on: <Sat May 23 12:55:00 +01 2026>
- * Time-stamp: <Wed May 27 19:49:10 +01 2026 by owner>
+ * Time-stamp: <Tue Jul 14 17:18:28 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/signals/exr2101_test.c -
  *
- * Test Exercise 21.1 [[file:yabort.c]]
+ * Test custom abort() from Exercise 21.1 [[file:yabort.c]]:
+ *
+ * Usage: exr2101_test [test-no]
+ *
+ * test-no defaults to 1 and has the following values:
+ * - 1: Block SIGABRT
+ * - 2: Ignore SIGABRT
+ * - 3: Set handler that returns
+ * - 4: Set handler that doesn't return (siglongjmp)
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include "exr_signals.h"
 #include <setjmp.h>
 #include <signal.h>

@@ -10,7 +10,7 @@
  * method. As a consequence, updates are sometimes lost.
  * See also [[file:thread_incr_mutex.c]].
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <pthread.h>
 
 /* "volatile" prevents compiler optimizations of arithmetic

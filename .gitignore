@@ -4,6 +4,10 @@
 *.d
 *.i
 
+# Hard Links
+**/tlpi_hdr.h
+!lib/tlpi_hdr.h
+
 # Object files
 *.o
 *.ko

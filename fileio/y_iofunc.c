@@ -3,7 +3,7 @@
 /* Purpose: Using the fcntl(2) to set open file status flags. */
 
 #include "y_iofunc.h"
-#include "../lib/tlpi_hdr.h" // IWYU pragma: keep
+#include "tlpi_hdr.h" // IWYU pragma: keep
 #include <fcntl.h>
 
 void ysetfstat(int fd, int flags) {

@@ -4,9 +4,11 @@
 #+STARTUP: showall
 
 * Table of Contents                                                   :toc_2:
+- [[#531-overview][53.1 Overview]]
 - [[#section-api][Section API]]
 - [[#532-named-semaphores][53.2 Named Semaphores]]
-  - [[#5321-opening-a-named-semaphore][53.2.1 Opening a named semaphore]]
+  - [[#5321-opening-a-named-semaphore][53.2.1 Opening a Named Semaphore]]
+  - [[#5322-closing-a-semaphore][53.2.2 Closing a Semaphore]]
   - [[#5323-removing-a-named-semaphore][53.2.3 Removing a Named Semaphore]]
 - [[#533-semaphore-operations][53.3 Semaphore Operations]]
   - [[#5331-waiting-on-a-semaphore][53.3.1 Waiting on a Semaphore]]
@@ -14,8 +16,17 @@
   - [[#5333-retrieving-the-current-value-of-a-semaphore][53.3.3 Retrieving the Current Value of a Semaphore]]
 - [[#534-unnamed-semaphores][53.4 Unnamed Semaphores]]
   - [[#5341-initializing-an-unnamed-semaphore][53.4.1 Initializing an Unnamed Semaphore]]
-- [[#exercises][Exercises]]
+  - [[#5342-destroying-an-unnamed-semaphore][53.4.2 Destroying an Unnamed Semaphore]]
+- [[#535-comparisons-with-other-synchronization-techniques][53.5 Comparisons with Other Synchronization Techniques]]
+- [[#536-semaphore-limits][53.6 Semaphore Limits]]
+- [[#537-summary][53.7 Summary]]
+- [[#538-exercises][53.8 Exercises]]
   - [[#exercise-532][Exercise 53.2]]
+
+* 53.1 Overview
+:PROPERTIES:
+:CUSTOM_ID: 531-overview
+:END:
 
 * Section API
 
@@ -45,7 +56,15 @@
 #+end_src
 
 * 53.2 Named Semaphores
-** 53.2.1 Opening a named semaphore
+:PROPERTIES:
+:CUSTOM_ID: 532-named-semaphores
+:END:
+
+** 53.2.1 Opening a Named Semaphore
+:PROPERTIES:
+:CUSTOM_ID: 5321-opening-a-named-semaphore
+:END:
+
 *** Some Prerequisites
 **** How =getopt= works
 :PROPERTIES:
@@ -140,7 +159,7 @@ program is shown in the =usageError()= function.
 *** Shell Session Log
 The following shell session log demonstrates the use of this program.
 We first use the umask command to deny all permissions to users in the
-class other.  We then exclusively create a semaphore and examine the
+class “other”.  We then exclusively create a semaphore and examine the
 contents of the Linux-specific virtual directory that contains named
 semaphores.
 
@@ -161,21 +180,46 @@ $ ./psem_create -cx /demo 666
 ERROR [EEXIST File exists] sem_open     # Failed because of O_EXCL
 #+end_example
 
+** 53.2.2 Closing a Semaphore
+:PROPERTIES:
+:CUSTOM_ID: 5322-closing-a-semaphore
+:END:
+
 ** 53.2.3 Removing a Named Semaphore
-[[file:psem_unlink.c][Listing 53.2 psem_unlink]] demonstrates th use of =sem_unlink()= to
+:PROPERTIES:
+:CUSTOM_ID: 5323-removing-a-named-semaphore
+:END:
+
+[[file:psem_unlink.c][Listing 53.2]] (/psem_unlink.c/) demonstrates th use of =sem_unlink()= to
 unlink a POSIX named semaphore.
 
 * 53.3 Semaphore Operations
+:PROPERTIES:
+:CUSTOM_ID: 533-semaphore-operations
+:END:
+
 ** 53.3.1 Waiting on a Semaphore
+:PROPERTIES:
+:CUSTOM_ID: 5331-waiting-on-a-semaphore
+:END:
+
 The program in [[file:psem_wait.c][Listing 53.3 psem_wait]] provides a command-line
 interface to the sem_wait() function.
 
 ** 53.3.2 Posting a Semaphore
+:PROPERTIES:
+:CUSTOM_ID: 5332-posting-a-semaphore
+:END:
+
 The program in [[file:psem_post.c][Listing 53.4 psem_post]] provides a command-line
 interface to the =sem_post()= function. We demonstrate the use of this
 program shortly.
 
 ** 53.3.3 Retrieving the Current Value of a Semaphore
+:PROPERTIES:
+:CUSTOM_ID: 5333-retrieving-the-current-value-of-a-semaphore
+:END:
+
 The program in [[file:psem_getvalue.c][Listing 53.5 psem_getvalue]] uses =sem_getvalue()= to
 retrieve the value of the semaphore named in its command-line
 argument, and then displays that value on standard output.
@@ -231,14 +275,46 @@ $ ./psem_unlink /demo           # We’re done with this semaphore
 #+end_example
 
 * 53.4 Unnamed Semaphores
+:PROPERTIES:
+:CUSTOM_ID: 534-unnamed-semaphores
+:END:
+
 ** 53.4.1 Initializing an Unnamed Semaphore
+:PROPERTIES:
+:CUSTOM_ID: 5341-initializing-an-unnamed-semaphore
+:END:
+
 In Section 30.1.2, we presented a program ([[file:../threads/thread_incr_mutex.c][Listing 30.2]], see also
 [[file:~/coding/c_prog/tlpi/threads/ythread_incr_mutex.c][Listing 30.2y]]) that used mutexes to protect a critical section in
 which two threads accessed the same global variable. The program in
 [[file:thread_incr_psem.c][Listing 53.6 thread_incr_psem]] solves the same problem using an unnamed
 thread-shared semaphore (See also [[file:ythread_incr_psem.c][ythread_incr_psem]]).
 
-* Exercises
+** 53.4.2 Destroying an Unnamed Semaphore
+:PROPERTIES:
+:CUSTOM_ID: 5342-destroying-an-unnamed-semaphore
+:END:
+
+* 53.5 Comparisons with Other Synchronization Techniques
+:PROPERTIES:
+:CUSTOM_ID: 535-comparisons-with-other-synchronization-techniques
+:END:
+
+* 53.6 Semaphore Limits
+:PROPERTIES:
+:CUSTOM_ID: 536-semaphore-limits
+:END:
+
+* 53.7 Summary
+:PROPERTIES:
+:CUSTOM_ID: 537-summary
+:END:
+
+* 53.8 Exercises
+:PROPERTIES:
+:CUSTOM_ID: 538-exercises
+:END:
+
 ** Exercise 53.2
 Modify the program in [[file:psem_wait.c][Listing 53.3 psem_wait]] to use =sem_timedwait()=
 instead of =sem_wait()=. The program should take an additional
@@ -253,27 +329,6 @@ be used as the timeout for the =sem_timedwait()= call.
 - [file:exr5302.c].
 
 Clean and correct. The structure is solid. Several observations:
-
-**** Absolute time and EINTR loop
-:PROPERTIES:
-:CUSTOM_ID: absolute-time-and-eintr-loop
-:END:
-
-#+begin_src C
-while ((rc = sem_timedwait(sem, &ts)) == -1 && errno == EINTR)
-    continue;
-#+end_src
-
-Most beginners omit this. A signal can interrupt =sem_timedwait=
-returning =EINTR= before the timeout expires and before the semaphore
-is acquired. The loop correctly retries. And critically --- you're
-reusing the *same* =ts= on retry, which is correct because =ts= is an
-absolute deadline, not a relative duration. The timeout doesn't reset
-on each retry, it remains anchored to the original wall clock target.
-
-This is a subtle but important distinction. Had you used a relative
-timeout you'd need to recalculate =ts= on each retry. =CLOCK_REALTIME=
-absolute semantics save you from that complexity.
 
 **** =clock_gettime= before =getInt=
 
@@ -304,6 +359,28 @@ cleaner:
 #+begin_src C
 ts.tv_sec += (time_t)wait_secs;
 #+end_src
+
+**** Absolute time and EINTR loop
+:PROPERTIES:
+:CUSTOM_ID: absolute-time-and-eintr-loop
+:END:
+
+#+begin_src C
+while ((rc = sem_timedwait(sem, &ts)) == -1 && errno == EINTR)
+    continue;
+#+end_src
+
+Most beginners omit this. A signal can interrupt =sem_timedwait=
+returning =EINTR= before the timeout expires and before the semaphore
+is acquired. The loop correctly retries. And critically --- *you're
+reusing the same* =ts= *on retry, which is correct because* =ts= *is
+an absolute deadline, not a relative duration.* The timeout doesn't
+reset on each retry, it remains anchored to the original wall clock
+target.
+
+This is a subtle but important distinction. Had you used a relative
+timeout you'd need to recalculate =ts= on each retry. =CLOCK_REALTIME=
+absolute semantics save you from that complexity.
 
 **** The error handling taxonomy
 

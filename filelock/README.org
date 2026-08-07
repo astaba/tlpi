@@ -1,0 +1,108 @@
+#+TITLE: File Locking
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Section 55 The Linux Programming Interface by Michael Kerrisk
+#+STARTUP: showall
+
+* Table of Contents                                                   :toc_2:
+- [[#551-overview][55.1 Overview]]
+- [[#552-file-locking-with-flock][55.2 File Locking with flock()]]
+  - [[#5521-semantics-of-lock-inheritance-and-release][55.2.1 Semantics of Lock Inheritance and Release]]
+  - [[#5522-limitations-of-flock][55.2.2 Limitations of flock()]]
+- [[#553-record-locking-with-fcntl][55.3 Record Locking with fcntl()]]
+  - [[#5531-deadlock][55.3.1 Deadlock]]
+  - [[#5532-example-an-interactive-locking-program][55.3.2 Example: An Interactive Locking Program]]
+  - [[#5533-example-a-library-of-locking-functions][55.3.3 Example: A Library of Locking Functions]]
+  - [[#5534-lock-limits-and-performance][55.3.4 Lock Limits and Performance]]
+  - [[#5535-semantics-of-lock-inheritance-and-release][55.3.5 Semantics of Lock Inheritance and Release]]
+  - [[#5536-lock-starvation-and-priority-of-queued-lock-requests][55.3.6 Lock Starvation and Priority of Queued Lock Requests]]
+- [[#554-mandatory-locking][55.4 Mandatory Locking]]
+- [[#555-the-proclocks-file][55.5 The /proc/locks File]]
+- [[#556-running-just-one-instance-of-a-program][55.6 Running Just One Instance of a Program]]
+- [[#557-older-locking-techniques][55.7 Older Locking Techniques]]
+- [[#558-summary][55.8 Summary]]
+- [[#559-exercises][55.9 Exercises]]
+
+* 55.1 Overview
+:PROPERTIES:
+:CUSTOM_ID: 551-overview
+:END:
+
+* 55.2 File Locking with flock()
+:PROPERTIES:
+:CUSTOM_ID: 552-file-locking-with-flock
+:END:
+
+** 55.2.1 Semantics of Lock Inheritance and Release
+:PROPERTIES:
+:CUSTOM_ID: 5521-semantics-of-lock-inheritance-and-release
+:END:
+
+** 55.2.2 Limitations of flock()
+:PROPERTIES:
+:CUSTOM_ID: 5522-limitations-of-flock
+:END:
+
+* 55.3 Record Locking with fcntl()
+:PROPERTIES:
+:CUSTOM_ID: 553-record-locking-with-fcntl
+:END:
+
+** 55.3.1 Deadlock
+:PROPERTIES:
+:CUSTOM_ID: 5531-deadlock
+:END:
+
+** 55.3.2 Example: An Interactive Locking Program
+:PROPERTIES:
+:CUSTOM_ID: 5532-example-an-interactive-locking-program
+:END:
+
+** 55.3.3 Example: A Library of Locking Functions
+:PROPERTIES:
+:CUSTOM_ID: 5533-example-a-library-of-locking-functions
+:END:
+
+** 55.3.4 Lock Limits and Performance
+:PROPERTIES:
+:CUSTOM_ID: 5534-lock-limits-and-performance
+:END:
+
+** 55.3.5 Semantics of Lock Inheritance and Release
+:PROPERTIES:
+:CUSTOM_ID: 5535-semantics-of-lock-inheritance-and-release
+:END:
+
+** 55.3.6 Lock Starvation and Priority of Queued Lock Requests
+:PROPERTIES:
+:CUSTOM_ID: 5536-lock-starvation-and-priority-of-queued-lock-requests
+:END:
+
+* 55.4 Mandatory Locking
+:PROPERTIES:
+:CUSTOM_ID: 554-mandatory-locking
+:END:
+
+* 55.5 The /proc/locks File
+:PROPERTIES:
+:CUSTOM_ID: 555-the-proclocks-file
+:END:
+
+* 55.6 Running Just One Instance of a Program
+:PROPERTIES:
+:CUSTOM_ID: 556-running-just-one-instance-of-a-program
+:END:
+
+* 55.7 Older Locking Techniques
+:PROPERTIES:
+:CUSTOM_ID: 557-older-locking-techniques
+:END:
+
+* 55.8 Summary
+:PROPERTIES:
+:CUSTOM_ID: 558-summary
+:END:
+
+* 55.9 Exercises
+:PROPERTIES:
+:CUSTOM_ID: 559-exercises
+:END:

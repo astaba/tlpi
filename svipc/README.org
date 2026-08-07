@@ -1,0 +1,54 @@
+#+TITLE: 45 INTRODUCTION TO SYSTEM V IPC
+
+* Table of Contents                                                   :toc_2:
+- [[#451-api-overview][45.1 API Overview]]
+- [[#452-ipc-keys][45.2 IPC Keys]]
+- [[#453-associated-data-structure-and-object-permissions][45.3 Associated Data Structure and Object Permissions]]
+- [[#454-ipc-identifiers-and-client-server-applications][45.4 IPC Identifiers and Client-Server Applications]]
+- [[#455-algorithm-employed-by-system-v-ipc-get-calls][45.5 Algorithm Employed by System V IPC get Calls]]
+- [[#456-the-ipcs-and-ipcrm-commands][45.6 The ipcs and ipcrm Commands]]
+- [[#457-obtaining-a-list-of-all-ipc-objects][45.7 Obtaining a List of All IPC Objects]]
+- [[#458-ipc-limits][45.8 IPC Limits]]
+- [[#459-summary][45.9 Summary]]
+- [[#4510-exercises][45.10 Exercises]]
+
+* 45.1 API Overview
+:PROPERTIES:
+:CUSTOM_ID: 451-api-overview
+:END:
+* 45.2 IPC Keys
+:PROPERTIES:
+:CUSTOM_ID: 452-ipc-keys
+:END:
+* 45.3 Associated Data Structure and Object Permissions
+:PROPERTIES:
+:CUSTOM_ID: 453-associated-data-structure-and-object-permissions
+:END:
+* 45.4 IPC Identifiers and Client-Server Applications
+:PROPERTIES:
+:CUSTOM_ID: 454-ipc-identifiers-and-client-server-applications
+:END:
+* 45.5 Algorithm Employed by System V IPC get Calls
+:PROPERTIES:
+:CUSTOM_ID: 455-algorithm-employed-by-system-v-ipc-get-calls
+:END:
+* 45.6 The ipcs and ipcrm Commands
+:PROPERTIES:
+:CUSTOM_ID: 456-the-ipcs-and-ipcrm-commands
+:END:
+* 45.7 Obtaining a List of All IPC Objects
+:PROPERTIES:
+:CUSTOM_ID: 457-obtaining-a-list-of-all-ipc-objects
+:END:
+* 45.8 IPC Limits
+:PROPERTIES:
+:CUSTOM_ID: 458-ipc-limits
+:END:
+* 45.9 Summary
+:PROPERTIES:
+:CUSTOM_ID: 459-summary
+:END:
+* 45.10 Exercises
+:PROPERTIES:
+:CUSTOM_ID: 4510-exercises
+:END:

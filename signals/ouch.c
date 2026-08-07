@@ -10,7 +10,7 @@
  * signal handler in this program, the use of sigaction() is always
  * preferable for this task.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h"
 #include <signal.h>
 
 static void sigHandler(int sig) {

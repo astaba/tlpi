@@ -1,23 +1,18 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU General Public License as published by the   *
-* Free Software Foundation, either version 3 or (at your option) any      *
-* later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
-\*************************************************************************/
-
-/* Listing 5-3 */
-
-/* large_file.c
-
-   Demonstrate the use of the (obsolete) Large File System API.
-
-   WARN: This program is Linux-specific.
-*/
+/* =========================================================================
+ * Created on: <Wed Jun 17 19:13:58 +01 2026>
+ * Time-stamp: <Sun Jun 21 20:56:45 +01 2026 by owner>
+ * Author    : Copyright (C) Michael Kerrisk, 2026.
+ *             See the file [[file:../COPYING.gpl-v3]] for details.
+ * Desc      : ~/coding/c_prog/tlpi/fileio/large_file.c -
+ *
+ * Listing 5.3:
+ * NOTICE: This usage of _LARGEFILE64_SOURCE is outdated,
+ * see [[file:ylarge_file.c]]
+ * Demonstrate the use of the (obsolete) Large File System API.
+ * WARN: This program is Linux-specific.
+ * ========================================================================= */
 #define _LARGEFILE64_SOURCE
-#include "../lib/tlpi_hdr.h" // IWYU pragma: keep
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <fcntl.h>
 #include <sys/stat.h>
 

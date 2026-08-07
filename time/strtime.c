@@ -26,7 +26,7 @@
 #define _XOPEN_SOURCE
 #endif
 #endif
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <locale.h>
 #include <time.h>
 

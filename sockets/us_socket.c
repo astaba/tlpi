@@ -5,7 +5,7 @@
  * Desc      : ~/coding/c_prog/tlpi/sockets/us_socket.c -
  * Listing 57.1: Binding a UNIX domain socket
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <sys/socket.h>
 #include <sys/un.h>
 

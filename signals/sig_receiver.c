@@ -1,30 +1,29 @@
 /* =========================================================================
  * Created on: <Thu May 14 20:22:57 +01 2026>
- * Time-stamp: <Fri May 15 10:05:09 +01 2026 by owner>
+ * Time-stamp: <Fri Jul 24 21:34:05 +01 2026 by owner>
  * Author    : Copyright (C) Michael Kerrisk, 2026.
  *             See the file COPYING.gpl-v3 for details.
  * Desc      : ~/coding/c_prog/tlpi/signals/sig_receiver.c -
  *
- * Listing 20.7
+ * Listing 20.7: Catch and report statistics on signals sent by
+ * [[file:sig_sender.c]].
  *
  * Usage: sig_receiver [block-time]
- *
- * Catch and report statistics on signals sent by [[file:sig_sender.c]].
  *
  * Note that although we use signal() to establish the signal handler
  * in this program, the use of sigaction() is always preferable for
  * this task.
  * ========================================================================= */
 #define _GNU_SOURCE
-#include "../lib/tlpi_hdr.h"  /* IWYU pragma: keep */
 #include "signal_functions.h" /* Declaration of printSigset() */
+#include "tlpi_hdr.h"         /* IWYU pragma: keep */
 #include <signal.h>
 
 static int sigCnt[NSIG]; /* Counts deliveries of each signal */
 static volatile sig_atomic_t gotSigint = 0;
-/* Set nonzero if SIGINT is delivered */
 
-static void handler(int sig) {
+static void /* (1) Set nonzero if SIGINT is delivered */
+handler(int sig) {
   if (sig == SIGINT)
     gotSigint = 1;
   else
@@ -41,14 +40,14 @@ int main(int argc, char *argv[]) {
      but for the reasons described in Section 22.7 of TLPI, sigaction()
      is the (strongly) preferred API for this task. */
 
-  for (n = 1; n < NSIG; n++)  /* Same handler for all signals */
+  for (n = 1; n < NSIG; n++)  /* (2) Same handler for all signals */
     (void)signal(n, handler); /* Ignore errors */
 
   /* If a sleep time was specified, temporarily block all signals,
      sleep (while another process sends us signals), and then
      display the mask of pending signals and unblock all signals */
 
-  if (argc > 1) {
+  if (argc > 1) { /* (3) */
     numSecs = getInt(argv[1], GN_GT_0, NULL);
 
     sigfillset(&blockingMask);
@@ -69,10 +68,10 @@ int main(int argc, char *argv[]) {
       systmErr("sigprocmask");
   }
 
-  while (!gotSigint) /* Loop until SIGINT caught */
+  while (!gotSigint) /* (4) Loop until SIGINT caught */
     continue;
 
-  for (n = 1; n < NSIG; n++) /* Display number of signals received */
+  for (n = 1; n < NSIG; n++) /* (5) Display number of signals received */
     if (sigCnt[n] != 0)
       printf("%s: signal %d caught %d time%s\n", argv[0], n, sigCnt[n],
              (sigCnt[n] == 1) ? "" : "s");

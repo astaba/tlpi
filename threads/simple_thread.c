@@ -8,7 +8,7 @@
  * Listing 29.1 A simple POSIX threads example: create a thread, and
  * then join with it.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"	/* IWYU pragma: keep */
+#include "tlpi_hdr.h" 	/* IWYU pragma: keep */
 #include <pthread.h>
 
 static void *threadFunc(void *arg) {

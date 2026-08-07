@@ -1,0 +1,73 @@
+#+TITLE: Writing Secure Privileged Programs
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Chapters 38 from "The Linux Programming Interface" A Linux and UNIX® System Programming by Handbook Michael Kerrisk.
+#+STARTUP: showall shrink
+#+OPTIONS: ^:{}
+
+* Table of Contents                                                   :toc_2:
+- [[#381-is-a-set-user-id-or-set-group-id-program-required][38.1 Is a Set-User-ID or Set-Group-ID Program Required]]
+- [[#382-operate-with-least-privilege][38.2 Operate with Least Privilege]]
+- [[#383-be-careful-when-executing-a-program][38.3 Be Careful When Executing a Program]]
+- [[#384-avoid-exposing-sensitive-information][38.4 Avoid Exposing Sensitive Information]]
+- [[#385-confine-the-process][38.5 Confine the Process]]
+- [[#386-beware-of-signals-and-race-conditions][38.6 Beware of Signals and Race Conditions]]
+- [[#387-pitfalls-when-performing-file-operations-and-file-io][38.7 Pitfalls When Performing File Operations and File I/O]]
+- [[#388-dont-trust-inputs-or-the-environment][38.8 Don’t Trust Inputs or the Environment]]
+- [[#389-beware-of-buffer-overruns][38.9 Beware of Buffer Overruns]]
+- [[#3810-beware-of-denial-of-service-attacks][38.10 Beware of Denial-of-Service Attacks]]
+- [[#3811-check-return-statuses-and-fail-safely][38.11 Check Return Statuses and Fail Safely]]
+- [[#3812-summary][38.12 Summary]]
+- [[#3813-exercises][38.13 Exercises]]
+
+* 38.1 Is a Set-User-ID or Set-Group-ID Program Required
+:PROPERTIES:
+:CUSTOM_ID: 381-is-a-set-user-id-or-set-group-id-program-required
+:END:
+* 38.2 Operate with Least Privilege
+:PROPERTIES:
+:CUSTOM_ID: 382-operate-with-least-privilege
+:END:
+* 38.3 Be Careful When Executing a Program
+:PROPERTIES:
+:CUSTOM_ID: 383-be-careful-when-executing-a-program
+:END:
+* 38.4 Avoid Exposing Sensitive Information
+:PROPERTIES:
+:CUSTOM_ID: 384-avoid-exposing-sensitive-information
+:END:
+* 38.5 Confine the Process
+:PROPERTIES:
+:CUSTOM_ID: 385-confine-the-process
+:END:
+* 38.6 Beware of Signals and Race Conditions
+:PROPERTIES:
+:CUSTOM_ID: 386-beware-of-signals-and-race-conditions
+:END:
+* 38.7 Pitfalls When Performing File Operations and File I/O
+:PROPERTIES:
+:CUSTOM_ID: 387-pitfalls-when-performing-file-operations-and-file-io
+:END:
+* 38.8 Don’t Trust Inputs or the Environment
+:PROPERTIES:
+:CUSTOM_ID: 388-dont-trust-inputs-or-the-environment
+:END:
+* 38.9 Beware of Buffer Overruns
+:PROPERTIES:
+:CUSTOM_ID: 389-beware-of-buffer-overruns
+:END:
+* 38.10 Beware of Denial-of-Service Attacks
+:PROPERTIES:
+:CUSTOM_ID: 3810-beware-of-denial-of-service-attacks
+:END:
+* 38.11 Check Return Statuses and Fail Safely
+:PROPERTIES:
+:CUSTOM_ID: 3811-check-return-statuses-and-fail-safely
+:END:
+* 38.12 Summary
+:PROPERTIES:
+:CUSTOM_ID: 3812-summary
+:END:
+* 38.13 Exercises
+:PROPERTIES:
+:CUSTOM_ID: 3813-exercises
+:END:

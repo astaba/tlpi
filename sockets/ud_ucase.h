@@ -26,7 +26,7 @@
 #ifndef UD_UCASE_H
 #define UD_UCASE_H
 
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h" 
 #include <ctype.h>
 #include <sys/socket.h>
 #include <sys/un.h>

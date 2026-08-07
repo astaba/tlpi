@@ -16,7 +16,7 @@
  * (substract) both arbitrary_uptime outputs, divide the diff by
  * clockTicks and compare to other results.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <sys/times.h>
 #include <time.h>
 

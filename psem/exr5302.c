@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Thu Apr 30 01:56:05 +01 2026>
- * Time-stamp: <Fri May  1 13:37:07 +01 2026 by owner>
+ * Time-stamp: <Tue Jun 30 11:57:36 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/psem/exr5302.c -
  *
@@ -10,7 +10,7 @@
  * additional command-line argument that specifies a (relative) number
  * of seconds to be used as the timeout for the sem_timedwait() call.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <semaphore.h>
 #include <time.h>
 
@@ -30,13 +30,13 @@ int main(int argc, char *argv[]) {
   if (clock_gettime(CLOCK_REALTIME, &ts) == -1)
     systmErr("clock_gettime() failed");
   wait_secs = getInt(argv[2], GN_NONNEG, "wait_secs");
+
   /* [[file:README.org::#casting-time-types]] */
   ts.tv_sec += (time_t)wait_secs;
 
   /* [[file:README.org::#absolute-time-and-eintr-loop]] */
-  while ((rc = sem_timedwait(sem, &ts)) == -1 && errno == EINTR)
+  while (((rc = sem_timedwait(sem, &ts)) == -1) && (errno == EINTR))
     continue;
-
   if (rc == -1) {
     if (errno == ETIMEDOUT)
       custmErr("%ld sem_timedwait() timed out\n", (long)getpid());

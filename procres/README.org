@@ -1,0 +1,37 @@
+#+TITLE: Process Resources
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Chapter 36 from "The Linux Programming Interface" A Linux and UNIX® System Programming by Handbook Michael Kerrisk.
+#+STARTUP: showall shrink
+#+OPTIONS: ^:{}
+
+* Table Of Contents                                                   :toc_2:
+- [[#361-process-resource-usage][36.1 Process Resource Usage]]
+- [[#362-process-resource-limits][36.2 Process Resource Limits]]
+- [[#363-details-of-specific-resource-limits][36.3 Details of Specific Resource Limits]]
+- [[#364-summary][36.4 Summary]]
+- [[#365-exercises][36.5 Exercises]]
+
+* 36.1 Process Resource Usage
+:PROPERTIES:
+:CUSTOM_ID: 361-process-resource-usage
+:END:
+
+* 36.2 Process Resource Limits
+:PROPERTIES:
+:CUSTOM_ID: 362-process-resource-limits
+:END:
+
+* 36.3 Details of Specific Resource Limits
+:PROPERTIES:
+:CUSTOM_ID: 363-details-of-specific-resource-limits
+:END:
+
+* 36.4 Summary
+:PROPERTIES:
+:CUSTOM_ID: 364-summary
+:END:
+
+* 36.5 Exercises
+:PROPERTIES:
+:CUSTOM_ID: 365-exercises
+:END:

@@ -14,7 +14,7 @@
  * specified PID. If a fourth command-line argument is supplied, send
  * one instance of that signal, after sending the previous signals.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <signal.h>
 
 int main(int argc, char *argv[argc + 1]) {

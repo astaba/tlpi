@@ -11,7 +11,7 @@
  * (user-oriented)
  * ========================================================================= */
 #define _GNU_SOURCE
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <signal.h>
 
 #define BSIZE 128

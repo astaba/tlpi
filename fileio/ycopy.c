@@ -10,7 +10,7 @@ $ ./copy /dev/tty b.txt        # Copy input from this terminal to regular file
 $ ./copy /dev/pts/16 /dev/tty  # Copy input from another terminal
 */
 
-#include "../lib/tlpi_hdr.h" // IWYU pragma: keep
+#include "tlpi_hdr.h" // IWYU pragma: keep
 #include <fcntl.h>
 #include <sys/types.h>
 

@@ -1,0 +1,174 @@
+#+TITLE: Sockets Advanced Topic
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Chapters 61 The Linux Programming Interface by Michael Kerrisk
+#+STARTUP: showall
+
+* Table of Contents                                                   :toc_2:
+- [[#611-partial-reads-and-writes-on-stream-sockets][61.1 Partial Reads and Writes on Stream Sockets]]
+- [[#612-the-shutdown-system-call][61.2 The shutdown() System Call]]
+- [[#613-socket-specific-io-system-calls-recv-and-send][61.3 Socket-Specific I/O System Calls: recv() and send()]]
+- [[#614-the-sendfile-system-call][61.4 The sendfile() System Call]]
+- [[#615-retrieving-socket-addresses][61.5 Retrieving Socket Addresses]]
+- [[#616-a-closer-look-at-tcp][61.6 A Closer Look at TCP]]
+  - [[#6161-format-of-a-tcp-segment][61.6.1 Format of a TCP Segment]]
+  - [[#6162-tcp-sequence-numbers-and-acknowledgements][61.6.2 TCP Sequence Numbers and Acknowledgements]]
+  - [[#6163-tcp-state-machine-and-state-transition-diagram][61.6.3 TCP State Machine and State Transition Diagram]]
+  - [[#6164-tcp-connection-establishment][61.6.4 TCP Connection Establishment]]
+  - [[#6165-tcp-connection-termination][61.6.5 TCP Connection Termination]]
+  - [[#6166-calling-shutdown-on-a-tcp-socket][61.6.6 Calling shutdown() on a TCP Socket]]
+  - [[#6167-the-time_wait-state][61.6.7 The TIME_WAIT State]]
+- [[#617-monitoring-sockets-netstat][61.7 Monitoring Sockets: netstat]]
+- [[#618-using-tcpdump-to-monitor-tcp-traffic][61.8 Using tcpdump to Monitor TCP Traffic]]
+- [[#619-socket-options][61.9 Socket Options]]
+- [[#6110-the-so_reuseaddr-socket-option][61.10 The SO_REUSEADDR Socket Option]]
+- [[#6111-inheritance-of-flags-and-options-across-accept][61.11 Inheritance of Flags and Options Across accept()]]
+- [[#6112-tcp-versus-udp][61.12 TCP Versus UDP]]
+- [[#6113-advanced-features][61.13 Advanced Features]]
+  - [[#61131-out-of-band-data][61.13.1 Out-of-Band Data]]
+  - [[#61132-the-sendmsg-and-recvmsg-system-calls][61.13.2 The sendmsg() and recvmsg() System Calls]]
+  - [[#61133-passing-file-descriptors][61.13.3 Passing File Descriptors]]
+  - [[#61134-receiving-sender-credentials][61.13.4 Receiving Sender Credentials]]
+  - [[#61135-sequenced-packet-sockets][61.13.5 Sequenced-Packet Sockets]]
+  - [[#61136-sctp-and-dccp-transport-layer-protocols][61.13.6 SCTP and DCCP Transport-Layer Protocols]]
+- [[#6114-summary][61.14 Summary]]
+- [[#6115-exercises][61.15 Exercises]]
+
+* 61.1 Partial Reads and Writes on Stream Sockets
+:PROPERTIES:
+:CUSTOM_ID: 611-partial-reads-and-writes-on-stream-sockets
+:END:
+
+* 61.2 The shutdown() System Call
+:PROPERTIES:
+:CUSTOM_ID: 612-the-shutdown-system-call
+:END:
+
+* 61.3 Socket-Specific I/O System Calls: recv() and send()
+:PROPERTIES:
+:CUSTOM_ID: 613-socket-specific-io-system-calls-recv-and-send
+:END:
+
+* 61.4 The sendfile() System Call
+:PROPERTIES:
+:CUSTOM_ID: 614-the-sendfile-system-call
+:END:
+
+* 61.5 Retrieving Socket Addresses
+:PROPERTIES:
+:CUSTOM_ID: 615-retrieving-socket-addresses
+:END:
+
+* 61.6 A Closer Look at TCP
+:PROPERTIES:
+:CUSTOM_ID: 616-a-closer-look-at-tcp
+:END:
+
+** 61.6.1 Format of a TCP Segment
+:PROPERTIES:
+:CUSTOM_ID: 6161-format-of-a-tcp-segment
+:END:
+
+** 61.6.2 TCP Sequence Numbers and Acknowledgements
+:PROPERTIES:
+:CUSTOM_ID: 6162-tcp-sequence-numbers-and-acknowledgements
+:END:
+
+** 61.6.3 TCP State Machine and State Transition Diagram
+:PROPERTIES:
+:CUSTOM_ID: 6163-tcp-state-machine-and-state-transition-diagram
+:END:
+
+** 61.6.4 TCP Connection Establishment
+:PROPERTIES:
+:CUSTOM_ID: 6164-tcp-connection-establishment
+:END:
+
+** 61.6.5 TCP Connection Termination
+:PROPERTIES:
+:CUSTOM_ID: 6165-tcp-connection-termination
+:END:
+
+** 61.6.6 Calling shutdown() on a TCP Socket
+:PROPERTIES:
+:CUSTOM_ID: 6166-calling-shutdown-on-a-tcp-socket
+:END:
+
+** 61.6.7 The TIME_WAIT State
+:PROPERTIES:
+:CUSTOM_ID: 6167-the-time_wait-state
+:END:
+
+* 61.7 Monitoring Sockets: netstat
+:PROPERTIES:
+:CUSTOM_ID: 617-monitoring-sockets-netstat
+:END:
+
+* 61.8 Using tcpdump to Monitor TCP Traffic
+:PROPERTIES:
+:CUSTOM_ID: 618-using-tcpdump-to-monitor-tcp-traffic
+:END:
+
+* 61.9 Socket Options
+:PROPERTIES:
+:CUSTOM_ID: 619-socket-options
+:END:
+
+* 61.10 The SO_REUSEADDR Socket Option
+:PROPERTIES:
+:CUSTOM_ID: 6110-the-so_reuseaddr-socket-option
+:END:
+
+* 61.11 Inheritance of Flags and Options Across accept()
+:PROPERTIES:
+:CUSTOM_ID: 6111-inheritance-of-flags-and-options-across-accept
+:END:
+
+* 61.12 TCP Versus UDP
+:PROPERTIES:
+:CUSTOM_ID: 6112-tcp-versus-udp
+:END:
+
+* 61.13 Advanced Features
+:PROPERTIES:
+:CUSTOM_ID: 6113-advanced-features
+:END:
+
+** 61.13.1 Out-of-Band Data
+:PROPERTIES:
+:CUSTOM_ID: 61131-out-of-band-data
+:END:
+
+** 61.13.2 The sendmsg() and recvmsg() System Calls
+:PROPERTIES:
+:CUSTOM_ID: 61132-the-sendmsg-and-recvmsg-system-calls
+:END:
+
+** 61.13.3 Passing File Descriptors
+:PROPERTIES:
+:CUSTOM_ID: 61133-passing-file-descriptors
+:END:
+
+** 61.13.4 Receiving Sender Credentials
+:PROPERTIES:
+:CUSTOM_ID: 61134-receiving-sender-credentials
+:END:
+
+** 61.13.5 Sequenced-Packet Sockets
+:PROPERTIES:
+:CUSTOM_ID: 61135-sequenced-packet-sockets
+:END:
+
+** 61.13.6 SCTP and DCCP Transport-Layer Protocols
+:PROPERTIES:
+:CUSTOM_ID: 61136-sctp-and-dccp-transport-layer-protocols
+:END:
+
+* 61.14 Summary
+:PROPERTIES:
+:CUSTOM_ID: 6114-summary
+:END:
+
+* 61.15 Exercises
+:PROPERTIES:
+:CUSTOM_ID: 6115-exercises
+:END:

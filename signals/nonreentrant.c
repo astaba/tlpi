@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Sun May 17 14:58:08 +01 2026>
- * Time-stamp: <Sun May 17 19:06:56 +01 2026 by owner>
+ * Time-stamp: <Sun Jul 12 14:48:48 +01 2026 by owner>
  * Author    : Copyright (C) Michael Kerrisk, 2026.
  *             See the file [[file:../COPYING.gpl-v3]] for details.
  * Desc      : ~/coding/c_prog/tlpi/signals/nonreentrant.c -
@@ -11,7 +11,7 @@
 #if !defined(_XOPEN_SOURCE) || _XOPEN_SOURCE < 600
 #define _XOPEN_SOURCE 600
 #endif
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h" 
 #include <crypt.h>
 #include <signal.h>
 #include <string.h>
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
 
   /* NOTICE:(1) Repeatedly call crypt() using argv[1].  If interrupted
      by a signal handler right after crypt() returns but just before
-     strcmp() reads the ponted memory space, then the static storage
+     strcmp() reads the pionted memory space, then the static storage
      returned by crypt() will be overwritten by the results of
      encrypting argv[2], and strcmp() will detect a mismatch with the
      value in 'cr1'. */
@@ -61,10 +61,11 @@ int main(int argc, char *argv[]) {
     }
   }
   /* NOTICE:(2) As you repeatedly press Ctrl-C and send SIGINT you
-     will notice "handled" var oupace and getting greater then
-     "mismatch" var.  The reason that it happens is strcmp() wins the
-     race the read its first argument pointer returned by crypt() over
-     the signal handler crypt() to overwrite it.  As a result there
-     not mismatch (mismatch is not incremented) but in respons to
-     SIGINT the handler runs and increment handled */
+     will notice the "handled" variable oupaces and getting greater
+     then the "mismatch" variable.  The reason that it happens is
+     strcmp() wins the race to read its first argument pointer
+     returned by crypt() over the signal handler crypt() to overwrite
+     it.  As a result there is no mismatch (mismatch is not
+     incremented) but in respons to SIGINT the handler runs and
+     increment handled */
 }

@@ -1,0 +1,37 @@
+#+TITLE: Sockets Introduction
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Chapter 56 The Linux Programming Interface by Michael Kerrisk
+#+STARTUP: showall
+
+* Table of Contents                                                   :toc_2:
+- [[#561-overview-of-communication-domain][56.1 Overview of communication domain]]
+- [[#564-generic-socket-address-structure][56.4 Generic socket address structure]]
+
+* 56.1 Overview of communication domain
+
+- Figure 56.1
+
+| Domain     | Communication | Communication between | Address format         | Address structure |
+|            | performed     | applications          |                        |                   |
+|------------+---------------+-----------------------+------------------------+-------------------|
+| =AF_UNIX=  | within kernel | on same host          | pathname               | =sockaddr_un=     |
+| =AF_INET=  | via IPv4      | on hosts connected    | 32-bit IPv4 address +  | =sockaddr_in=     |
+|            |               | via an IPv4 network   | 16-bit port number     |                   |
+| =AF_INET6= | via IPv6      | on hosts connected    | 128-bit IPv6 address + | =sockaddr_in6=    |
+|            |               | via an IPv6 network   | 16-bit port number     |                   |
+
+* 56.4 Generic socket address structure
+
+The only purpose for the =struct sockaddr= type is to cast the various
+domain-specific address structures to a single type for use as
+arguments in the socket system calls. The sockaddr structure is
+typically defined as follows:
+
+#+begin_src C
+  struct sockaddr {
+    sa_family_t sa_family; /* Address family (AF_* constant) */
+    char sa_data[14]; /* Socket address (size varies according
+                         to socket domain, 14 is arbitrary) */
+  };
+#+end_src
+

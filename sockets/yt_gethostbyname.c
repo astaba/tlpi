@@ -6,7 +6,7 @@
  *
  * Listing 59.10: Using gethostbyname() to retrieve host information
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <arpa/inet.h>
 #include <netdb.h>
 

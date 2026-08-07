@@ -6,7 +6,7 @@
  *
  * Test for [[file:exr3101.c]]
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include "exr3101_hdr.h"
 #include "pthread_wrappers.h"
 

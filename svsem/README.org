@@ -5,9 +5,84 @@
 
 * Table of Contents                                                   :toc_2:
 - [[#471-overview][47.1 Overview]]
+- [[#472-creating-or-opening-a-semaphore-set][47.2 Creating or Opening a Semaphore Set]]
+- [[#473-semaphore-control-operations][47.3 Semaphore Control Operations]]
+- [[#474-semaphore-associated-data-structure][47.4 Semaphore Associated Data Structure]]
+- [[#475-semaphore-initialization][47.5 Semaphore Initialization]]
+- [[#476-semaphore-operations][47.6 Semaphore Operations]]
+- [[#477-handling-of-multiple-blocked-semaphore-operations][47.7 Handling of Multiple Blocked Semaphore Operations]]
+- [[#478-semaphore-undo-values][47.8 Semaphore Undo Values]]
+- [[#479-implementing-a-binary-semaphores-protocol][47.9 Implementing a Binary Semaphores Protocol]]
+- [[#4710-semaphore-limits][47.10 Semaphore Limits]]
+- [[#4711-disadvantages-of-system-v-semaphores][47.11 Disadvantages of System V Semaphores]]
+- [[#4712-summary][47.12 Summary]]
+- [[#4713-exercises][47.13 Exercises]]
 
 * 47.1 Overview
+:PROPERTIES:
+:CUSTOM_ID: 471-overview
+:END:
 
-- [[file:svsem_demo.c][Listing 47.1 svsem_demo]]: Creating and operating on System V
+- [[file:svsem_demo.c][Listing 47.1]] (/svsem_demo.c/): Creating and operating on System V
   semaphores.
-- [[file:semun.h][Listing 47.2 semun.h]]: Definition of the semun union.
+- [[file:semun.h][Listing 47.2]] (/semun.h/): Definition of the =semun= union.
+
+* 47.2 Creating or Opening a Semaphore Set
+:PROPERTIES:
+:CUSTOM_ID: 472-creating-or-opening-a-semaphore-set
+:END:
+
+* 47.3 Semaphore Control Operations
+:PROPERTIES:
+:CUSTOM_ID: 473-semaphore-control-operations
+:END:
+
+* 47.4 Semaphore Associated Data Structure
+:PROPERTIES:
+:CUSTOM_ID: 474-semaphore-associated-data-structure
+:END:
+
+* 47.5 Semaphore Initialization
+:PROPERTIES:
+:CUSTOM_ID: 475-semaphore-initialization
+:END:
+
+* 47.6 Semaphore Operations
+:PROPERTIES:
+:CUSTOM_ID: 476-semaphore-operations
+:END:
+
+* 47.7 Handling of Multiple Blocked Semaphore Operations
+:PROPERTIES:
+:CUSTOM_ID: 477-handling-of-multiple-blocked-semaphore-operations
+:END:
+
+* 47.8 Semaphore Undo Values
+:PROPERTIES:
+:CUSTOM_ID: 478-semaphore-undo-values
+:END:
+
+* 47.9 Implementing a Binary Semaphores Protocol
+:PROPERTIES:
+:CUSTOM_ID: 479-implementing-a-binary-semaphores-protocol
+:END:
+
+* 47.10 Semaphore Limits
+:PROPERTIES:
+:CUSTOM_ID: 4710-semaphore-limits
+:END:
+
+* 47.11 Disadvantages of System V Semaphores
+:PROPERTIES:
+:CUSTOM_ID: 4711-disadvantages-of-system-v-semaphores
+:END:
+
+* 47.12 Summary
+:PROPERTIES:
+:CUSTOM_ID: 4712-summary
+:END:
+
+* 47.13 Exercises
+:PROPERTIES:
+:CUSTOM_ID: 4713-exercises
+:END:

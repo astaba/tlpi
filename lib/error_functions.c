@@ -1,38 +1,35 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU Lesser General Public License as published   *
-* by the Free Software Foundation, either version 3 or (at your option)   *
-* any later version. This program is distributed without any warranty.    *
-* See the files COPYING.lgpl-v3 and COPYING.gpl-v3 for details.           *
-\*************************************************************************/
-
-/* Listing 3-3 */
-
-/* error_functions.c
-Some standard error handling routines used by various programs. */
-
-/* Per the C standard, a "Normal Termination" via exit(3) should
-ideally occur in serenity, performing the following: closing open
-streams, flushing user-space buffers to the kernel, executing all
-registered atexit(3) handlers, and terminating the process context
-gracefully.
-
-Conversely, an "Abrupt Termination" bypasses these user-space cleanup
-routines. This is achieved either by invoking _exit(2) to kill the
-process immediately at the kernel level, or by calling abort(3), which
-raises SIGABRT to terminate the process abnormally—potentially
-producing a core dump for post-mortem analysis.
-
-Irrespective of the "trumping power" or immediate cancellation effects
-of these terminal calls, the core philosophy of this library is to
-preempt the exit. By utilizing outputError() first, the library
-ensures that a diagnostic output is flushed explicitly so that it is
-reliably captured by the kernel, before the process state is
-subsequently destroyed by terminating it via _exit(2) or abort(3). */
-
-#include "error_functions.h"
+/* =========================================================================
+ * Created on: <Tue Jul 14 11:27:09 +01 2026>
+ * Time-stamp: <Sat Jul 18 15:04:23 +01 2026 by owner>
+ * Author    : Copyright (C) Michael Kerrisk, 2026.
+ *             See the file [[file:../COPYING.lgpl-v3]] and
+ *             [[file:../COPYING.gpl-v3]] for details.
+ * Desc      : ~/coding/c_prog/tlpi/lib/error_functions.c -
+ *
+ * Listing 3.3:
+ * Some standard error handling routines used by various programs.
+ *
+ * Per the C standard, a "Normal Termination" via exit(3) should
+ * ideally occur in serenity, performing the following: closing open
+ * streams, flushing user-space buffers to the kernel, executing all
+ * registered atexit(3) handlers, and terminating the process context
+ * gracefully.
+ *
+ * Conversely, an "Abrupt Termination" bypasses these user-space
+ * cleanup routines. This is achieved either by invoking _exit(2) to
+ * kill the process immediately at the kernel level, or by calling
+ * abort(3), which raises SIGABRT to terminate the process
+ * abnormally—potentially producing a core dump for post-mortem
+ * analysis.
+ *
+ * Irrespective of the "trumping power" or immediate cancellation
+ * effects of these terminal calls, the core philosophy of this
+ * library is to preempt the exit. By utilizing outputError() first,
+ * the library ensures that a diagnostic output is flushed explicitly
+ * so that it is reliably captured by the kernel, before the process
+ * state is subsequently destroyed by terminating it via _exit(2) or
+ * abort(3).
+ * ========================================================================= */
 #include "ename.c.inc" /* Defines ename and MAX_ENAME */
 #include "tlpi_hdr.h"
 #include <stdarg.h>

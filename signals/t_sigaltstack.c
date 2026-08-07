@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Mon May 18 16:06:45 +01 2026>
- * Time-stamp: <Mon May 18 16:49:27 +01 2026 by owner>
+ * Time-stamp: <Tue Jul 14 12:20:43 +01 2026 by owner>
  * Author    : Copyright (C) Michael Kerrisk, 2026.
  *             See the file [[file:../COPYING.gpl-v3]] for details.
  * Desc      : ~/coding/c_prog/tlpi/signals/t_sigaltstack.c -
@@ -9,11 +9,11 @@
  * signal on an alternate signal stack.
  * ========================================================================= */
 #define _GNU_SOURCE /* Get strsignal() declaration from <string.h> */
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h" 
 #include <signal.h>
 #include <string.h>
 
-static void sigsegvHandler(int sig) {
+static void sigsegv_handler(int sig) {
   int x;
 
   /* UNSAFE: This handler uses non-async-signal-safe functions
@@ -43,12 +43,15 @@ overflowStack(int callNum) {
 }
 
 int main(int argc, char *argv[]) {
+#ifndef NO_SIGALTSTACK
   stack_t sigstack;
+#endif
   struct sigaction sa;
   int j;
 
   printf("Top of standard stack is near %10p\n", (void *)&j);
 
+#ifndef NO_SIGALTSTACK
   /* Allocate alternate stack and inform kernel of its existence */
 
   sigstack.ss_sp = malloc(SIGSTKSZ);
@@ -61,10 +64,15 @@ int main(int argc, char *argv[]) {
     systmErr("sigaltstack");
   printf("Alternate stack is at         %10p-%p\n", sigstack.ss_sp,
          (char *)sbrk(0) - 1);
+#endif
 
-  sa.sa_handler = sigsegvHandler; /* Establish handler for SIGSEGV */
+  sa.sa_handler = sigsegv_handler; /* Establish handler for SIGSEGV */
   sigemptyset(&sa.sa_mask);
+#ifndef NO_SIGALTSTACK
   sa.sa_flags = SA_ONSTACK; /* Handler uses alternate stack */
+#else
+  sa.sa_flags = 0;
+#endif
   if (sigaction(SIGSEGV, &sa, NULL) == -1)
     systmErr("sigaction");
 

@@ -1,0 +1,150 @@
+#+TITLE: Alternative I/O Models
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Chapter 63 The Linux Programming Interface by Michael Kerrisk
+#+STARTUP: showall
+
+* Table Of Contents                                                   :toc_2:
+- [[#631-overview][63.1 Overview]]
+  - [[#6311-level-triggered-and-edge-triggered-notification][63.1.1 Level-Triggered and Edge-Triggered Notification]]
+  - [[#6312-employing-nonblocking-io-with-alternative-io-models][63.1.2 Employing Nonblocking I/O with Alternative I/O Models]]
+- [[#632-io-multiplexing][63.2 I/O Multiplexing]]
+  - [[#6321-the-select-system-call][63.2.1 The select() System Call]]
+  - [[#6322-the-poll-system-call][63.2.2 The poll() System Call]]
+  - [[#6323-when-is-a-file-descriptor-ready][63.2.3 When Is a File Descriptor Ready?]]
+  - [[#6324-comparison-of-select-and-poll][63.2.4 Comparison of select() and poll()]]
+  - [[#6325-problems-with-select-and-poll][63.2.5 Problems with select() and poll()]]
+- [[#633-signal-driven-io][63.3 Signal-Driven I/O]]
+  - [[#6331-when-is-io-possible-signaled][63.3.1 When Is “I/O Possible” Signaled?]]
+  - [[#6332-refining-the-use-of-signal-driven-io][63.3.2 Refining the Use of Signal-Driven I/O]]
+- [[#634-the-epoll-api][63.4 The epoll API]]
+  - [[#6341-creating-an-epoll-instance-epoll_create][63.4.1 Creating an epoll Instance: epoll_create()]]
+  - [[#6342-modifying-the-epoll-interest-list-epoll_ctl][63.4.2 Modifying the epoll Interest List: epoll_ctl()]]
+  - [[#6343-waiting-for-events-epoll_wait][63.4.3 Waiting for Events: epoll_wait()]]
+  - [[#6344-a-closer-look-at-epoll-semantics][63.4.4 A Closer Look at epoll Semantics]]
+  - [[#6345-performance-of-epoll-versus-io-multiplexing][63.4.5 Performance of epoll Versus I/O Multiplexing]]
+  - [[#6346-edge-triggered-notification][63.4.6 Edge-Triggered Notification]]
+- [[#635-waiting-on-signals-and-file-descriptors][63.5 Waiting on Signals and File Descriptors]]
+  - [[#6351-the-pselect-system-call][63.5.1 The pselect() System Call]]
+  - [[#6352-the-self-pipe-trick][63.5.2 The Self-Pipe Trick]]
+- [[#636-summary][63.6 Summary]]
+- [[#637-exercises][63.7 Exercises]]
+
+* 63.1 Overview
+:PROPERTIES:
+:CUSTOM_ID: 631-overview
+:END:
+
+** 63.1.1 Level-Triggered and Edge-Triggered Notification
+:PROPERTIES:
+:CUSTOM_ID: 6311-level-triggered-and-edge-triggered-notification
+:END:
+
+** 63.1.2 Employing Nonblocking I/O with Alternative I/O Models
+:PROPERTIES:
+:CUSTOM_ID: 6312-employing-nonblocking-io-with-alternative-io-models
+:END:
+
+* 63.2 I/O Multiplexing
+:PROPERTIES:
+:CUSTOM_ID: 632-io-multiplexing
+:END:
+
+** 63.2.1 The select() System Call
+:PROPERTIES:
+:CUSTOM_ID: 6321-the-select-system-call
+:END:
+
+** 63.2.2 The poll() System Call
+:PROPERTIES:
+:CUSTOM_ID: 6322-the-poll-system-call
+:END:
+
+** 63.2.3 When Is a File Descriptor Ready?
+:PROPERTIES:
+:CUSTOM_ID: 6323-when-is-a-file-descriptor-ready?
+:END:
+
+** 63.2.4 Comparison of select() and poll()
+:PROPERTIES:
+:CUSTOM_ID: 6324-comparison-of-select-and-poll
+:END:
+
+** 63.2.5 Problems with select() and poll()
+:PROPERTIES:
+:CUSTOM_ID: 6325-problems-with-select-and-poll
+:END:
+
+* 63.3 Signal-Driven I/O
+:PROPERTIES:
+:CUSTOM_ID: 633-signal-driven-io
+:END:
+
+** 63.3.1 When Is “I/O Possible” Signaled?
+:PROPERTIES:
+:CUSTOM_ID: 6331-when-is-“io-possible”-signaled
+:END:
+
+** 63.3.2 Refining the Use of Signal-Driven I/O
+:PROPERTIES:
+:CUSTOM_ID: 6332-refining-the-use-of-signal-driven-io
+:END:
+
+* 63.4 The epoll API
+:PROPERTIES:
+:CUSTOM_ID: 634-the-epoll-api
+:END:
+
+** 63.4.1 Creating an epoll Instance: epoll_create()
+:PROPERTIES:
+:CUSTOM_ID: 6341-creating-an-epoll-instance-epoll_create
+:END:
+
+** 63.4.2 Modifying the epoll Interest List: epoll_ctl()
+:PROPERTIES:
+:CUSTOM_ID: 6342-modifying-the-epoll-interest-list-epoll_ctl
+:END:
+
+** 63.4.3 Waiting for Events: epoll_wait()
+:PROPERTIES:
+:CUSTOM_ID: 6343-waiting-for-events-epoll_wait
+:END:
+
+** 63.4.4 A Closer Look at epoll Semantics
+:PROPERTIES:
+:CUSTOM_ID: 6344-a-closer-look-at-epoll-semantics
+:END:
+
+** 63.4.5 Performance of epoll Versus I/O Multiplexing
+:PROPERTIES:
+:CUSTOM_ID: 6345-performance-of-epoll-versus-io-multiplexing
+:END:
+
+** 63.4.6 Edge-Triggered Notification
+:PROPERTIES:
+:CUSTOM_ID: 6346-edge-triggered-notification
+:END:
+
+* 63.5 Waiting on Signals and File Descriptors
+:PROPERTIES:
+:CUSTOM_ID: 635-waiting-on-signals-and-file-descriptors
+:END:
+
+** 63.5.1 The pselect() System Call
+:PROPERTIES:
+:CUSTOM_ID: 6351-the-pselect-system-call
+:END:
+
+** 63.5.2 The Self-Pipe Trick
+:PROPERTIES:
+:CUSTOM_ID: 6352-the-self-pipe-trick
+:END:
+
+* 63.6 Summary
+:PROPERTIES:
+:CUSTOM_ID: 636-summary
+:END:
+
+* 63.7 Exercises
+:PROPERTIES:
+:CUSTOM_ID: 637-exercises
+:END:

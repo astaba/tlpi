@@ -15,7 +15,7 @@ all : ${EXE}
 allgen : ${GEN_EXE}
 
 clean :
-	${RM} ${EXE} *.o
+	${RM} ${EXE} *.o file.hole
 
 write_bytes_fdatasync : write_bytes.c
 	${CC} -DUSE_FDATASYNC -o $@ write_bytes.c ${CFLAGS} ${IMPL_LDLIBS}

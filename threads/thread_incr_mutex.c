@@ -11,7 +11,7 @@
  * Compare with [[file:thread_incr.c]], [[file:thread_incr_spinlock.c]],
  * and [[file:thread_incr_rwlock.c]].
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"	/* IWYU pragma: keep */
+#include "tlpi_hdr.h" 	/* IWYU pragma: keep */
 #include <pthread.h>
 
 static volatile int glob = 0;

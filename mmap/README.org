@@ -1,0 +1,108 @@
+#+TITLE: Memory Mappings
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Chapter 49 The Linux Programming Interface by Michael Kerrisk
+#+STARTUP: showall
+
+* Table Of Contents                                                   :toc_2:
+- [[#491-overview][49.1 Overview]]
+- [[#492-creating-a-mapping-mmap][49.2 Creating a Mapping: mmap()]]
+- [[#493-unmapping-a-mapped-region-munmap][49.3 Unmapping a Mapped Region: munmap()]]
+- [[#494-file-mappings][49.4 File Mappings]]
+  - [[#4941-private-file-mappings][49.4.1 Private File Mappings]]
+  - [[#4942-shared-file-mappings][49.4.2 Shared File Mappings]]
+  - [[#4943-boundary-cases][49.4.3 Boundary Cases]]
+  - [[#4944-memory-protection-and-file-access-mode-interactions][49.4.4 Memory Protection and File Access Mode Interactions]]
+- [[#495-synchronizing-a-mapped-region-msync][49.5 Synchronizing a Mapped Region: msync()]]
+- [[#496-additional-mmap-flags][49.6 Additional mmap() Flags]]
+- [[#497-anonymous-mappings][49.7 Anonymous Mappings]]
+- [[#498-remapping-a-mapped-region-mremap][49.8 Remapping a Mapped Region: mremap()]]
+- [[#499-map_noreserve-and-swap-space-overcommitting][49.9 MAP_NORESERVE and Swap Space Overcommitting]]
+- [[#4910-the-map_fixed-flag][49.10 The MAP_FIXED Flag]]
+- [[#4911-nonlinear-mappings-remap_file_pages][49.11 Nonlinear Mappings: remap_file_pages()]]
+- [[#4912-summary][49.12 Summary]]
+- [[#4913-exercises][49.13 Exercises]]
+
+* 49.1 Overview
+:PROPERTIES:
+:CUSTOM_ID: 491-overview
+:END:
+
+* 49.2 Creating a Mapping: mmap()
+:PROPERTIES:
+:CUSTOM_ID: 492-creating-a-mapping-mmap
+:END:
+
+* 49.3 Unmapping a Mapped Region: munmap()
+:PROPERTIES:
+:CUSTOM_ID: 493-unmapping-a-mapped-region-munmap
+:END:
+
+* 49.4 File Mappings
+:PROPERTIES:
+:CUSTOM_ID: 494-file-mappings
+:END:
+
+** 49.4.1 Private File Mappings
+:PROPERTIES:
+:CUSTOM_ID: 4941-private-file-mappings
+:END:
+
+** 49.4.2 Shared File Mappings
+:PROPERTIES:
+:CUSTOM_ID: 4942-shared-file-mappings
+:END:
+
+** 49.4.3 Boundary Cases
+:PROPERTIES:
+:CUSTOM_ID: 4943-boundary-cases
+:END:
+
+** 49.4.4 Memory Protection and File Access Mode Interactions
+:PROPERTIES:
+:CUSTOM_ID: 4944-memory-protection-and-file-access-mode-interactions
+:END:
+
+* 49.5 Synchronizing a Mapped Region: msync()
+:PROPERTIES:
+:CUSTOM_ID: 495-synchronizing-a-mapped-region-msync
+:END:
+
+* 49.6 Additional mmap() Flags
+:PROPERTIES:
+:CUSTOM_ID: 496-additional-mmap-flags
+:END:
+
+* 49.7 Anonymous Mappings
+:PROPERTIES:
+:CUSTOM_ID: 497-anonymous-mappings
+:END:
+
+* 49.8 Remapping a Mapped Region: mremap()
+:PROPERTIES:
+:CUSTOM_ID: 498-remapping-a-mapped-region-mremap
+:END:
+
+* 49.9 MAP_NORESERVE and Swap Space Overcommitting
+:PROPERTIES:
+:CUSTOM_ID: 499-map_noreserve-and-swap-space-overcommitting
+:END:
+
+* 49.10 The MAP_FIXED Flag
+:PROPERTIES:
+:CUSTOM_ID: 4910-the-map_fixed-flag
+:END:
+
+* 49.11 Nonlinear Mappings: remap_file_pages()
+:PROPERTIES:
+:CUSTOM_ID: 4911-nonlinear-mappings-remap_file_pages
+:END:
+
+* 49.12 Summary
+:PROPERTIES:
+:CUSTOM_ID: 4912-summary
+:END:
+
+* 49.13 Exercises
+:PROPERTIES:
+:CUSTOM_ID: 4913-exercises
+:END:

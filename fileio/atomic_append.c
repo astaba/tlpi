@@ -30,7 +30,7 @@
 
         atomic_append f2 1000000 x & atomic_append f2 1000000 x
 */
-#include "../lib/tlpi_hdr.h" // IWYU pragma: keep
+#include "tlpi_hdr.h" // IWYU pragma: keep
 #include <fcntl.h>
 #include <stdbool.h>
 #include <sys/stat.h>

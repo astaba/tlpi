@@ -7,7 +7,7 @@
  * Practice [[file:t_kill.c][Listing 20.3 t_kill]]:
  * Using the kill() system call
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"	/* IWYU pragma: keep */
+#include "tlpi_hdr.h" 	/* IWYU pragma: keep */
 #include <signal.h>
 
 int main(int argc, char *argv[argc + 1]) {

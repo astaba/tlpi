@@ -1,11 +1,17 @@
-/* Created on:  Thu Jan 29 12:50:07 +01 2026 */
-/* Description: Experimental snippet from Section 4.4 read(2) */
-/* Purpose:     Try the book version first to suffer all the inconveniences of
- *              read(2) binary behavior when used for unsanitized text input.
- *              See SECTION04.md for more explanations.
- */
-
-#include "../lib/tlpi_hdr.h" // IWYU pragma: keep
+/* =========================================================================
+ * Created on: <Thu Jan 29 12:50:07 +01 2026>
+ * Time-stamp: <Sun Jun 21 18:50:28 +01 2026 by owner>
+ * Author    : owner
+ * Desc      : ~/coding/c_prog/tlpi/fileio/yread.c -
+ *
+ * Experimental snippet from
+ * [[file:README.org::#4-4-reading-from-a-file]]
+ *
+ * Purpose: Try the book version first to suffer all the
+ * inconveniences of read(2) binary behavior when used for unsanitized
+ * text input.
+ * ========================================================================= */
+#include "tlpi_hdr.h" // IWYU pragma: keep
 #include <unistd.h>
 #define MAX_READ 5
 

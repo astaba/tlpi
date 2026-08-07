@@ -4,7 +4,7 @@
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/threads/ythread_multijoin.c -
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include "pthread_wrappers.h"
 
 typedef enum {

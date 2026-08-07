@@ -18,7 +18,7 @@
  * glob as the kernel scheduler alternates execution between the two
  * threads.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include "pthread_wrappers.h"
 
 /* HACK: To increase the race condition probability while keeping the

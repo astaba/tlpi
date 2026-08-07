@@ -16,7 +16,7 @@
 #define _GNU_SOURCE       /* To get NI_MAXHOST and NI_MAXSERV                  \
                              definitions from <netdb.h> */
 #include "inet_sockets.h" /* Declares functions defined here */
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h" 
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>

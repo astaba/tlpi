@@ -20,7 +20,7 @@
  * assignment statement (see Section 6.8).
  * ========================================================================= */
 #define _GNU_SOURCE           /* Get strsignal() declaration from <string.h> */
-#include "../lib/tlpi_hdr.h"  /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include "signal_functions.h" /* Declaration of printSigMask() */
 #include <setjmp.h>
 #include <signal.h>

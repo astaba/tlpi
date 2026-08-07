@@ -1,0 +1,97 @@
+#+TITLE: Terminals
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Chapter 62 The Linux Programming Interface by Michael Kerrisk
+#+STARTUP: showall
+
+* Table Of Contents                                                   :toc_2:
+- [[#621-overview][62.1 Overview]]
+- [[#622-retrieving-and-modifying-terminal-attributes][62.2 Retrieving and Modifying Terminal Attributes]]
+- [[#623-the-stty-command][62.3 The stty Command]]
+- [[#624-terminal-special-characters][62.4 Terminal Special Characters]]
+- [[#625-terminal-flags][62.5 Terminal Flags]]
+- [[#626-terminal-io-modes][62.6 Terminal I/O Modes]]
+  - [[#6261-canonical-mode][62.6.1 Canonical Mode]]
+  - [[#6262-noncanonical-mode][62.6.2 Noncanonical Mode]]
+  - [[#6263-cooked-cbreak-and-raw-modes][62.6.3 Cooked, Cbreak, and Raw Modes]]
+- [[#627-terminal-line-speed-bit-rate][62.7 Terminal Line Speed (Bit Rate)]]
+- [[#628-terminal-line-control][62.8 Terminal Line Control]]
+- [[#629-terminal-window-size][62.9 Terminal Window Size]]
+- [[#6210-terminal-identification][62.10 Terminal Identification]]
+- [[#6211-summary][62.11 Summary]]
+- [[#6212-exercises][62.12 Exercises]]
+
+* 62.1 Overview
+:PROPERTIES:
+:CUSTOM_ID: 621-overview
+:END:
+
+* 62.2 Retrieving and Modifying Terminal Attributes
+:PROPERTIES:
+:CUSTOM_ID: 622-retrieving-and-modifying-terminal-attributes
+:END:
+
+* 62.3 The stty Command
+:PROPERTIES:
+:CUSTOM_ID: 623-the-stty-command
+:END:
+
+* 62.4 Terminal Special Characters
+:PROPERTIES:
+:CUSTOM_ID: 624-terminal-special-characters
+:END:
+
+* 62.5 Terminal Flags
+:PROPERTIES:
+:CUSTOM_ID: 625-terminal-flags
+:END:
+
+* 62.6 Terminal I/O Modes
+:PROPERTIES:
+:CUSTOM_ID: 626-terminal-io-modes
+:END:
+
+** 62.6.1 Canonical Mode
+:PROPERTIES:
+:CUSTOM_ID: 6261-canonical-mode
+:END:
+
+** 62.6.2 Noncanonical Mode
+:PROPERTIES:
+:CUSTOM_ID: 6262-noncanonical-mode
+:END:
+
+** 62.6.3 Cooked, Cbreak, and Raw Modes
+:PROPERTIES:
+:CUSTOM_ID: 6263-cooked-cbreak-and-raw-modes
+:END:
+
+* 62.7 Terminal Line Speed (Bit Rate)
+:PROPERTIES:
+:CUSTOM_ID: 627-terminal-line-speed-bit-rate
+:END:
+
+* 62.8 Terminal Line Control
+:PROPERTIES:
+:CUSTOM_ID: 628-terminal-line-control
+:END:
+
+* 62.9 Terminal Window Size
+:PROPERTIES:
+:CUSTOM_ID: 629-terminal-window-size
+:END:
+
+* 62.10 Terminal Identification
+:PROPERTIES:
+:CUSTOM_ID: 6210-terminal-identification
+:END:
+
+* 62.11 Summary
+:PROPERTIES:
+:CUSTOM_ID: 6211-summary
+:END:
+
+* 62.12 Exercises
+:PROPERTIES:
+:CUSTOM_ID: 6212-exercises
+:END:
+

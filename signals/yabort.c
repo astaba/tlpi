@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Sat May 23 12:20:54 +01 2026>
- * Time-stamp: <Sat May 23 14:04:12 +01 2026 by owner>
+ * Time-stamp: <Sun Jul 12 15:13:40 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/signals/yabort.c -
  *
@@ -32,7 +32,7 @@ void yabort(void) {
   raise(SIGABRT);
 
   /* If we get here then the process caught SIGABRT with a custom
-     handler and instead of _exit()'ing or siglongjmp() it returned */
+     handler and instead of _exit'ing or siglongjmp'ing it returned */
 
   /* Unconditionally reset SIGABRT disposition to default */
   act.sa_handler = SIG_DFL;

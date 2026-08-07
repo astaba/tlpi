@@ -1,0 +1,64 @@
+#+TITLE: System V Shared Memory
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Chapter 00 from "The Linux Programming Interface" A Linux and UNIX® System Programming by Handbook Michael Kerrisk.
+#+STARTUP: showall shrink
+#+OPTIONS: ^:{}
+
+* Table of Contents                                                   :toc_2:
+- [[#481-overview][48.1 Overview]]
+- [[#482-creating-or-opening-a-shared-memory-segment][48.2 Creating or Opening a Shared Memory Segment]]
+- [[#483-using-shared-memory][48.3 Using Shared Memory]]
+- [[#484-example-transferring-data-via-shared-memory][48.4 Example: Transferring Data via Shared Memory]]
+- [[#485-location-of-shared-memory-in-virtual-memory][48.5 Location of Shared Memory in Virtual Memory]]
+- [[#486-storing-pointers-in-shared-memory][48.6 Storing Pointers in Shared Memory]]
+- [[#487-shared-memory-control-operations][48.7 Shared Memory Control Operations]]
+- [[#488-shared-memory-associated-data-structure][48.8 Shared Memory Associated Data Structure]]
+- [[#489-shared-memory-limits][48.9 Shared Memory Limits]]
+- [[#4810-summary][48.10 Summary]]
+- [[#4811-exercises][48.11 Exercises]]
+
+* 48.1 Overview
+:PROPERTIES:
+:CUSTOM_ID: 481-overview
+:END:
+* 48.2 Creating or Opening a Shared Memory Segment
+:PROPERTIES:
+:CUSTOM_ID: 482-creating-or-opening-a-shared-memory-segment
+:END:
+* 48.3 Using Shared Memory
+:PROPERTIES:
+:CUSTOM_ID: 483-using-shared-memory
+:END:
+* 48.4 Example: Transferring Data via Shared Memory
+:PROPERTIES:
+:CUSTOM_ID: 484-example-transferring-data-via-shared-memory
+:END:
+* 48.5 Location of Shared Memory in Virtual Memory
+:PROPERTIES:
+:CUSTOM_ID: 485-location-of-shared-memory-in-virtual-memory
+:END:
+* 48.6 Storing Pointers in Shared Memory
+:PROPERTIES:
+:CUSTOM_ID: 486-storing-pointers-in-shared-memory
+:END:
+* 48.7 Shared Memory Control Operations
+:PROPERTIES:
+:CUSTOM_ID: 487-shared-memory-control-operations
+:END:
+* 48.8 Shared Memory Associated Data Structure
+:PROPERTIES:
+:CUSTOM_ID: 488-shared-memory-associated-data-structure
+:END:
+* 48.9 Shared Memory Limits
+:PROPERTIES:
+:CUSTOM_ID: 489-shared-memory-limits
+:END:
+* 48.10 Summary
+:PROPERTIES:
+:CUSTOM_ID: 4810-summary
+:END:
+* 48.11 Exercises
+:PROPERTIES:
+:CUSTOM_ID: 4811-exercises
+:END:
+

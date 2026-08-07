@@ -1,0 +1,160 @@
+#+TITLE: Sockets Fundamentals of TCP/IP Network
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Chapters 58 The Linux Programming Interface by Michael Kerrisk
+#+STARTUP: showall
+
+* Table of Contents                                                   :toc_2:
+- [[#581-internets][58.1 Internets]]
+- [[#584-the-network-layer-ip][58.4 The Network Layer: IP]]
+  - [[#ipv6-addresses][IPv6 Addresses]]
+- [[#586-transport-layer][58.6 Transport Layer]]
+  - [[#5861-port-numbers][58.6.1 Port numbers]]
+- [[#587-requests-for-comments-rfcs][58.7 Requests for Comments (RFCs)]]
+- [[#585-ip-addresses][58.5 IP Addresses]]
+  - [[#multihomed-host-and-wildcard-address][Multihomed Host and Wildcard Address]]
+
+* 58.1 Internets
+The web page http://www.isoc.org/internet/history/brief.shtml provides
+a brief history of the Internet and TCP/IP.
+
+* 58.4 The Network Layer: IP
+A short history of IPv6 can be found at
+http://www.laynetworks.com/IPv6.htm.
+
+** IPv6 Addresses
+The key difference is that IPv6 addresses consist of 128 bits, and the
+first few bits of the address are a format prefix, indicating the
+address type.  (We won’t go into the details of these address types;
+see Appendix A of [Stevens et al., 2004] and RFC 3513 for details.)
+
+- *IPv4*: 4 ×  8 bits =  32bits
+- *IPv6*: 8 × 16 bits = 128bits
+
+#+begin_example
+F000:0:0:0:0:0:A:1 == F000::A:1
+Wildcard address → 0::0 == ::
+#+end_example
+
+Only one instance of the double-colon notation can appear in an IPv6
+address; more than one instance would be ambiguous.
+
+*** Format of IPv4-mapped IPv6 Address
+#+begin_example
+[               all zeros               ][ FFFF ][ IPv4 Address ]
+                80 bits                  16 bits   32 bits
+
+204.152.189.116 → ::FFFF:204.152.189.116
+#+end_example
+
+* 58.6 Transport Layer
+** 58.6.1 Port numbers
+The up-to-date list of IANA well-known and registered port assignments
+can be obtained online at
+http://www.iana.org/assignments/port-numbers.
+
+IANA specifies the ports in the range 49152 to 65535 as dynamic or
+private, with the intention that these ports can be used by local
+applications and assigned as ephemeral ports. However, various
+implementations allocate ephemeral ports from different ranges. On
+Linux, the range is defined by (and can be modified via) two numbers
+contained in the file =/proc/sys/net/ipv4/ip_local_port_range=.
+
+* 58.7 Requests for Comments (RFCs)
+Each of the Internet protocols that we discuss in this book is defined
+in an RFC document— a formal protocol specification. RFCs are
+published by the RFC Editor (http://www.rfc-editor.org/), which is
+funded by the Internet Society (http://www.isoc.org/). RFCs that
+describe Internet standards are developed under the auspices of the
+Internet Engineering Task Force (IETF, http://www.ietf.org/), a
+community of network designers, operators, vendors, and researchers
+concerned with the evolution and smooth operation of the
+Internet. Membership of the IETF is open to any interested individual.
+
+* 58.5 IP Addresses
+
+** Multihomed Host and Wildcard Address
+:PROPERTIES:
+:CUSTOM_ID: multihomed-host-and-wildcard-address
+:END:
+- Reference: page 1187.
+
+This is the point where we move from "one computer talking to another"
+to the reality of *Network Architecture*.
+
+To understand these terms, you have to stop thinking of a computer as
+a single point in space and start thinking of it as a *building with
+multiple doors.*
+
+*** 1. What is a "Multihomed" Host?
+:PROPERTIES:
+:CUSTOM_ID: what-is-a-multihomed-host
+:END:
+A *multihomed* host is a computer that is connected to more than one
+network at the same time. This means it has *multiple IP addresses*, one
+for each network interface (Ethernet, Wi-Fi, VPN, Virtual Bridge).
+
+*The Metaphor:* Imagine a house on a corner lot. It has a front door on
+"Main Street" and a side door on "Oak Avenue."
+
+- *Main Street IP:* =192.168.1.5= (Local Wi-Fi)
+- *Oak Avenue IP:* =10.0.0.42= (Company VPN)
+- *The Secret Tunnel:* =127.0.0.1= (Loopback/Localhost)
+
+If you are a server running on this house, you have a choice: do you
+only listen for people knocking on the "Main Street" door, or do you
+want to hear knocks on *every* door?
+
+*** 2. What is the "Wildcard" Address?
+:PROPERTIES:
+:CUSTOM_ID: what-is-the-wildcard-address
+:END:
+The *Wildcard Address* (often written as =0.0.0.0= in IPv4 or =::= in
+IPv6) is a special "catch-all" instruction to the kernel.
+
+When you =bind()= a socket to the Wildcard address:
+
+- You are telling the kernel: *"Listen on EVERY available interface."*
+- If a packet arrives for =192.168.1.5=, the server gets it.
+- If a packet arrives for =10.0.0.42=, the server gets it.
+- If you add a new network card tomorrow, the server will
+  automatically start listening on that one too, without a restart.
+
+*** 3. The Role of =AI_PASSIVE= (=3=)
+:PROPERTIES:
+:CUSTOM_ID: the-role-of-ai_passive-3
+:END:
+In the call to =getaddrinfo()=, you passed =NULL= as the first argument
+(the hostname) and set the =AI_PASSIVE= flag.
+
+- *Without =AI_PASSIVE=:* =getaddrinfo()= would assume you want to
+  *connect* to something, so it would return the loopback address
+  (=127.0.0.1=) by default.
+- *With =AI_PASSIVE=:* It knows you want to *bind* (be a server).
+  Because the hostname is =NULL=, it provides the "Wildcard" addresses
+  (=0.0.0.0= and =::=).
+
+*** 4. Why is this useful? (The "Deep Level" Reason)
+:PROPERTIES:
+:CUSTOM_ID: why-is-this-useful-the-deep-level-reason
+:END:
+If Kerrisk had hard-coded a specific IP address (like =192.168.1.5=),
+and you took your laptop to a coffee shop where the IP changed to
+=172.16.0.10=, *the server would fail to start*. It would try to bind to
+an address the computer no longer "owns."
+
+By using =AI_PASSIVE= and the Wildcard:
+
+1. *Portability:* The code works on any machine regardless of its IP.
+2. *Accessibility:* Users on the VPN and users on the local Wi-Fi can
+   both reach the server.
+3. *Simplicity:* You don't have to write code to "detect" what the
+   computer's current IP is.
+
+*** Summary for your Refactor
+:PROPERTIES:
+:CUSTOM_ID: summary-for-your-refactor
+:END:
+When you see =hints.ai_flags = AI_PASSIVE=, just think: *"Open all the
+doors."* It ensures that no matter how many "homes" (networks) your
+server is connected to, it's ready to receive a connection from any of
+them.

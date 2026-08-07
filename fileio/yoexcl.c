@@ -1,7 +1,12 @@
-/* Created on: Fri Jan 30 17:19:17 +01 2026 */
-/* Description: Practice draft for good exclusive_open */
-
-#include "../lib/tlpi_hdr.h" // IWYU pragma: keep
+/* =========================================================================
+ * Created on: <Fri Jan 30 17:19:17 +01 2026>
+ * Time-stamp: <Sun Jun 21 18:44:25 +01 2026 by owner>
+ * Author    : owner
+ * Desc      : ~/coding/c_prog/tlpi/fileio/yoexcl.c -
+ *
+ * Practice draft for good exclusive_open from Section 5.1
+ * ========================================================================= */
+#include "tlpi_hdr.h" // IWYU pragma: keep
 #include <fcntl.h>
 #include <sys/stat.h>
 

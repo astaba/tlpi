@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Fri May 15 08:43:21 +01 2026>
- * Time-stamp: <Mon May 18 10:15:08 +01 2026 by owner>
+ * Time-stamp: <Sun Jul 12 03:16:25 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/signals/ysig_receiver.c -
  *
@@ -14,7 +14,7 @@
  * in this program, the use of sigaction() is always preferable for
  * this task.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h" 
 #include "signal_functions.h"
 #include <signal.h>
 #include <stdbool.h>
@@ -25,7 +25,7 @@
    form the start, i.e. slot[0] is unused (beside slots matching
    SIGKILL and SIGSTOP values). WARNING: since each slot is used for
    counting, this design relies entirely on the compiler zeroing out
-   all static variable in BSS segment, the default location of
+   all static variable in .bss segment, the default location of
    uninitialized static variables. */
 static int sigCnt[NSIG];
 static volatile sig_atomic_t gotSigint = false;
@@ -46,7 +46,7 @@ int main(int argc, char *argv[argc + 1]) {
   sigset_t blockSet, pendingSet, emptySet;
   int j, st, cnt;
 
-  /* Display PID for the sender to use in terminal session */
+  /* Display PID so the sender can use in terminal session */
   printf("%s: process ID %ld\n", argv[0], (long)getpid());
 
   /* Register same handler for all user-manageable signals. NOTICE: we

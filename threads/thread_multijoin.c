@@ -25,7 +25,7 @@
  * 'numLive', which records the number of live threads, falls to 0,
  * the main thread terminates.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"	/* IWYU pragma: keep */
+#include "tlpi_hdr.h" 	/* IWYU pragma: keep */
 #include "pthread_wrappers.h"
 
 /* Data type to name thread states */

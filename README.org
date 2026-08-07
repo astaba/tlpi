@@ -1,0 +1,1576 @@
+#+TITLE: The Linux Programming Interface
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: A Linux and UNIX® System Programming Handbook by Michael Kerrisk.
+#+STARTUP: showall
+
+* Table of Content                                                    :toc_2:
+- [[#gidday][Gidday!]]
+- [[#source-code-licensing][Source code licensing]]
+- [[#a-note-on-the-source-code][A note on the source code]]
+- [[#subdirectories][Subdirectories]]
+- [[#contents-in-detail][Contents In Detail]]
+  - [[#chapter-1-history-and-standards][Chapter 1: History and Standards]]
+  - [[#chapter-2-fundamental-concepts][Chapter 2: Fundamental Concepts]]
+  - [[#chapter-3-system-programming-concepts][Chapter 3: System Programming Concepts]]
+  - [[#chapter-4-file-io-the-universal-io-model][Chapter 4: File I/O: The Universal I/O Model]]
+  - [[#chapter-5-file-io-further-details][Chapter 5: File I/O: Further Details]]
+  - [[#chapter-6-processes][Chapter 6: Processes]]
+  - [[#chapter-7-memory-allocation][Chapter 7: Memory Allocation]]
+  - [[#chapter-8-users-and-groups][Chapter 8: Users and Groups]]
+  - [[#chapter-9-process-credentials][Chapter 9: Process Credentials]]
+  - [[#chapter-10-time][Chapter 10: Time]]
+  - [[#chapter-11-system-limits-and-options][Chapter 11: System Limits and Options]]
+  - [[#chapter-12-system-and-process-information][Chapter 12: System and Process Information]]
+  - [[#chapter-13-file-io-buffering][Chapter 13: File I/O Buffering]]
+  - [[#chapter-14-file-systems][Chapter 14: File Systems]]
+  - [[#chapter-15-file-attributes][Chapter 15: File Attributes]]
+  - [[#chapter-16-extended-attributes][Chapter 16: Extended Attributes]]
+  - [[#chapter-17-access-control-lists][Chapter 17: Access Control Lists]]
+  - [[#chapter-18-directories-and-links][Chapter 18: Directories and Links]]
+  - [[#chapter-19-monitoring-file-events][Chapter 19: Monitoring File Events]]
+  - [[#chapter-20-signals-fundamental-concepts][Chapter 20: Signals: Fundamental Concepts]]
+  - [[#chapter-21-signals-signal-handlers][Chapter 21: Signals: Signal Handlers]]
+  - [[#chapter-22-signals-advanced-features][Chapter 22: Signals: Advanced Features]]
+  - [[#chapter-23-timers-and-sleeping][Chapter 23: Timers and Sleeping]]
+  - [[#chapter-24-process-creation][Chapter 24: Process Creation]]
+  - [[#chapter-25-process-termination][Chapter 25: Process Termination]]
+  - [[#chapter-26-monitoring-child-processes][Chapter 26: Monitoring Child Processes]]
+  - [[#chapter-27-program-execution][Chapter 27: Program Execution]]
+  - [[#chapter-28-process-creation-and-program-execution-in-more-detail][Chapter 28: Process Creation and Program Execution in More Detail]]
+  - [[#chapter-29-threads-introduction][Chapter 29: Threads: Introduction]]
+  - [[#chapter-30-threads-thread-synchronization][Chapter 30: Threads: Thread Synchronization]]
+  - [[#chapter-31-threads-thread-safety-and-per-thread-storage][Chapter 31: Threads: Thread Safety and Per-Thread Storage]]
+  - [[#chapter-32-threads-thread-cancellation][Chapter 32: Threads: Thread Cancellation]]
+  - [[#chapter-33-threads-further-details][Chapter 33: Threads: Further Details]]
+  - [[#chapter-34-process-groups-sessions-and-job-control][Chapter 34: Process Groups, Sessions, and Job Control]]
+  - [[#chapter-35-process-priorities-and-scheduling][Chapter 35: Process Priorities and Scheduling]]
+  - [[#chapter-36-process-resources][Chapter 36: Process Resources]]
+  - [[#chapter-37-daemons][Chapter 37: Daemons]]
+  - [[#chapter-38-writing-secure-privileged-programs][Chapter 38: Writing Secure Privileged Programs]]
+  - [[#chapter-39-capabilities][Chapter 39: Capabilities]]
+  - [[#chapter-40-login-accounting][Chapter 40: Login Accounting]]
+  - [[#chapter-41-fundamentals-of-shared-libraries][Chapter 41: Fundamentals of Shared Libraries]]
+  - [[#chapter-42-advanced-features-of-shared-libraries][Chapter 42: Advanced Features of Shared Libraries]]
+  - [[#chapter-43-interprocess-communication-overview][Chapter 43: Interprocess Communication Overview]]
+  - [[#chapter-44-pipes-and-fifos][Chapter 44: Pipes and FIFOs]]
+  - [[#chapter-45-introduction-to-system-v-ipc][Chapter 45: Introduction to System V IPC]]
+  - [[#chapter-46-system-v-message-queues][Chapter 46: System V Message Queues]]
+  - [[#chapter-47-system-v-semaphores][Chapter 47: System V Semaphores]]
+  - [[#chapter-48-system-v-shared-memory][Chapter 48: System V Shared Memory]]
+  - [[#chapter-49-memory-mappings][Chapter 49: Memory Mappings]]
+  - [[#chapter-50-virtual-memory-operations][Chapter 50: Virtual Memory Operations]]
+  - [[#chapter-51-introduction-to-posix-ipc][Chapter 51: Introduction to POSIX IPC]]
+  - [[#chapter-52-posix-message-queues][Chapter 52: POSIX Message Queues]]
+  - [[#chapter-53-posix-semaphores][Chapter 53: POSIX Semaphores]]
+  - [[#chapter-54-posix-shared-memory][Chapter 54: POSIX Shared Memory]]
+  - [[#chapter-55-file-locking][Chapter 55: File Locking]]
+  - [[#chapter-56-sockets-introduction][Chapter 56: Sockets: Introduction]]
+  - [[#chapter-57-sockets-unix-domain][Chapter 57: Sockets: UNIX Domain]]
+  - [[#chapter-58-sockets-fundamentals-of-tcpip-networks][Chapter 58: Sockets: Fundamentals of TCP/IP Networks]]
+  - [[#chapter-59-sockets-internet-domains][Chapter 59: Sockets: Internet Domains]]
+  - [[#chapter-60-sockets-server-design][Chapter 60: Sockets: Server Design]]
+  - [[#chapter-61-sockets-advanced-topics][Chapter 61: Sockets: Advanced Topics]]
+  - [[#chapter-62-terminals][Chapter 62: Terminals]]
+  - [[#chapter-63-alternative-io-models][Chapter 63: Alternative I/O Models]]
+  - [[#chapter-64-pseudoterminals][Chapter 64: Pseudoterminals]]
+  - [[#appendix-a-tracing-system-calls][Appendix A: Tracing System Calls]]
+  - [[#appendix-b-parsing-command-line-options][Appendix B: Parsing Command-Line Options]]
+  - [[#appendix-c-casting-the-null-pointer][Appendix C: Casting the NULL Pointer]]
+  - [[#appendix-d-kernel-configuration][Appendix D: Kernel Configuration]]
+  - [[#appendix-e-further-sources-of-information][Appendix E: Further Sources of Information]]
+  - [[#appendix-f-solutions-to-selected-exercises][Appendix F: Solutions to Selected Exercises]]
+  - [[#bibliography][Bibliography]]
+  - [[#index][Index]]
+- [[#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx][XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]]
+  - [[#1-history-and-standards][1 HISTORY AND STANDARDS]]
+  - [[#2-fundamental-concepts][2 FUNDAMENTAL CONCEPTS]]
+  - [[#3-system-programming-concepts][3 SYSTEM PROGRAMMING CONCEPTS]]
+  - [[#4-file-io-the-universal-io-model][4 FILE I/O: THE UNIVERSAL I/O MODEL]]
+  - [[#5-file-io-further-details][5 FILE I/O: FURTHER DETAILS]]
+  - [[#6-processes][6 PROCESSES]]
+  - [[#7-memory-allocation][7 MEMORY ALLOCATION]]
+  - [[#8-users-and-groups][8 USERS AND GROUPS]]
+  - [[#9-process-credentials][9 PROCESS CREDENTIALS]]
+  - [[#10-time][10 TIME]]
+  - [[#11-system-limits-and-options][11 SYSTEM LIMITS AND OPTIONS]]
+  - [[#12-system-and-process-information][12 SYSTEM AND PROCESS INFORMATION]]
+  - [[#13-file-io-buffering][13 FILE I/O BUFFERING]]
+  - [[#14-file-systems][14 FILE SYSTEMS]]
+  - [[#15-file-attributes][15 FILE ATTRIBUTES]]
+  - [[#16-extended-attributes][16 EXTENDED ATTRIBUTES]]
+  - [[#17-access-control-lists][17 ACCESS CONTROL LISTS]]
+  - [[#18-directories-and-links][18 DIRECTORIES AND LINKS]]
+  - [[#19-monitoring-file-events][19 MONITORING FILE EVENTS]]
+  - [[#20-signals-fundamental-concepts][20 SIGNALS: FUNDAMENTAL CONCEPTS]]
+  - [[#21-signals-signal-handlers][21 SIGNALS: SIGNAL HANDLERS]]
+  - [[#22-signals-advanced-features][22 SIGNALS: ADVANCED FEATURES]]
+  - [[#23-timers-and-sleeping][23 TIMERS AND SLEEPING]]
+  - [[#24-process-creation][24 PROCESS CREATION]]
+  - [[#25-process-termination][25 PROCESS TERMINATION]]
+  - [[#26-monitoring-child-processes][26 MONITORING CHILD PROCESSES]]
+  - [[#27-program-execution][27 PROGRAM EXECUTION]]
+  - [[#28-process-creation-and-pro-gram-execution-in-mo-re-det-ail-591][28 PROCESS CREATION AND PRO GRAM EXECUTION IN MO RE DET AIL 591]]
+  - [[#29-threads--introduction][29 THREADS : INTRODUCTION]]
+  - [[#30-threads-thread-synchronization][30 THREADS: THREAD SYNCHRONIZATION]]
+  - [[#31-threads--thread-safety-and-per-thread-storage][31 THREADS : THREAD SAFETY AND PER-THREAD STORAGE]]
+  - [[#32-threads--thr-e-a-d-c-a-nce-l-l-a-t-i-o-n][32 THREADS : THR E A D C A NCE L L A T I O N]]
+  - [[#33-threads--f-u-r-th-e-r-d-e-t-a-i-l-s][33 THREADS : F U R TH E R D E T A I L S]]
+  - [[#34-process-groups-sess-ions-and-job-control][34 PROCESS GROUPS, SESS IONS, AND JOB CONTROL]]
+  - [[#35-process-priori-ties-a-nd-s-cheduling][35 PROCESS PRIORI TIES A ND S CHEDULING]]
+  - [[#36-pr-oc-e-s-s-r-e-s-ou-rc-e-s][36 PR OC E S S R E S OU RC E S]]
+  - [[#37-d-a-e-m-o-ns-76-7][37 D A E M O NS 76 7]]
+  - [[#38-writing-secure-privileged-programs][38 WRITING SECURE PRIVILEGED PROGRAMS]]
+  - [[#39-capabilities][39 CAPABILITIES]]
+  - [[#40-l-o-gin-a-c-c-o-u-nt-i-n-g][40 L O GIN A C C O U NT I N G]]
+  - [[#41-f-undamentals-of-shared-librarie-s-833][41 F UNDAMENTALS OF SHARED LIBRARIE S 833]]
+  - [[#42-advanced-fe-atures-of-shared-libraries][42 ADVANCED FE ATURES OF SHARED LIBRARIES]]
+  - [[#43-interprocess-commun-ication-overview][43 INTERPROCESS COMMUN ICATION OVERVIEW]]
+  - [[#44-pipe-s-and-fifo-s][44 PIPE S AND FIFO S]]
+  - [[#45-introduction-to-system-v-ipc][45 INTRODUCTION TO SYSTEM V IPC]]
+  - [[#46-system-v-message-queues-93-7][46 SYSTEM V MESSAGE QUEUES 93 7]]
+  - [[#47-system-v-semaphores-96-5-471-overview][47 SYSTEM V SEMAPHORES 96 5 47.1 Overview]]
+  - [[#48-sy-s-t-e-m-v-s-h-a-r-e-d-m-e-m-or-y][48 SY S T E M V S H A R E D M E M OR Y]]
+  - [[#49-me-mory-mappings][49 ME MORY MAPPINGS]]
+  - [[#50-v-i-r-tu-a-l-m-e-m-o-r-y-o-p-e-ra-t-i-o-n-s][50 V I R TU A L M E M O R Y O P E RA T I O N S]]
+  - [[#51-i-n-t-ro-d-u-c-tio-n-to-p-o-s-i-x-i-p-c][51 I N T RO D U C TIO N TO P O S I X I P C]]
+  - [[#52-posix-message-queues][52 POSIX MESSAGE QUEUES]]
+  - [[#53-posix-semaphores][53 POSIX SEMAPHORES]]
+  - [[#54-p-o-s-i-x-s-h-a-re-d-m-e-m-o-r-y][54 P O S I X S H A RE D M E M O R Y]]
+  - [[#55-f-i-l-e-l-o-c-ki-ng][55 F I L E L O C KI NG]]
+  - [[#56-s-o-c-k-e-t-s-i-n-tr-o-d-u-c-tio-n][56 S O C K E T S: I N TR O D U C TIO N]]
+  - [[#57-s-o-c-k-e-t-s-u-n-i-x-d-o-m-a-i-n][57 S O C K E T S: U N I X D O M A I N]]
+  - [[#58-s-o-c-k-e-t-s-f-u-n-d-a-m-e-n-t-a-l-s-o-f-tc-p-i-p-ne-two-rk-s][58 S O C K E T S: F U N D A M E N T A L S O F TC P /I P NE TWO RK S]]
+  - [[#59-s-o-c-k-e-t-s-i-n-ter-n-e-t-do-m-a-i-n-s][59 S O C K E T S: I N TER N E T DO M A I N S]]
+  - [[#60-s-o-c-k-e-t-s-s-e-r-ve-r-d-e-s-i-g-n][60 S O C K E T S: S E R VE R D E S I G N]]
+  - [[#61-sockets-advanced-topics][61 SOCKETS: ADVANCED TOPICS]]
+  - [[#62-t-e-rm-i-na-l-s][62 T E RM I NA L S]]
+  - [[#63-a-l-ter-n-a-ti-v-e-i-o-m-o-d-e-l-s][63 A L TER N A TI V E I /O M O D E L S]]
+  - [[#64-p-s-e-u-d-o-t-e-rmi-n-a-l-s][64 P S E U D O T E RMI N A L S]]
+
+* Gidday!
+
+This is the code for the book "The Linux Programming Interface",
+along with other code that I use in various conference presentations,
+and this is a note from me, the author, Michael Kerrisk.
+
+For instructions on building the programs, see the file [[file:BUILDING][BUILDING]].
+
+For notes on changes that have been made to the code since it was
+published in the book, see the file [[file:CHANGES][CHANGES]].
+
+If you've come here looking for code examples from a particular
+conference presentation that I've made, then after unpacking the
+source code, you should find the desired example(s) at the pathname(s)
+shown in the conference presentation.
+
+* Source code licensing
+
+All complete programs provided in this distribution are covered by the
+GNU General Public License (Version 3), a copy of which is contained
+in the file [[file:COPYING.gpl-v3][COPYING.gpl-v3]], which should have arrived with this
+tarball.  The library functions (in the [[file:lib][lib/]] directory) are covered by
+the GNU Lesser General Public License (Version 3); see the file
+[[file:COPYING.lgpl-v3][COPYING.lgpl-v3]] provided with this tarball.
+
+* A note on the source code
+
+The source code is available in two versions: "dist" and "book".  The
+"book" version contains the program source files as published in the
+book. The source files in the "dist" version contain extra code beyond
+that published in the book. The differences between the "dist" and
+"book" versions are as follows:
+
+a) The "dist" versions of some programs contain extra comments.  These
+   additional comments were stripped out of the printed version to
+   make the published versions of the programs shorter. (The book
+   itself contains text describing the operation of the programs.)
+
+b) In a few cases, some changes have been incorporated into the "dist"
+   versions to make it possible to compile programs on UNIX
+   implementations other than Linux, so that you can try them out on
+   other implementations if you wish.  Where necessary, the additional
+   code is conditionally compiled using the following
+   platform-specific macros:
+
+  #+begin_src c
+    __linux__       /* Defined on Linux */
+    __sun           /* Defined on Solaris */
+    __FreeBSD__     /* Defined on FreeBSD */
+    __NetBSD__      /* Defined on NetBSD */
+    __OpenBSD__     /* Defined on OpenBSD */
+    __APPLE__       /* Defined on Mac OS X */
+    __hpux          /* Defined on HP-UX */
+    __osf__         /* Defined on Tru64 UNIX (formerly DEC OSF1) */
+    __sgi           /* Defined on Irix */
+    _AIX            /* Defined on AIX */
+  #+end_src
+
+c) In the "dist" version, some programs have extra functionality
+   beyond that in the "book" versions. Where this is significant,
+   comments in the programs explain the differences.
+
+* Subdirectories
+
+Under the [[file:./]['tlpi']] directory are a number of subdirectories. Each
+subdirectory corresponds to one or more chapters of the book.  The
+following paragraphs give brief notes on the contents of each
+subdirectory.
+
+Note that in some cases, files are (hard) linked to appear in more
+than one directory. This is particularly the case for each of the
+files in the [[file:lib]['lib']] directory, most of which are also linked in the
+directory of the chapter relating to that file.
+
+This is the list mapping /Directories/ to /Files for Chapter/:
+
+- [[file:lib][lib/]]: This contains library routines used by other programs. The
+  [[file:lib/tlpi_hdr.h][tlpi_hdr.h]] and [[file:lib/error_functions.c][error_functions.c]] files are located here.;
+- Chapter 1 (History and Standards);
+- Chapter 2 (Fundamental Concepts);
+- [[file:progconc][progconc/]]: [[file:progconc/README.org][3]] (System Programming Concepts);
+- [[file:fileio/][fileio/]]: [[file:fileio/CHAPTER_04.org][04]] (The Universal I/O Mode), [[file:fileio/CHAPTER_05.org][05]] (File I/O Further Details);
+- [[file:proc][proc/]]: 6 (Processes);
+- [[file:memalloc][memalloc/]]: 7 (Memory Allocation);
+- [[file:users_groups][users_groups/]]: 8 (Users and Groups);
+- [[file:proccred][proccred/]]: [[file:proccred/README.org][9]] (Process Credentials);
+- [[file:time][time/]]: 10 (Time);
+- [[file:syslim][syslim/]]: 11 (System Limits and Options);
+- [[file:sysinfo][sysinfo/]]: 12 (System and Process Information);
+- [[file:filebuff][filebuff/]]: [[file:filebuff/README.org][13]] (File I/O Buffering);
+- [[file:filesys][filesys/]]: 14 (File Systems);
+- [[file:files][files/]]: 15 (File Attributes);
+- [[file:xattr][xattr/]]: 16 (Extended Attributes);
+- [[file:acl][acl/]]: 17 (Access Control Lists);
+- [[file:dirs_links][dirs_links/]]: 18 (Directories and Links);
+- [[file:inotify][inotify/]]: 19 (Monitoring File Events);
+- [[file:signals/README.org][signals/]]: [[file:signals/CHAPTER_20.org][20]] (Signal Fundamental Concepts), [[file:signals/CHAPTER_21.org][21]] (Signal Handler), [[file:signals/CHAPTER_22.org][22]]
+  (Signal Advanced Features);
+- [[file:timers][timers/]]: [[file:timers/README.org][23]] (Timers and Sleeping);
+- [[file:procexec][procexec/]]: 24 (Process Creation), 25 (Process Termination), [[file:procexec/CHAPTER_26.org][26]]
+  (Monitoring Child Processes), 27 (Program Execution), and 28
+  (Further Details on Process Creation and Program Execution);
+- [[file:threads/README.org][threads/]]: [[file:threads/CHAPTER_29.org][29]] (Thread Introduction), [[file:threads/CHAPTER_30.org][30]] (Thread Synchronization), [[file:threads/CHAPTER_31.org][31]]
+  (Thread Safety and Per-Thread Storage), [[file:threads/CHAPTER_32.org][32]] (Thread Cancellation), [[file:threads/CHAPTER_33.org][33]]
+  (Thread Further Details);
+- [[file:pgsjc][pgsjc/]]: [[file:pgsjc/README.org][34]] (Process Groups, Sessions, and Job Control);
+- [[file:procpri][procpri/]]: 35 (Process Priorities and Scheduling);
+- [[file:procres][procres/]]: 36 (Process Resources);
+- [[file:daemons][daemons/]]: 37 (Daemons);
+- Chapter 38 (Writing Secure Privileged Programs);
+- [[file:cap][cap/]]: 39 (Capabilities);
+- [[file:loginacct][loginacct/]]: 40 (Login Accounting);
+- [[file:shlibs][shlibs/]]: 41 (Fundamentals of Shared Libraries), 42 (Advanced Features
+  of Shared Librarie);
+- Chapter 43 (Interprocess Communication Overview);
+- [[file:pipes][pipes/]]: [[file:pipes/README.org][44]] (Pipes and FIFOs);
+- [[file:svipc][svipc/]]: 45 (System V IPC);
+- [[file:svmsg][svmsg/]]: 46 (System V Message Queues);
+- [[file:svsem][svsem/]]: [[file:svsem/README.org][47]] (System V Semaphores);
+- [[file:svshm][svshm/]]: 48 (System V Shared Memory);
+- [[file:mmap][mmap/]]: [[file:mmap/README.org][49]] (Memory Mappings);
+- [[file:vmem][vmem/]]: 50 (Virtual Memory Operations);
+- Chapter 51 (Introduction to POSIX IP);
+- [[file:pmsg][pmsg/]]: 52 (POSIX Message Queues);
+- [[file:psem][psem/]]: [[file:psem/README.org][53]] (POSIX Semaphores);
+- [[file:pshm][pshm/]]: 54 (POSIX Shared Memory);
+- [[file:filelock][filelock/]]: [[file:filelock/README.org][55]] (File Locking);
+- [[file:sockets/README.org][sockets/]]: [[file:sockets/CHAPTER_56.org][56]] (Sockets Introduction), [[file:sockets/CHAPTER_57.org][57]] (Sockets UNIX Domain), [[file:sockets/CHAPTER_58.org][58]]
+  (Sockets Fundamentals of TCP/IP Network), [[file:sockets/CHAPTER_59.org][59]] (Sockets Internet
+  Domains), [[file:sockets/CHAPTER_60.org][60]] (Sockets Server Design), [[file:sockets/CHAPTER_61.org][61]] (Sockets Advanced Topic);
+- [[file:tty][tty/]]:  [[file:tty/README.org][62]] (Terminals);
+- [[file:altio][altio/]]: [[file:altio/README.org][63]] (Alternative I/O Models);
+- [[file:pty][pty/]]: 64 (Pseudoterminals);
+- [[file:APPENDIX_A.org][Appendix A]] (Tracing System Calls);
+- [[file:getopt][getopt/]]: Appendix B (Parsing Commaned-Line Options);
+- Appendix C (Casting the NULL Pointer);
+- Appendix D (Kernel Configuration);
+- Appendix E (Further Sources of Information);
+- Appendix F (Solutions to Selected Exercise);
+- Bibliograph;
+- Index.
+
+In addition, the following supplementary code is included (relating to
+topics NOT covered in TLPI):
+
+- [[file:namespaces][namespaces/]]: Code examples for namespaces, mainly related to my
+  LWN.net article series starting at https://lwn.net/Articles/531114/
+- [[file:seccomp][seccomp/]]: Code examples demonstrating the use of the seccomp (Secure
+  Computing) facility.
+- [[file:vdso][vdso/]]: Some example code relating to the VDSO (Virtual Dynamic Shared
+  Object); see vdso(7)
+
+-----------------------------------------------
+
+* Contents In Detail
+
+** Chapter 1: History and Standards
+** Chapter 2: Fundamental Concepts
+- [[file:progconc/CHAPTER_2.org::#21-the-core-operating-system-the-kernel][Section 2.1]]
+** Chapter 3: System Programming Concepts
+- [[file:progconc/README.org::#31-system-calls][Section 3.1]]
+
+[[file:progconc/README.org::#31-system-calls][3.1 System Calls]]
+[[file:progconc/README.org::#32-library-functions][3.2 Library Functions]]
+[[file:progconc/README.org::#33-the-standard-c-library;-the-gnu-c-library-glibc][3.3 The Standard C Library; The GNU C Library (glibc)]]
+[[file:progconc/README.org::#34-handling-errors-from-system-calls-and-library-functions][3.4 Handling Errors from System Calls and Library Functions]]
+[[file:progconc/README.org::#35-notes-on-the-example-programs-in-this-book][3.5 Notes on the Example Programs in This Book]]
+[[file:progconc/README.org::#351-command-line-options-and-arguments][3.5.1 Command-Line Options and Arguments]]
+[[file:progconc/README.org::#352-common-functions-and-header-files][3.5.2 Common Functions and Header Files]]
+[[file:progconc/README.org::#36-portability-issues][3.6 Portability Issues]]
+[[file:progconc/README.org::#361-feature-test-macros][3.6.1 Feature Test Macros]]
+[[file:progconc/README.org::#362-system-data-types][3.6.2 System Data Types]]
+[[file:progconc/README.org::#363-miscellaneous-portability-issues][3.6.3 Miscellaneous Portability Issues]]
+[[file:progconc/README.org::#37-summary][3.7 Summary]]
+
+** Chapter 4: File I/O: The Universal I/O Model
+** Chapter 5: File I/O: Further Details
+** Chapter 6: Processes
+** Chapter 7: Memory Allocation
+** Chapter 8: Users and Groups
+** Chapter 9: Process Credentials
+- [[file:proccred/README.org::#97-retrieving-and-modifying-process-credentials][Section 9.7]]
+
+[[file:proccred/README.org::#91-real-user-id-and-real-group-id][9.1 Real User ID and Real Group ID]]
+[[file:proccred/README.org::#92-effective-user-id-and-effective-group-id][9.2 Effective User ID and Effective Group ID]]
+[[file:proccred/README.org::#93-set-user-id-and-set-group-id-programs][9.3 Set-User-ID and Set-Group-ID Programs]]
+[[file:proccred/README.org::#94-saved-set-user-id-and-saved-set-group-id][9.4 Saved Set-User-ID and Saved Set-Group-ID]]
+[[file:proccred/README.org::#95-file-system-user-id-and-file-system-group-id][9.5 File-System User ID and File-System Group ID]]
+[[file:proccred/README.org::#96-supplementary-group-ids][9.6 Supplementary Group IDs]]
+[[file:proccred/README.org::#97-retrieving-and-modifying-process-credentials][9.7 Retrieving and Modifying Process Credentials]]
+[[file:proccred/README.org::#971-retrieving-and-modifying-real-effective-and-saved-set-ids][9.7.1 Retrieving and Modifying Real, Effective, and Saved Set IDs]]
+[[file:proccred/README.org::#972-retrieving-and-modifying-file-system-ids][9.7.2 Retrieving and Modifying File-System IDs]]
+[[file:proccred/README.org::#973-retrieving-and-modifying-supplementary-group-ids][9.7.3 Retrieving and Modifying Supplementary Group IDs]]
+[[file:proccred/README.org::#974-summary-of-calls-for-modifying-process-credentials][9.7.4 Summary of Calls for Modifying Process Credentials]]
+[[file:proccred/README.org::#975-example-displaying-process-credentials][9.7.5 Example: Displaying Process Credentials]]
+[[file:proccred/README.org::#98-summary][9.8 Summary]]
+[[file:proccred/README.org::#99-exercises][9.9 Exercises]]
+
+** Chapter 10: Time
+- [[file:time/README.org::#104-locales][Section 10.4]]
+** Chapter 11: System Limits and Options
+** Chapter 12: System and Process Information
+** Chapter 13: File I/O Buffering
+[[file:filebuff/README.org::#130-introduction][13.0 Introduction]]
+[[file:filebuff/README.org::#131-kernel-buffering-of-file-io-in-the-buffer-cache][13.1 Kernel Buffering of File I/O in The Buffer Cache]]
+[[file:filebuff/README.org::#132-buffering-in-the-stdio-library][13.2 Buffering in the stdio Library]]
+[[file:filebuff/README.org::#133-controlling-kernel-buffering-of-file-io][13.3 Controlling Kernel Buffering of File I/O]]
+[[file:filebuff/README.org::#134-summary-of-io-buffering][13.4 Summary of I/O Buffering]]
+[[file:filebuff/README.org::#135-advising-the-kernel-about-io-patterns][13.5 Advising the Kernel About I/O Patterns]]
+[[file:filebuff/README.org::#136-bypassing-the-buffer-cache:-direct-io][13.6 Bypassing the Buffer Cache: Direct I/O]]
+[[file:filebuff/README.org::#137-mixing-library-functions-and-system-calls-for-file-io][13.7 Mixing Library Functions and System Calls for File I/O]]
+[[file:filebuff/README.org::#138-summary][13.8 Summary]]
+[[file:filebuff/README.org::#139-exercises][13.9 Exercises]]
+** Chapter 14: File Systems
+** Chapter 15: File Attributes
+** Chapter 16: Extended Attributes
+** Chapter 17: Access Control Lists
+** Chapter 18: Directories and Links
+** Chapter 19: Monitoring File Events
+** Chapter 20: Signals: Fundamental Concepts
+- [[file:signals/CHAPTER_20.org::*Introduction][Introduction]]
+- [[file:signals/CHAPTER_20.org::#section-228\]\]][20.1 Concepts and Overview]]
+- [[file:signals/CHAPTER_20.org::#202-signal-types-and-default-actions][20.2 Signal Types and Default Actions]]
+  - [[file:signals/CHAPTER_20.org::#table-201-linux-signals][Table 20.1]]
+- [[file:signals/CHAPTER_20.org::#203-changing-signal-dispositions-signal][20.3 Changing Signal Dispositions: signal()]]
+- [[file:signals/CHAPTER_20.org::#204-introduction-to-signal-handlers][20.4 Introduction to Signal Handlers]]
+- [[file:signals/CHAPTER_20.org::#205-sending-signals-kill][20.5 Sending Signals: kill()]]
+- [[file:signals/CHAPTER_20.org::#206-checking-for-the-existence-of-a-process][20.6 Checking for the Existence of a Process]]
+- [[file:signals/CHAPTER_20.org::#207-other-ways-of-sending-signals-raise-and-killpg][20.7 Other Ways of Sending Signals: =raise()= and =killpg()=]]
+- [[file:signals/CHAPTER_20.org::#208-displaying-signal-descriptions][20.8 Displaying Signal Descriptions]]
+- [[file:signals/CHAPTER_20.org::#209-signal-sets][20.9 Signal Sets]]
+- [[file:signals/CHAPTER_20.org::#2010-the-signal-mask-blocking-signal-delivery][20.10 The Signal Mask (Blocking Signal Delivery)]]
+- [[file:signals/CHAPTER_20.org::#2011-pending-signals][20.11 Pending Signals]]
+- [[file:signals/CHAPTER_20.org::#2012-signals-are-not-queued][20.12 Signals Are Not Queued]]
+- [[file:signals/CHAPTER_20.org::#2013-changing-signal-dispositions-sigaction][20.13 Changing Signal Dispositions: =sigaction()=]]
+- [[file:signals/CHAPTER_20.org::#2014-waiting-for-a-signal-pause][20.14 Waiting for a Signal: =pause()=]]
+- [[file:signals/CHAPTER_20.org::#2015-summary][20.15 Summary]]
+- [[file:signals/CHAPTER_20.org::#2016-exercises][20.16 Exercises]]
+
+- [[file:signals/ouch.c][Listing 20.1]]
+- [[file:signals/intquit.c][Listing 20.2]]
+- [[file:signals/t_kill.c][Listing 20.3]]
+- [[file:signals/signal_functions.c][Listing 20.4]]
+- [[file:signals/listing_2005.c][Listing 20.5]]
+- [[file:signals/sig_sender.c][Listing 20.6]]
+- [[file:signals/sig_receiver.c][Listing 20.7]]
+
+- [[file:images/figure-20-1.jpeg][Figure 20.1]]
+- [[file:images/figure-20-2.jpeg][Figure 20.2]]
+
+** Chapter 21: Signals: Signal Handlers
+- [[file:signals/CHAPTER_21.org][Chapter 21]]
+
+- [[file:signals/CHAPTER_21.org::#211-designing-signal-handlers][Section 21.1]]
+- [[file:signals/CHAPTER_21.org::#2112-reentrant-and-async-signal-safe-functions][Section 21.1.2]] 
+- [[file:signals/CHAPTER_21.org::#2113-global-variables-and-the-sig_atomic_t-data-type][Section 21.1.3]]
+- [[file:signals/CHAPTER_21.org::#2122-terminating-a-process-abnormally-abort][Section 21.2.2]]
+- [[file:signals/CHAPTER_21.org::#213-handling-a-signal-on-an-alternate-stack-sigaltstack()][Section 21.3]]
+- [[file:signals/CHAPTER_21.org::#214-the-sa_siginfo-flag][Section 21.4]]
+- [[file:signals/CHAPTER_21.org::#215-interruption-and-restarting-of-system-calls][Section 21.5]]
+
+- [[file:signals/nonreentrant.c][Listing 21.1]]
+** Chapter 22: Signals: Advanced Features
+- [[file:signals/CHAPTER_22.org::#222-special-cases-for-delivery-disposition-and-handling][Section 22.2]]
+- [[file:signals/CHAPTER_22.org::#227-implementation-and-portability-of-signal][Section 22.7]]
+- [[file:signals/CHAPTER_22.org::#228-realtime-signals][Section 22.8]]
+- [[file:signals/CHAPTER_22.org::#229-waiting-for-a-signal-using-a-mask-sigsuspend][Section 22.9]]
+- [[file:signals/CHAPTER_22.org::#2210-synchronously-waiting-for-a-signal][Section 22.10]]
+- [[file:signals/CHAPTER_22.org::#2211-fetching-signals-via-a-file-descriptor][Section 22.11]]
+- [[file:signals/CHAPTER_22.org::#2213-earlier-signal-apis-system-v-and-bsd][Section 22.13]]
+
+** Chapter 23: Timers and Sleeping
+- [[file:timers/README.org::#231-interval-timers][Section 23.1]]
+- [[file:timers/README.org::#2341-low-resolution-sleeping-sleep][Section 23.4.1]]
+** Chapter 24: Process Creation
+** Chapter 25: Process Termination
+** Chapter 26: Monitoring Child Processes
+
+- [[file:procexec/CHAPTER_26.org][Chapter 26]]
+- [[file:procexec/CHAPTER_26.org::#262-orphans-and-zombies][Section 26.2]]
+- [[file:procexec/CHAPTER_26.org::#263-the-sigchld-signal][Section 26.3]]
+- [[file:procexec/CHAPTER_26.org::#2633-ignoring-dead-child-processes][Section 26.3.3]]
+- [[file:procexec/CHAPTER_26.org::#2632-delivery-of-sigchld-for-stopped-children][Section 26.3.2]]
+** Chapter 27: Program Execution
+** Chapter 28: Process Creation and Program Execution in More Detail
+** Chapter 29: Threads: Introduction
+** Chapter 30: Threads: Thread Synchronization
+** Chapter 31: Threads: Thread Safety and Per-Thread Storage
+** Chapter 32: Threads: Thread Cancellation
+** Chapter 33: Threads: Further Details
+- [[file:threads/CHAPTER_33.org::#332-threads-and-signals][Section 33.2]]
+- [[file:threads/CHAPTER_33.org::#3321-how-the-unix-signal-model-maps-to-threads][Section 33.2.1]]
+- [[file:threads/CHAPTER_33.org::#3323-sending-a-signal-to-a-thread][Section 33.2.3]]
+
+** Chapter 34: Process Groups, Sessions, and Job Control
+- [[file:pgsjc/README.org][Chapter 34]]
+- [[file:pgsjc/README.org::#346-the-sighup-signal][Section 34.6]]
+- [[file:pgsjc/README.org::#347-job-control][Section 34.7]]
+- [[file:pgsjc/README.org::#3471-using-job-control-within-the-shell][Section 34.7.1]]
+- [[file:pgsjc/README.org::#3473-handling-job-control-signals][Section 34.7.3]]
+
+** Chapter 35: Process Priorities and Scheduling
+** Chapter 36: Process Resources
+- [[file:procres/README.org::#363-details-of-specific-resource-limits][Section 36.3]]
+** Chapter 37: Daemons
+** Chapter 38: Writing Secure Privileged Programs
+** Chapter 39: Capabilities
+** Chapter 40: Login Accounting
+** Chapter 41: Fundamentals of Shared Libraries
+** Chapter 42: Advanced Features of Shared Libraries
+** Chapter 43: Interprocess Communication Overview
+- [[file:pipes/README.org::#442-creating-and-using-pipes][Section 44.2]]
+** Chapter 44: Pipes and FIFOs
+** Chapter 45: Introduction to System V IPC
+** Chapter 46: System V Message Queues
+** Chapter 47: System V Semaphores
+- [[file:svsem/README.org][Chapter 47]]
+** Chapter 48: System V Shared Memory
+** Chapter 49: Memory Mappings
+- [[file:mmap/README.org::#4943-boundary-cases][Section 49.4.3]]
+
+** Chapter 50: Virtual Memory Operations
+** Chapter 51: Introduction to POSIX IPC
+** Chapter 52: POSIX Message Queues
+** Chapter 53: POSIX Semaphores
+- [[file:psem/README.org][Chapter 53]]
+** Chapter 54: POSIX Shared Memory
+** Chapter 55: File Locking
+- [[file:filelock/README.org][Chapter 55]]
+** Chapter 56: Sockets: Introduction
+** Chapter 57: Sockets: UNIX Domain
+** Chapter 58: Sockets: Fundamentals of TCP/IP Networks
+** Chapter 59: Sockets: Internet Domains
+** Chapter 60: Sockets: Server Design
+** Chapter 61: Sockets: Advanced Topics
+- [[file:sockets/CHAPTER_61.org::#61131-out-of-band-data][Section 61.13.1]]
+
+- [[file:sockets/CHAPTER_61.org::#611-partial-reads-and-writes-on-stream-sockets][61.1 Partial Reads and Writes on Stream Sockets]]
+- [[file:sockets/CHAPTER_61.org::#612-the-shutdown-system-call][61.2 The shutdown() System Call]]
+- [[file:sockets/CHAPTER_61.org::#613-socket-specific-io-system-calls-recv-and-send][61.3 Socket-Specific I/O System Calls: recv() and send()]]
+- [[file:sockets/CHAPTER_61.org::#614-the-sendfile-system-call][61.4 The sendfile() System Call]]
+- [[file:sockets/CHAPTER_61.org::#615-retrieving-socket-addresses][61.5 Retrieving Socket Addresses]]
+- [[file:sockets/CHAPTER_61.org::#616-a-closer-look-at-tcp][61.6 A Closer Look at TCP]]
+  - [[file:sockets/CHAPTER_61.org::#6161-format-of-a-tcp-segment][61.6.1 Format of a TCP Segment]]
+  - [[file:sockets/CHAPTER_61.org::#6162-tcp-sequence-numbers-and-acknowledgements][61.6.2 TCP Sequence Numbers and Acknowledgements]]
+  - [[file:sockets/CHAPTER_61.org::#6163-tcp-state-machine-and-state-transition-diagram][61.6.3 TCP State Machine and State Transition Diagram]]
+  - [[file:sockets/CHAPTER_61.org::#6164-tcp-connection-establishment][61.6.4 TCP Connection Establishment]]
+  - [[file:sockets/CHAPTER_61.org::#6165-tcp-connection-termination][61.6.5 TCP Connection Termination]]
+  - [[file:sockets/CHAPTER_61.org::#6166-calling-shutdown-on-a-tcp-socket][61.6.6 Calling shutdown() on a TCP Socket]]
+  - [[file:sockets/CHAPTER_61.org::#6167-the-time_wait-state][61.6.7 The TIME_WAIT State]]
+- [[file:sockets/CHAPTER_61.org::#617-monitoring-sockets-netstat][61.7 Monitoring Sockets: netstat]]
+- [[file:sockets/CHAPTER_61.org::#618-using-tcpdump-to-monitor-tcp-traffic][61.8 Using tcpdump to Monitor TCP Traffic]]
+- [[file:sockets/CHAPTER_61.org::#619-socket-options][61.9 Socket Options]]
+- [[file:sockets/CHAPTER_61.org::#6110-the-so_reuseaddr-socket-option][61.10 The SO_REUSEADDR Socket Option]]
+- [[file:sockets/CHAPTER_61.org::#6111-inheritance-of-flags-and-options-across-accept][61.11 Inheritance of Flags and Options Across accept()]]
+- [[file:sockets/CHAPTER_61.org::#6112-tcp-versus-udp][61.12 TCP Versus UDP]]
+- [[file:sockets/CHAPTER_61.org::#6113-advanced-features][61.13 Advanced Features]]
+  - [[file:sockets/CHAPTER_61.org::#61131-out-of-band-data][61.13.1 Out-of-Band Data]]
+  - [[file:sockets/CHAPTER_61.org::#61132-the-sendmsg-and-recvmsg-system-calls][61.13.2 The sendmsg() and recvmsg() System Calls]]
+  - [[file:sockets/CHAPTER_61.org::#61133-passing-file-descriptors][61.13.3 Passing File Descriptors]]
+  - [[file:sockets/CHAPTER_61.org::#61134-receiving-sender-credentials][61.13.4 Receiving Sender Credentials]]
+  - [[file:sockets/CHAPTER_61.org::#61135-sequenced-packet-sockets][61.13.5 Sequenced-Packet Sockets]]
+  - [[file:sockets/CHAPTER_61.org::#61136-sctp-and-dccp-transport-layer-protocols][61.13.6 SCTP and DCCP Transport-Layer Protocols]]
+- [[file:sockets/CHAPTER_61.org::#6114-summary][61.14 Summary]]
+- [[file:sockets/CHAPTER_61.org::#6115-exercises][61.15 Exercises]]
+
+** Chapter 62: Terminals
+
+- [[file:tty/README.org::#621-overview][62.1 Overview]]
+- [[file:tty/README.org::#622-retrieving-and-modifying-terminal-attributes][62.2 Retrieving and Modifying Terminal Attributes]]
+- [[file:tty/README.org::#623-the-stty-command][62.3 The stty Command]]
+- [[file:tty/README.org::#624-terminal-special-characters][62.4 Terminal Special Characters]]
+- [[file:tty/README.org::#625-terminal-flags][62.5 Terminal Flags]]
+- [[file:tty/README.org::#626-terminal-io-modes][62.6 Terminal I/O Modes]]
+  - [[file:tty/README.org::#6261-canonical-mode][62.6.1 Canonical Mode]]
+  - [[file:tty/README.org::#6262-noncanonical-mode][62.6.2 Noncanonical Mode]]
+  - [[file:tty/README.org::#6263-cooked-cbreak-and-raw-modes][62.6.3 Cooked, Cbreak, and Raw Modes]]
+- [[file:tty/README.org::#627-terminal-line-speed-bit-rate][62.7 Terminal Line Speed (Bit Rate)]]
+- [[file:tty/README.org::#628-terminal-line-control][62.8 Terminal Line Control]]
+- [[file:tty/README.org::#629-terminal-window-size][62.9 Terminal Window Size]]
+- [[file:tty/README.org::#6210-terminal-identification][62.10 Terminal Identification]]
+- [[file:tty/README.org::#6211-summary][62.11 Summary]]
+- [[file:tty/README.org::#6212-exercises][62.12 Exercises]]
+
+** Chapter 63: Alternative I/O Models
+- [[file:altio/README.org][Chapter 63]]
+- [[file:altio/README.org::#631-overview][63.1 Overview]]
+  - [[file:altio/README.org::#6311-level-triggered-and-edge-triggered-notification][63.1.1 Level-Triggered and Edge-Triggered Notification]]
+  - [[file:altio/README.org::#6312-employing-nonblocking-io-with-alternative-io-models][63.1.2 Employing Nonblocking I/O with Alternative I/O Models]]
+- [[file:altio/README.org::#632-io-multiplexing][63.2 I/O Multiplexing]]
+  - [[file:altio/README.org::#6321-the-select-system-call][63.2.1 The select() System Call]]
+  - [[file:altio/README.org::#6322-the-poll-system-call][63.2.2 The poll() System Call]]
+  - [[file:altio/README.org::#6323-when-is-a-file-descriptor-ready?][63.2.3 When Is a File Descriptor Ready?]]
+  - [[file:altio/README.org::#6324-comparison-of-select-and-poll][63.2.4 Comparison of select() and poll()]]
+  - [[file:altio/README.org::#6325-problems-with-select-and-poll][63.2.5 Problems with select() and poll()]]
+- [[file:altio/README.org::#633-signal-driven-io][63.3 Signal-Driven I/O]]
+  - [[file:altio/README.org::#6331-when-is-“io-possible”-signaled][63.3.1 When Is “I/O Possible” Signaled?]]
+  - [[file:altio/README.org::#6332-refining-the-use-of-signal-driven-io][63.3.2 Refining the Use of Signal-Driven I/O]]
+- [[file:altio/README.org::#634-the-epoll-api][63.4 The epoll API]]
+  - [[file:altio/README.org::#6341-creating-an-epoll-instance-epoll_create][63.4.1 Creating an epoll Instance: epoll_create()]]
+  - [[file:altio/README.org::#6342-modifying-the-epoll-interest-list-epoll_ctl][63.4.2 Modifying the epoll Interest List: epoll_ctl()]]
+  - [[file:altio/README.org::#6343-waiting-for-events-epoll_wait][63.4.3 Waiting for Events: epoll_wait()]]
+  - [[file:altio/README.org::#6344-a-closer-look-at-epoll-semantics][63.4.4 A Closer Look at epoll Semantics]]
+  - [[file:altio/README.org::#6345-performance-of-epoll-versus-io-multiplexing][63.4.5 Performance of epoll Versus I/O Multiplexing]]
+  - [[file:altio/README.org::#6346-edge-triggered-notification][63.4.6 Edge-Triggered Notification]]
+- [[file:altio/README.org::#635-waiting-on-signals-and-file-descriptors][63.5 Waiting on Signals and File Descriptors]]
+  - [[file:altio/README.org::#6351-the-pselect-system-call][63.5.1 The pselect() System Call]]
+  - [[file:altio/README.org::#6352-the-self-pipe-trick][63.5.2 The Self-Pipe Trick]]
+- [[file:altio/README.org::#636-summary][63.6 Summary]]
+- [[file:altio/README.org::#637-exercises][63.7 Exercises]]
+
+** Chapter 64: Pseudoterminals
+** Appendix A: Tracing System Calls
+- [[file:APPENDIX_A.org][Appendix A]] 
+** Appendix B: Parsing Command-Line Options
+** Appendix C: Casting the NULL Pointer
+** Appendix D: Kernel Configuration
+** Appendix E: Further Sources of Information
+** Appendix F: Solutions to Selected Exercises
+** Bibliography
+** Index
+- [[man:kill(2)][kill(2)]]
+- [[man:ptrace(2)][ptrace(2)]]
+- [[man:signal(2)][signal(2)]]
+- [[man:fenv(3)][fenv(3)]]
+- [[man:memset(3)][memset(3)]]
+- [[man:signal(7)][signal(7)]]
+
+- [[file:/usr/include/fenv.h][<fenv.h>]]
+- [[file:/usr/include/signal.h][<signal.h>]]
+- [[file:/usr/include/signal.h][<signal.h>]]
+
+
+--------------------------------------------------------------------
+* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+                          CONTENTS IN DETAIL
+
+PREFA CE                                                                                                                       xxxi
+
+
+** 1 HISTORY AND STANDARDS
+
+- [[file:progconc/CHAPTER_01.org::#11-a-brief-history-of-unix-and-c][1.1 A Brief History of UNIX and C]]
+- [[file:progconc/CHAPTER_01.org::#12-a-brief-history-of-linux][1.2 A Brief History of Linux]]
+  - [[file:progconc/CHAPTER_01.org::#121-the-gnu-project][1.2.1 The GNU Project]]
+  - [[file:progconc/CHAPTER_01.org::#122-the-linux-kernel][1.2.2 The Linux Kernel]]
+- [[file:progconc/CHAPTER_01.org::#13-standardization][1.3 Standardization]]
+  - [[file:progconc/CHAPTER_01.org::#131-the-c-programming-language][1.3.1 The C Programming Language]]
+  - [[file:progconc/CHAPTER_01.org::#132-the-first-posix-standards][1.3.2 The First POSIX Standards]]
+  - [[file:progconc/CHAPTER_01.org::#133-xopen-company-and-the-open-group][1.3.3 X/Open Company and The Open Group]]
+  - [[file:progconc/CHAPTER_01.org::#134-susv3-and-posix1-2001][1.3.4 SUSv3 and POSIX.1-2001]]
+  - [[file:progconc/CHAPTER_01.org::#135-susv4-and-posix1-2008][1.3.5 SUSv4 and POSIX.1-2008]]
+  - [[file:progconc/CHAPTER_01.org::#136-unix-standards-timeline][1.3.6 UNIX Standards Timeline]]
+  - [[file:progconc/CHAPTER_01.org::#137-implementation-standards][1.3.7 Implementation Standards]]
+  - [[file:progconc/CHAPTER_01.org::#138-linux-standards-and-the-linux-standard-base][1.3.8 Linux, Standards, and the Linux Standard Base]]
+- [[file:progconc/CHAPTER_01.org::#14-summary][1.4 Summary]]
+
+** 2 FUNDAMENTAL CONCEPTS
+
+- [[file:progconc/CHAPTER_02.org::#21-the-core-operating-system-the-kernel][2.1 The Core Operating System: The Kernel]]
+- [[file:progconc/CHAPTER_02.org::#22-the-shell][2.2 The Shell]]
+- [[file:progconc/CHAPTER_02.org::#23-users-and-groups][2.3 Users and Groups]]
+- [[file:progconc/CHAPTER_02.org::#24-single-directory-hierarchy-directories-links-and-files][2.4 Single Directory Hierarchy, Directories, Links, and Files]]
+- [[file:progconc/CHAPTER_02.org::#25-file-io-model][2.5 File I/O Model]]
+- [[file:progconc/CHAPTER_02.org::#26-programs][2.6 Programs]]
+- [[file:progconc/CHAPTER_02.org::#27-processes][2.7 Processes]]
+- [[file:progconc/CHAPTER_02.org::#28-memory-mappings][2.8 Memory Mappings]]
+- [[file:progconc/CHAPTER_02.org::#29-static-and-shared-libraries][2.9 Static and Shared Libraries]]
+- [[file:progconc/CHAPTER_02.org::#210-interprocess-communication-and-synchronization][2.10 Interprocess Communication and Synchronization]]
+- [[file:progconc/CHAPTER_02.org::#211-signals][2.11 Signals]]
+- [[file:progconc/CHAPTER_02.org::#212-threads][2.12 Threads]]
+- [[file:progconc/CHAPTER_02.org::#213-process-groups-and-shell-job-control][2.13 Process Groups and Shell Job Control]]
+- [[file:progconc/CHAPTER_02.org::#214-sessions-controlling-terminals-and-controlling-processes][2.14 Sessions, Controlling Terminals, and Controlling Processes]]
+- [[file:progconc/CHAPTER_02.org::#215-pseudoterminals][2.15 Pseudoterminals]]
+- [[file:progconc/CHAPTER_02.org::#216-date-and-time][2.16 Date and Time]]
+- [[file:progconc/CHAPTER_02.org::#217-client-server-architecture][2.17 Client-Server Architecture]]
+- [[file:progconc/CHAPTER_02.org::#218-realtime][2.18 Realtime]]
+- [[file:progconc/CHAPTER_02.org::#219-the-proc-file-system][2.19 The /proc File System]]
+- [[file:progconc/CHAPTER_02.org::#220-summary][2.20 Summary]]
+
+** 3 SYSTEM PROGRAMMING CONCEPTS
+
+- [[file:progconc/CHAPTER_03.org::#31-system-calls][3.1 System Calls]]
+- [[file:progconc/CHAPTER_03.org::#32-library-functions][3.2 Library Functions]]
+- [[file:progconc/CHAPTER_03.org::#33-the-standard-c-library-and-the-gnu-c-library-glibc][3.3 The Standard C Library and The GNU C Library (glibc)]]
+- [[file:progconc/CHAPTER_03.org::#34-handling-errors-from-system-calls-and-library-functions][3.4 Handling Errors from System Calls and Library Functions]]
+- [[file:progconc/CHAPTER_03.org::#35-notes-on-the-example-programs-in-this-book][3.5 Notes on the Example Programs in This Book]]
+  - [[file:progconc/CHAPTER_03.org::#351-command-line-options-and-arguments][3.5.1 Command-Line Options and Arguments]]
+  - [[file:progconc/CHAPTER_03.org::#352-common-functions-and-header-files][3.5.2 Common Functions and Header Files]]
+- [[file:progconc/CHAPTER_03.org::#36-portability-issues][3.6 Portability Issues]]
+  - [[file:progconc/CHAPTER_03.org::#361-feature-test-macros][3.6.1 Feature Test Macros]]
+  - [[file:progconc/CHAPTER_03.org::#362-system-data-types][3.6.2 System Data Types]]
+  - [[file:progconc/CHAPTER_03.org::#363-miscellaneous-portability-issues][3.6.3 Miscellaneous Portability Issues]]
+- [[file:progconc/CHAPTER_03.org::#37-summary][3.7 Summary]]
+- [[file:progconc/CHAPTER_03.org::#38-exercise][3.8 Exercise]]
+
+** 4 FILE I/O: THE UNIVERSAL I/O MODEL
+
+- [[file:fileio/CHAPTER_04.org::#41-overview][4.1 Overview]]
+- [[file:fileio/CHAPTER_04.org::#42-universality-of-io][4.2 Universality of I/O]]
+- [[file:fileio/CHAPTER_04.org::#43-opening-a-file-open][4.3 Opening a File: open]]
+  - [[file:fileio/CHAPTER_04.org::#431-the-open-flags-argument][4.3.1 The open() flags Argument]]
+  - [[file:fileio/CHAPTER_04.org::#432-errors-from-open][4.3.2 Errors from open]]
+  - [[file:fileio/CHAPTER_04.org::#433-the-creat-system-call][4.3.3 The creat() System Call]]
+- [[file:fileio/CHAPTER_04.org::#44-reading-from-a-file-read][4.4 Reading from a File: read]]
+- [[file:fileio/CHAPTER_04.org::#45-writing-to-a-file-write][4.5 Writing to a File: write]]
+- [[file:fileio/CHAPTER_04.org::#46-closing-a-file-close][4.6 Closing a File: close]]
+- [[file:fileio/CHAPTER_04.org::#47-changing-the-file-offset-lseek][4.7 Changing the File Offset: lseek]]
+- [[file:fileio/CHAPTER_04.org::#48-operations-outside-the-universal-io-model-ioctl][4.8 Operations Outside the Universal I/O Model: ioctl]]
+- [[file:fileio/CHAPTER_04.org::#49-summary][4.9 Summary]]
+- [[file:fileio/CHAPTER_04.org::#410-exercises][4.10 Exercises]]
+
+** 5 FILE I/O: FURTHER DETAILS
+
+- [[file:fileio/CHAPTER_05.org::#51-atomicity-and-race-conditions][5.1 Atomicity and Race Conditions]]
+- [[file:fileio/CHAPTER_05.org::#52-file-control-operations-fcntl][5.2 File Control Operations: fcntl]]
+- [[file:fileio/CHAPTER_05.org::#53-open-file-status-flags][5.3 Open File Status Flags]]
+- [[file:fileio/CHAPTER_05.org::#54-relationship-between-file-descriptors-and-open-files][5.4 Relationship Between File Descriptors and Open Files]]
+- [[file:fileio/CHAPTER_05.org::#55-duplicating-file-descriptors][5.5 Duplicating File Descriptors]]
+- [[file:fileio/CHAPTER_05.org::#56-file-io-at-a-specified-offset-pread-and-pwrite][5.6 File I/O at a Specified Offset: pread() and pwrite]]
+- [[file:fileio/CHAPTER_05.org::#57-scatter-gather-io-readv-and-writev][5.7 Scatter-Gather I/O: readv() and writev]]
+- [[file:fileio/CHAPTER_05.org::#58-truncating-a-file-truncate-and-ftruncate][5.8 Truncating a File: truncate() and ftruncate]]
+- [[file:fileio/CHAPTER_05.org::#59-nonblocking-io][5.9 Nonblocking I/O]]
+- [[file:fileio/CHAPTER_05.org::#510-io-on-large-files][5.10 I/O on Large Files]]
+- [[file:fileio/CHAPTER_05.org::#511-the-devfd-directory][5.11 The /dev/fd Directory]]
+- [[file:fileio/CHAPTER_05.org::#512-creating-temporary-files][5.12 Creating Temporary Files]]
+- [[file:fileio/CHAPTER_05.org::#513-summary][5.13 Summary]]
+- [[file:fileio/CHAPTER_05.org::#514-exercises][5.14 Exercises]]
+
+** 6 PROCESSES
+
+- [[file:proc/README.org::#processes-introduction][PROCESSES: Introduction]]
+- [[file:proc/README.org::#61-processes-and-programs][6.1 Processes and Programs]]
+- [[file:proc/README.org::#62-process-id-and-parent-process-id][6.2 Process ID and Parent Process ID]]
+- [[file:proc/README.org::#63-memory-layout-of-a-process][6.3 Memory Layout of a Process]]
+- [[file:proc/README.org::#64-virtual-memory-management][6.4 Virtual Memory Management]]
+- [[file:proc/README.org::#65-the-stack-and-stack-frames][6.5 The Stack and Stack Frames]]
+- [[file:proc/README.org::#66-command-line-arguments-argc-argv][6.6 Command-Line Arguments (argc, argv)]]
+- [[file:proc/README.org::#67-environment-list][6.7 Environment List]]
+- [[file:proc/README.org::#68-performing-a-nonlocal-goto-setjmp-and-longjmp][6.8 Performing a Nonlocal Goto: setjmp() and longjmp()]]
+- [[file:proc/README.org::#69-summary][6.9 Summary]]
+
+** 7 MEMORY ALLOCATION
+
+- [[file:memalloc/README.org::#71-allocating-memory-on-the-heap][7.1 Allocating Memory on the Heap]]
+  - [[file:memalloc/README.org::#711-adjusting-the-program-break-brk-and-sbrk][7.1.1 Adjusting the Program Break: =brk()= and =sbrk()=]]
+  - [[file:memalloc/README.org::#712-allocating-memory-on-the-heap-malloc-and-free][7.1.2 Allocating Memory on the Heap: =malloc()= and =free()=]]
+  - [[file:memalloc/README.org::#713-implementation-of-malloc-and-free][7.1.3 Implementation of =malloc()= and =free()=]]
+  - [[file:memalloc/README.org::#714-other-methods-of-allocating-memory-on-the-heap][7.1.4 Other Methods of Allocating Memory on the Heap]]
+- [[file:memalloc/README.org::#72-allocating-memory-on-the-stack-alloca][7.2 Allocating Memory on the Stack: =alloca()=]]
+- [[file:memalloc/README.org::#73-summary][7.3 Summary]]
+- [[file:memalloc/README.org::#74-exercises][7.4 Exercises]]
+
+** 8 USERS AND GROUPS
+
+- [[file:users_groups/README.org::#81-the-password-file-etcpasswd][8.1 The Password File: =/etc/passwd=]]
+- [[file:users_groups/README.org::#82-the-shadow-password-file-etcshadow][8.2 The Shadow Password File: =/etc/shadow=]]
+- [[file:users_groups/README.org::#83-the-group-file-etcgroup][8.3 The Group File: =/etc/group=]]
+- [[file:users_groups/README.org::#84-retrieving-user-and-group-information][8.4 Retrieving User and Group Information]]
+- [[file:users_groups/README.org::#85-password-encryption-and-user-authentication][8.5 Password Encryption and User Authentication]]
+- [[file:users_groups/README.org::#86-summary][8.6 Summary]]
+- [[file:users_groups/README.org::#87-exercises][8.7 Exercises]]
+
+** 9 PROCESS CREDENTIALS
+
+- [[file:proccred/README.org::#91-real-user-id-and-real-group-id][9.1 Real User ID and Real Group ID]]
+- [[file:proccred/README.org::#92-effective-user-id-and-effective-group-id][9.2 Effective User ID and Effective Group ID]]
+- [[file:proccred/README.org::#93-set-user-id-and-set-group-id-programs][9.3 Set-User-ID and Set-Group-ID Programs]]
+- [[file:proccred/README.org::#94-saved-set-user-id-and-saved-set-group-id][9.4 Saved Set-User-ID and Saved Set-Group-ID]]
+- [[file:proccred/README.org::#95-file-system-user-id-and-file-system-group-id][9.5 File-System User ID and File-System Group ID]]
+- [[file:proccred/README.org::#96-supplementary-group-ids][9.6 Supplementary Group IDs]]
+- [[file:proccred/README.org::#97-retrieving-and-modifying-process-credentials][9.7 Retrieving and Modifying Process Credentials]]
+  - [[file:proccred/README.org::#971-retrieving-and-modifying-real-effective-and-saved-set-ids][9.7.1 Retrieving and Modifying Real, Effective, and Saved Set IDs]]
+  - [[file:proccred/README.org::#972-retrieving-and-modifying-file-system-ids][9.7.2 Retrieving and Modifying File-System IDs]]
+  - [[file:proccred/README.org::#973-retrieving-and-modifying-supplementary-group-ids][9.7.3 Retrieving and Modifying Supplementary Group IDs]]
+  - [[file:proccred/README.org::#974-summary-of-calls-for-modifying-process-credentials][9.7.4 Summary of Calls for Modifying Process Credentials]]
+  - [[file:proccred/README.org::#975-example-displaying-process-credentials][9.7.5 Example: Displaying Process Credentials]]
+- [[file:proccred/README.org::#98-summary][9.8 Summary]]
+- [[file:proccred/README.org::#99-exercises][9.9 Exercises]]
+
+** 10 TIME
+*** 10.1 Calendar Time
+*** 10.2 Time-Conversion Functions
+**** 10.2.1 Converting time_t to Printable Form
+**** 10.2.2 Converting Between time_t and Broken-Down Time
+**** 10.2.3 Converting Between Broken-Down Time and Printable Form
+*** 10.3 Timezones
+*** 10.4 Locales
+*** 10.5 Updating the System Clock
+*** 10.6 The Software Clock (Jiffies
+*** 10.7 Process Time
+*** 10.8 Summary
+*** 10.9 Exercise
+
+** 11 SYSTEM LIMITS AND OPTIONS
+*** 11.1 System Limits
+*** 11.2 Retrieving System Limits (and Options) at Run Time
+*** 11.3 Retrieving File-Related Limits (and Options) at Run Time
+*** 11.4 Indeterminate Limits
+*** 11.5 System Options
+*** 11.6 Summary
+*** 11.7 Exercises
+
+** 12 SYSTEM AND PROCESS INFORMATION
+*** 12.1 The /proc File System
+**** 12.1.1 Obtaining Information About a Process: /proc/PID
+**** 12.1.2 System Information Under /proc
+**** 12.1.3 Accessing /proc Files
+*** 12.2 System Identification: uname
+*** 12.3 Summary
+*** 12.4 Exercises
+
+** 13 FILE I/O BUFFERING
+*** 13.1 Kernel Buffering of File I/O: The Buffer Cache
+*** 13.2 Buffering in the stdio Library
+*** 13.3 Controlling Kernel Buffering of File I/O
+*** 13.4 Summary of I/O Buffering
+*** 13.5 Advising the Kernel About I/O Patterns
+*** 13.6 Bypassing the Buffer Cache: Direct I/O
+*** 13.7 Mixing Library Functions and System Calls for File I/O
+*** 13.8 Summary
+*** 13.9 Exercises
+
+** 14 FILE SYSTEMS
+*** 14.1 Device Special Files (Devices
+*** 14.2 Disks and Partitions
+*** 14.3 File Systems
+*** 14.4 I-nodes
+*** 14.5 The Virtual File System (VFS
+*** 14.6 Journaling File Systems
+*** 14.7 Single Directory Hierarchy and Mount Points
+*** 14.8 Mounting and Unmounting File Systems
+**** 14.8.1 Mounting a File System: mount
+**** 14.8.2 Unmounting a File System: umount() and umount2
+*** 14.9 Advanced Mount Features
+**** 14.9.1 Mounting a File System at Multiple Mount Points
+**** 14.9.2 Stacking Multiple Mounts on the Same Mount Point
+**** 14.9.3 Mount Flags That Are Per-Mount Options
+**** 14.9.4 Bind Mounts
+**** 14.9.5 Recursive Bind Mounts
+*** 14.10 A Virtual Memory File System: tmpfs
+*** 14.11 Obtaining Information About a File System: statvfs
+*** 14.12 Summary
+*** 14.13 Exercise
+
+** 15 FILE ATTRIBUTES
+*** 15.1 Retrieving File Information: stat
+*** 15.2 File Timestamps
+**** 15.2.1 Changing File Timestamps with utime() and utimes
+**** 15.2.2 Changing File Timestamps with utimensat() and futimens
+*** 15.3 File Ownership
+**** 15.3.1 Ownership of New Files
+**** 15.3.2 Changing File Ownership: chown(), fchown(), and lchown
+*** 15.4 File Permissions
+**** 15.4.1 Permissions on Regular Files
+**** 15.4.2 Permissions on Directories
+**** 15.4.3 Permission-Checking Algorithm
+**** 15.4.4 Checking File Accessibility: access
+**** 15.4.5 Set-User-ID, Set-Group-ID, and Sticky Bits
+**** 15.4.6 The Process File Mode Creation Mask: umask
+**** 15.4.7 Changing File Permissions: chmod() and fchmod
+*** 15.5 I-node Flags (ext2 Extended File Attributes
+*** 15.6 Summary
+*** 15.7 Exercises
+
+** 16 EXTENDED ATTRIBUTES
+*** 16.1 Overview
+*** 16.2 Extended Attribute Implementation Details
+*** 16.3 System Calls for Manipulating Extended Attributes
+*** 16.4 Summary
+*** 16.5 Exercise
+
+** 17 ACCESS CONTROL LISTS
+*** 17.1 Overview
+*** 17.2 ACL Permission-Checking Algorithm
+*** 17.3 Long and Short Text Forms for ACLs
+*** 17.4 The ACL_MASK Entry and the ACL Group Class
+*** 17.5 The getfacl and setfacl Commands
+*** 17.6 Default ACLs and File Creation
+*** 17.7 ACL Implementation Limits
+*** 17.8 The ACL API
+*** 17.9 Summary
+*** 17.10 Exercise
+
+** 18 DIRECTORIES AND LINKS
+*** 18.1 Directories and (Hard) Links
+*** 18.2 Symbolic (Soft) Links
+*** 18.3 Creating and Removing (Hard) Links: link() and unlink
+*** 18.4 Changing the Name of a File: rename
+*** 18.5 Working with Symbolic Links: symlink() and readlink
+*** 18.6 Creating and Removing Directories: mkdir() and rmdir
+*** 18.7 Removing a File or Directory: remove
+*** 18.8 Reading Directories: opendir() and readdir
+*** 18.9 File Tree Walking: nftw
+*** 18.10 The Current Working Directory of a Process
+*** 18.11 Operating Relative to a Directory File Descriptor
+*** 18.12 Changing the Root Directory of a Process: chroot
+*** 18.13 Resolving a Pathname: realpath
+*** 18.14 Parsing Pathname Strings: dirname() and basename
+*** 18.15 Summary
+*** 18.16 Exercises
+
+** 19 MONITORING FILE EVENTS
+*** 19.1 Overview
+*** 19.2 The inotify API
+*** 19.3 inotify Events
+*** 19.4 Reading inotify Events
+*** 19.5 Queue Limits and /proc Files
+*** 19.6 An Older System for Monitoring File Events: dnotify
+*** 19.7 Summary
+*** 19.8 Exercise
+
+** 20 SIGNALS: FUNDAMENTAL CONCEPTS
+*** 20.1 Concepts and Overview
+*** 20.2 Signal Types and Default Actions
+*** 20.3 Changing Signal Dispositions: signal
+*** 20.4 Introduction to Signal Handlers
+*** 20.5 Sending Signals: kill
+*** 20.6 Checking for the Existence of a Process
+*** 20.7 Other Ways of Sending Signals: raise() and killpg
+*** 20.8 Displaying Signal Descriptions
+*** 20.9 Signal Sets
+*** 20.10 The Signal Mask (Blocking Signal Delivery
+*** 20.11 Pending Signals
+*** 20.12 Signals Are Not Queued
+*** 20.13 Changing Signal Dispositions: sigaction
+*** 20.14 Waiting for a Signal: pause
+*** 20.15 Summary
+*** 20.16 Exercises
+
+** 21 SIGNALS: SIGNAL HANDLERS
+
+- [[file:signals/CHAPTER_21.org::#211-designing-signal-handlers][21.1 Designing Signal Handlers]]
+  - [[file:signals/CHAPTER_21.org::#2111-signals-are-not-queued-(revisited)][21.1.1 Signals Are Not Queued (Revisited)]]
+  - [[file:signals/CHAPTER_21.org::#2112-reentrant-and-async-signal-safe-functions][21.1.2 Reentrant and Async-Signal-Safe Functions]]
+  - [[file:signals/CHAPTER_21.org::#2113-global-variables-and-the-sig_atomic_t-data-type][21.1.3 Global Variables and the sig_atomic_t Data Type]]
+- [[file:signals/CHAPTER_21.org::#212-other-methods-of-terminating-a-signal-handler][21.2 Other Methods of Terminating a Signal Handler]]
+  - [[file:signals/CHAPTER_21.org::#2122-terminating-a-process-abnormally-abort()][21.2.2 Terminating a Process Abnormally: abort()]]
+  - [[file:signals/CHAPTER_21.org::#2121-performing-a-nonlocal-goto-from-a-signal-handler-429][21.2.1 Performing a Nonlocal Goto from a Signal Handler]]
+- [[file:signals/CHAPTER_21.org::#213-handling-a-signal-on-an-alternate-stack-sigaltstack()][21.3 Handling a Signal on an Alternate Stack: sigaltstack()]]
+- [[file:signals/CHAPTER_21.org::#214-the-sa_siginfo-flag][21.4 The SA_SIGINFO Flag]]
+- [[file:signals/CHAPTER_21.org::#215-interruption-and-restarting-of-system-calls][21.5 Interruption and Restarting of System Calls]]
+- [[file:signals/CHAPTER_21.org::#216-summary][21.6 Summary]]
+- [[file:signals/CHAPTER_21.org::#217-exercises][21.7 Exercises]]
+
+** 22 SIGNALS: ADVANCED FEATURES
+*** 22.1 Core Dump Files
+*** 22.2 Special Cases for Delivery, Disposition, and Handling
+*** 22.3 Interruptible and Uninterruptible Process Sleep States
+*** 22.4 Hardware-Generated Signals
+*** 22.5 Synchronous and Asynchronous Signal Generation
+*** 22.6 Timing and Order of Signal Delivery
+*** 22.7 Implementation and Portability of signal
+*** 22.8 Realtime Signals
+**** 22.8.1 Sending Realtime Signals
+**** 22.8.2 Handling Realtime Signals
+*** 22.9 Waiting for a Signal Using a Mask: sigsuspend
+*** 22.10 Synchronously Waiting for a Signal
+*** 22.11 Fetching Signals via a File Descriptor
+*** 22.12 Interprocess Communication with Signals
+*** 22.13 Earlier Signal APIs (System V and BSD
+*** 22.14 Summary
+*** 22.15 Exercises
+
+** 23 TIMERS AND SLEEPING
+*** 23.1 Interval Timers
+*** 23.2 Scheduling and Accuracy of Timers
+*** 23.3 Setting Timeouts on Blocking Operations
+*** 23.4 Suspending Execution for a Fixed Interval (Sleeping
+**** 23.4.1 Low-Resolution Sleeping: sleep
+**** 23.4.2 High-Resolution Sleeping: nanosleep
+*** 23.5 POSIX Clocks
+**** 23.5.1 Retrieving the Value of a Clock: clock_gettime
+**** 23.5.2 Setting the Value of a Clock: clock_settime
+**** 23.5.3 Obtaining the Clock ID of a Specific Process or Thread
+**** 23.5.4 Improved High-Resolution Sleeping: clock_nanosleep
+*** 23.6 POSIX Interval Timers
+**** 23.6.1 Creating a Timer: timer_create
+**** 23.6.2 Arming and Disarming a Timer: timer_settime
+**** 23.6.3 Retrieving the Current Value of a Timer: timer_gettime
+**** 23.6.4 Deleting a Timer: timer_delete
+**** 23.6.5 Notification via a Signal
+**** 23.6.6 Timer Overruns
+**** 23.6.7 Notification via a Thread
+*** 23.7 Timers That Notify via File Descriptors: the timerfd API
+*** 23.8 Summary
+*** 23.9 Exercises
+
+** 24 PROCESS CREATION
+*** 24.1 Overview of fork(), exit(), wait(), and execve
+*** 24.2 Creating a New Process: fork
+**** 24.2.1 File Sharing Between Parent and Child
+**** 24.2.2 Memory Semantics of fork
+*** 24.3 The vfork() System Call
+*** 24.4 Race Conditions After fork
+*** 24.5 Avoiding Race Conditions by Synchronizing with Signals
+*** 24.6 Summary
+*** 24.7 Exercises
+
+** 25 PROCESS TERMINATION
+*** 25.1 Terminating a Process: _exit() and exit
+*** 25.2 Details of Process Termination
+*** 25.3 Exit Handlers
+*** 25.4 Interactions Between fork(), stdio Buffers, and _exit
+*** 25.5 Summary
+*** 25.6 Exercise
+
+** 26 MONITORING CHILD PROCESSES
+*** 26.1 Waiting on a Child Process
+**** 26.1.1 The wait() System Call
+**** 26.1.2 The waitpid() System Call
+**** 26.1.3 The Wait Status Value
+**** 26.1.4 Process Termination from a Signal Handler
+**** 26.1.5 The waitid() System Call
+**** 26.1.6 The wait3() and wait4() System Calls
+*** 26.2 Orphans and Zombies
+*** 26.3 The SIGCHLD Signal
+**** 26.3.1 Establishing a Handler for SIGCHLD
+**** 26.3.2 Delivery of SIGCHLD for Stopped Children
+**** 26.3.3 Ignoring Dead Child Processes
+*** 26.4 Summary
+*** 26.5 Exercises
+
+** 27 PROGRAM EXECUTION
+
+- [[file:procexec/CHAPTER_27.org::#271-executing-a-new-program-execve][27.1 Executing a New Program: execve]]
+- [[file:procexec/CHAPTER_27.org::#272-the-exec-library-functions][27.2 The exec() Library Functions]]
+  - [[file:procexec/CHAPTER_27.org::#2721-the-path-environment-variable][27.2.1 The PATH Environment Variable]]
+  - [[file:procexec/CHAPTER_27.org::#2722-specifying-program-arguments-as-a-list][27.2.2 Specifying Program Arguments as a List]]
+  - [[file:procexec/CHAPTER_27.org::#2723-passing-the-callers-environment-to-the-new-program][27.2.3 Passing the Caller’s Environment to the New Program]]
+  - [[file:procexec/CHAPTER_27.org::#2724-executing-a-file-referred-to-by-a-descriptor-fexecve][27.2.4 Executing a File Referred to by a Descriptor: fexecve]]
+- [[file:procexec/CHAPTER_27.org::#273-interpreter-scripts][27.3 Interpreter Scripts]]
+- [[file:procexec/CHAPTER_27.org::#274-file-descriptors-and-exec][27.4 File Descriptors and exec]]
+- [[file:procexec/CHAPTER_27.org::#275-signals-and-exec][27.5 Signals and exec]]
+- [[file:procexec/CHAPTER_27.org::#276-executing-a-shell-command-system][27.6 Executing a Shell Command: system]]
+- [[file:procexec/CHAPTER_27.org::#277-implementing-system][27.7 Implementing system]]
+- [[file:procexec/CHAPTER_27.org::#278-summary][27.8 Summary]]
+- [[file:procexec/CHAPTER_27.org::#279-exercises][27.9 Exercises]]
+
+** 28 PROCESS CREATION AND PRO GRAM EXECUTION IN MO RE DET AIL 591
+*** 28.1 Process Accounting
+*** 28.2 The clone() System Call
+**** 28.2.1 The clone() flags Argument
+**** 28.2.2 Extensions to waitpid() for Cloned Children
+*** 28.3 Speed of Process Creation
+*** 28.4 Effect of exec() and fork() on Process Attributes
+*** 28.5 Summary
+*** 28.6 Exercise
+
+** 29 THREADS : INTRODUCTION
+*** 29.1 Overview
+*** 29.2 Background Details of the Pthreads API
+*** 29.3 Thread Creation
+*** 29.4 Thread Termination
+*** 29.5 Thread IDs
+*** 29.6 Joining with a Terminated Thread
+*** 29.7 Detaching a Thread
+*** 29.8 Thread Attributes
+*** 29.9 Threads Versus Processes
+*** 29.10 Summary
+*** 29.11 Exercises
+
+** 30 THREADS: THREAD SYNCHRONIZATION
+*** 30.1 Protecting Accesses to Shared Variables: Mutexes
+**** 30.1.1 Statically Allocated Mutexes
+**** 30.1.2 Locking and Unlocking a Mutex
+**** 30.1.3 Performance of Mutexes
+**** 30.1.4 Mutex Deadlocks
+**** 30.1.5 Dynamically Initializing a Mutex
+**** 30.1.6 Mutex Attributes
+**** 30.1.7 Mutex Types
+*** 30.2 Signaling Changes of State: Condition Variables
+**** 30.2.1 Statically Allocated Condition Variables
+**** 30.2.2 Signaling and Waiting on Condition Variables
+**** 30.2.3 Testing a Condition Variable’s Predicate
+**** 30.2.4 Example Program: Joining Any Terminated Thread
+**** 30.2.5 Dynamically Allocated Condition Variables
+*** 30.3 Summary
+*** 30.4 Exercises
+
+** 31 THREADS : THREAD SAFETY AND PER-THREAD STORAGE
+*** 31.1 Thread Safety (and Reentrancy Revisited
+*** 31.2 One-Time Initialization
+*** 31.3 Thread-Specific Data
+**** 31.3.1 Thread-Specific Data from the Library Function’s Perspective
+**** 31.3.2 Overview of the Thread-Specific Data API
+**** 31.3.3 Details of the Thread-Specific Data API
+**** 31.3.4 Employing the Thread-Specific Data API
+**** 31.3.5 Thread-Specific Data Implementation Limits
+*** 31.4 Thread-Local Storage
+*** 31.5 Summary
+*** 31.6 Exercises
+
+** 32 THREADS : THR E A D C A NCE L L A T I O N
+*** 32.1 Canceling a Thread
+*** 32.2 Cancellation State and Type
+*** 32.3 Cancellation Points
+*** 32.4 Testing for Thread Cancellation
+*** 32.5 Cleanup Handlers
+*** 32.6 Asynchronous Cancelability
+*** 32.7 Summary
+
+** 33 THREADS : F U R TH E R D E T A I L S
+*** 33.1 Thread Stacks
+*** 33.2 Threads and Signals
+**** 33.2.1 How the UNIX Signal Model Maps to Threads
+**** 33.2.2 Manipulating the Thread Signal Mask
+**** 33.2.3 Sending a Signal to a Thread
+**** 33.2.4 Dealing with Asynchronous Signals Sanely
+*** 33.3 Threads and Process Control
+*** 33.4 Thread Implementation Models
+*** 33.5 Linux Implementations of POSIX Threads
+**** 33.5.1 LinuxThreads
+**** 33.5.2 NPTL
+**** 33.5.3 Which Threading Implementation
+*** 33.6 Advanced Features of the Pthreads API
+*** 33.7 Summary
+*** 33.8 Exercises
+
+** 34 PROCESS GROUPS, SESS IONS, AND JOB CONTROL
+*** 34.1 Overview
+*** 34.2 Process Groups
+*** 34.3 Sessions
+*** 34.4 Controlling Terminals and Controlling Processes
+*** 34.5 Foreground and Background Process Groups
+*** 34.6 The SIGHUP Signal
+**** 34.6.1 Handling of SIGHUP by the Shell
+**** 34.6.2 SIGHUP and Termination of the Controlling Process
+*** 34.7 Job Control
+**** 34.7.1 Using Job Control Within the Shell
+**** 34.7.2 Implementing Job Control
+**** 34.7.3 Handling Job-Control Signals
+**** 34.7.4 Orphaned Process Groups (and SIGHUP Revisited
+*** 34.8 Summary
+*** 34.9 Exercises
+
+** 35 PROCESS PRIORI TIES A ND S CHEDULING
+*** 35.1 Process Priorities (Nice Values
+*** 35.2 Overview of Realtime Process Scheduling
+**** 35.2.1 The SCHED_RR Policy
+**** 35.2.2 The SCHED_FIFO Policy
+**** 35.2.3 The SCHED_BATCH and SCHED_IDLE Policies
+*** 35.3 Realtime Process Scheduling API
+**** 35.3.1 Realtime Priority Ranges
+**** 35.3.2 Modifying and Retrieving Policies and Priorities
+**** 35.3.3 Relinquishing the CPU
+**** 35.3.4 The SCHED_RR Time Slice
+*** 35.4 CPU Affinity
+*** 35.5 Summary
+*** 35.6 Exercises
+
+** 36 PR OC E S S R E S OU RC E S
+*** 36.1 Process Resource Usage
+*** 36.2 Process Resource Limits
+*** 36.3 Details of Specific Resource Limits
+*** 36.4 Summary
+*** 36.5 Exercises
+
+** 37 D A E M O NS 76 7
+*** 37.1 Overview
+*** 37.2 Creating a Daemon
+*** 37.3 Guidelines for Writing Daemons
+*** 37.4 Using SIGHUP to Reinitialize a Daemon
+*** 37.5 Logging Messages and Errors Using syslog
+**** 37.5.1 Overview
+**** 37.5.2 The syslog API
+**** 37.5.3 The /etc/syslog.conf File
+*** 37.6 Summary
+*** 37.7 Exercise
+
+** 38 WRITING SECURE PRIVILEGED PROGRAMS
+
+- [[file:daemons/CHAPTER_38.org::#381-is-a-set-user-id-or-set-group-id-program-required][38.1 Is a Set-User-ID or Set-Group-ID Program Required]]
+- [[file:daemons/CHAPTER_38.org::#382-operate-with-least-privilege][38.2 Operate with Least Privilege]]
+- [[file:daemons/CHAPTER_38.org::#383-be-careful-when-executing-a-program][38.3 Be Careful When Executing a Program]]
+- [[file:daemons/CHAPTER_38.org::#384-avoid-exposing-sensitive-information][38.4 Avoid Exposing Sensitive Information]]
+- [[file:daemons/CHAPTER_38.org::#385-confine-the-process][38.5 Confine the Process]]
+- [[file:daemons/CHAPTER_38.org::#386-beware-of-signals-and-race-conditions][38.6 Beware of Signals and Race Conditions]]
+- [[file:daemons/CHAPTER_38.org::#387-pitfalls-when-performing-file-operations-and-file-io][38.7 Pitfalls When Performing File Operations and File I/O]]
+- [[file:daemons/CHAPTER_38.org::#388-dont-trust-inputs-or-the-environment][38.8 Don’t Trust Inputs or the Environment]]
+- [[file:daemons/CHAPTER_38.org::#389-beware-of-buffer-overruns][38.9 Beware of Buffer Overruns]]
+- [[file:daemons/CHAPTER_38.org::#3810-beware-of-denial-of-service-attacks][38.10 Beware of Denial-of-Service Attacks]]
+- [[file:daemons/CHAPTER_38.org::#3811-check-return-statuses-and-fail-safely][38.11 Check Return Statuses and Fail Safely]]
+- [[file:daemons/CHAPTER_38.org::#3812-summary][38.12 Summary]]
+- [[file:daemons/CHAPTER_38.org::#3813-exercises][38.13 Exercises]]
+
+** 39 CAPABILITIES
+*** 39.1 Rationale for Capabilities
+*** 39.2 The Linux Capabilities
+*** 39.3 Process and File Capabilities
+**** 39.3.1 Process Capabilities
+**** 39.3.2 File Capabilities
+**** 39.3.3 Purpose of the Process Permitted and Effective Capability Sets
+**** 39.3.4 Purpose of the File Permitted and Effective Capability Sets
+**** 39.3.5 Purpose of the Process and File Inheritable Sets
+**** 39.3.6 Assigning and Viewing File Capabilities from the Shell
+*** 39.4 The Modern Capabilities Implementation
+*** 39.5 Transformation of Process Capabilities During exec
+**** 39.5.1 Capability Bounding Set
+**** 39.5.2 Preserving root Semantics
+*** 39.6 Effect on Process Capabilities of Changing User IDs
+*** 39.7 Changing Process Capabilities Programmatically
+*** 39.8 Creating Capabilities-Only Environments
+*** 39.9 Discovering the Capabilities Required by a Program
+*** 39.10 Older Kernels and Systems Without File Capabilities
+*** 39.11 Summary
+*** 39.12 Exercise
+
+** 40 L O GIN A C C O U NT I N G
+*** 40.1 Overview of the utmp and wtmp Files
+*** 40.2 The utmpx API
+*** 40.3 The utmpx Structure
+*** 40.4 Retrieving Information from the utmp and wtmp Files
+*** 40.5 Retrieving the Login Name: getlogin
+*** 40.6 Updating the utmp and wtmp Files for a Login Session
+*** 40.7 The lastlog File
+*** 40.8 Summary
+*** 40.9 Exercises
+
+** 41 F UNDAMENTALS OF SHARED LIBRARIE S 833
+*** 41.1 Object Libraries
+*** 41.2 Static Libraries
+*** 41.3 Overview of Shared Libraries
+*** 41.4 Creating and Using Shared Libraries—A First Pass
+**** 41.4.1 Creating a Shared Library
+**** 41.4.2 Position-Independent Code
+**** 41.4.3 Using a Shared Library
+**** 41.4.4 The Shared Library Soname
+*** 41.5 Useful Tools for Working with Shared Libraries
+*** 41.6 Shared Library Versions and Naming Conventions
+*** 41.7 Installing Shared Libraries
+*** 41.8 Compatible Versus Incompatible Libraries
+*** 41.9 Upgrading Shared Libraries
+*** 41.10 Specifying Library Search Directories in an Object File
+*** 41.11 Finding Shared Libraries at Run Time
+*** 41.12 Run-Time Symbol Resolution
+*** 41.13 Using a Static Library Instead of a Shared Library
+*** 41.14 Summary
+*** 41.15 Exercise
+
+** 42 ADVANCED FE ATURES OF SHARED LIBRARIES
+*** 42.1 Dynamically Loaded Libraries
+**** 42.1.1 Opening a Shared Library: dlopen
+**** 42.1.2 Diagnosing Errors: dlerror
+**** 42.1.3 Obtaining the Address of a Symbol: dlsym
+**** 42.1.4 Closing a Shared Library: dlclose
+**** 42.1.5 Obtaining Information About Loaded Symbols: dladdr
+**** 42.1.6 Accessing Symbols in the Main Program
+*** 42.2 Controlling Symbol Visibility
+*** 42.3 Linker Version Scripts
+**** 42.3.1 Controlling Symbol Visibility with Version Scripts
+**** 42.3.2 Symbol Versioning
+*** 42.4 Initialization and Finalization Functions
+*** 42.5 Preloading Shared Libraries
+*** 42.6 Monitoring the Dynamic Linker: LD_DEBUG
+*** 42.7 Summary
+*** 42.8 Exercises
+
+** 43 INTERPROCESS COMMUN ICATION OVERVIEW
+*** 43.1 A Taxonomy of IPC Facilities
+*** 43.2 Communication Facilities
+*** 43.3 Synchronization Facilities
+*** 43.4 Comparing IPC Facilities
+*** 43.5 Summary
+*** 43.6 Exercises
+
+** 44 PIPE S AND FIFO S
+*** 44.1 Overview
+*** 44.2 Creating and Using Pipes
+*** 44.3 Pipes as a Method of Process Synchronization
+*** 44.4 Using Pipes to Connect Filters
+*** 44.5 Talking to a Shell Command via a Pipe: popen
+*** 44.6 Pipes and stdio Buffering
+*** 44.7 FIFOs
+*** 44.8 A Client-Server Application Using FIFOs
+*** 44.9 Nonblocking I/O
+*** 44.10 Semantics of read() and write() on Pipes and FIFOs
+*** 44.11 Summary
+*** 44.12 Exercises
+
+** 45 INTRODUCTION TO SYSTEM V IPC
+
+- [[file:svipc/README.org::#451-api-overview][45.1 API Overview]]
+- [[file:svipc/README.org::#452-ipc-keys][45.2 IPC Keys]]
+- [[file:svipc/README.org::#453-associated-data-structure-and-object-permissions][45.3 Associated Data Structure and Object Permissions]]
+- [[file:svipc/README.org::#454-ipc-identifiers-and-client-server-applications][45.4 IPC Identifiers and Client-Server Applications]]
+- [[file:svipc/README.org::#455-algorithm-employed-by-system-v-ipc-get-calls][45.5 Algorithm Employed by System V IPC get Calls]]
+- [[file:svipc/README.org::#456-the-ipcs-and-ipcrm-commands][45.6 The ipcs and ipcrm Commands]]
+- [[file:svipc/README.org::#457-obtaining-a-list-of-all-ipc-objects][45.7 Obtaining a List of All IPC Objects]]
+- [[file:svipc/README.org::#458-ipc-limits][45.8 IPC Limits]]
+- [[file:svipc/README.org::#459-summary][45.9 Summary]]
+- [[file:svipc/README.org::#4510-exercises][45.10 Exercises]]
+
+** 46 SYSTEM V MESSAGE QUEUES 93 7
+*** 46.1 Creating or Opening a Message-Queue
+*** 46.2 Exchanging Messages
+**** 46.2.1 Sending Messages
+**** 46.2.2 Receiving Messages
+*** 46.3 Message Queue Control Operations
+*** 46.4 Message Queue Associated Data Structure
+*** 46.5 Message Queue Limits
+*** 46.6 Displaying All Message Queues on the System
+*** 46.7 Client-Server Programming with Message Queues
+*** 46.8 A File-Server Application Using Message Queues
+*** 46.9 Disadvantages of System V Message Queues
+*** 46.10 Summary
+*** 46.11 Exercises
+
+** 47 SYSTEM V SEMAPHORES 96 5 47.1 Overview
+*** 47.2 Creating or Opening a Semaphore Set
+*** 47.3 Semaphore Control Operations
+*** 47.4 Semaphore Associated Data Structure
+*** 47.5 Semaphore Initialization
+*** 47.6 Semaphore Operations
+*** 47.7 Handling of Multiple Blocked Semaphore Operations
+*** 47.8 Semaphore Undo Values
+*** 47.9 Implementing a Binary Semaphores Protocol
+*** 47.10 Semaphore Limits
+*** 47.11 Disadvantages of System V Semaphores
+*** 47.12 Summary
+*** 47.13 Exercises
+
+** 48 SY S T E M V S H A R E D M E M OR Y
+
+- [[file:svshm/README.org::#481-overview][48.1 Overview]]
+- [[file:svshm/README.org::#482-creating-or-opening-a-shared-memory-segment][48.2 Creating or Opening a Shared Memory Segment]]
+- [[file:svshm/README.org::#483-using-shared-memory][48.3 Using Shared Memory]]
+- [[file:svshm/README.org::#484-example-transferring-data-via-shared-memory][48.4 Example: Transferring Data via Shared Memory]]
+- [[file:svshm/README.org::#485-location-of-shared-memory-in-virtual-memory][48.5 Location of Shared Memory in Virtual Memory]]
+- [[file:svshm/README.org::#486-storing-pointers-in-shared-memory][48.6 Storing Pointers in Shared Memory]]
+- [[file:svshm/README.org::#487-shared-memory-control-operations][48.7 Shared Memory Control Operations]]
+- [[file:svshm/README.org::#488-shared-memory-associated-data-structure][48.8 Shared Memory Associated Data Structure]]
+- [[file:svshm/README.org::#489-shared-memory-limits][48.9 Shared Memory Limits]]
+- [[file:svshm/README.org::#4810-summary][48.10 Summary]]
+- [[file:svshm/README.org::#4811-exercises][48.11 Exercises]]
+
+** 49 ME MORY MAPPINGS
+
+- [[file:mmap/README.org::#491-overview][49.1 Overview]]
+- [[file:mmap/README.org::#492-creating-a-mapping-mmap][49.2 Creating a Mapping: mmap()]]
+- [[file:mmap/README.org::#493-unmapping-a-mapped-region-munmap][49.3 Unmapping a Mapped Region: munmap()]]
+- [[file:mmap/README.org::#494-file-mappings][49.4 File Mappings]]
+  - [[file:mmap/README.org::#4941-private-file-mappings][49.4.1 Private File Mappings]]
+  - [[file:mmap/README.org::#4942-shared-file-mappings][49.4.2 Shared File Mappings]]
+  - [[file:mmap/README.org::#4943-boundary-cases][49.4.3 Boundary Cases]]
+  - [[file:mmap/README.org::#4944-memory-protection-and-file-access-mode-interactions][49.4.4 Memory Protection and File Access Mode Interactions]]
+- [[file:mmap/README.org::#495-synchronizing-a-mapped-region-msync][49.5 Synchronizing a Mapped Region: msync()]]
+- [[file:mmap/README.org::#496-additional-mmap-flags][49.6 Additional mmap() Flags]]
+- [[file:mmap/README.org::#497-anonymous-mappings][49.7 Anonymous Mappings]]
+- [[file:mmap/README.org::#498-remapping-a-mapped-region-mremap][49.8 Remapping a Mapped Region: mremap()]]
+- [[file:mmap/README.org::#499-map_noreserve-and-swap-space-overcommitting][49.9 MAP_NORESERVE and Swap Space Overcommitting]]
+- [[file:mmap/README.org::#4910-the-map_fixed-flag][49.10 The MAP_FIXED Flag]]
+- [[file:mmap/README.org::#4911-nonlinear-mappings-remap_file_pages][49.11 Nonlinear Mappings: remap_file_pages()]]
+- [[file:mmap/README.org::#4912-summary][49.12 Summary]]
+- [[file:mmap/README.org::#4913-exercises][49.13 Exercises]]
+
+** 50 V I R TU A L M E M O R Y O P E RA T I O N S
+*** 50.1 Changing Memory Protection: mprotect
+*** 50.2 Memory Locking: mlock() and mlockall
+*** 50.3 Determining Memory Residence: mincore
+*** 50.4 Advising Future Memory Usage Patterns: madvise
+*** 50.5 Summary
+*** 50.6 Exercises
+
+** 51 I N T RO D U C TIO N TO P O S I X I P C
+*** 51.1 API Overview
+*** 51.2 Comparison of System V IPC and POSIX IPC
+*** 51.3 Summary
+
+** 52 POSIX MESSAGE QUEUES
+*** 52.1 Overview
+*** 52.2 Opening, Closing, and Unlinking a Message Queue
+*** 52.3 Relationship Between Descriptors and Message Queues
+*** 52.4 Message Queue Attributes
+*** 52.5 Exchanging Messages
+**** 52.5.1 Sending Messages
+**** 52.5.2 Receiving Messages
+**** 52.5.3 Sending and Receiving Messages with a Timeout
+*** 52.6 Message Notification
+**** 52.6.1 Receiving Notification via a Signal
+**** 52.6.2 Receiving Notification via a Thread
+*** 52.7 Linux-Specific Features
+*** 52.8 Message Queue Limits
+*** 52.9 Comparison of POSIX and System V Message Queues
+*** 52.10 Summary
+*** 52.11 Exercises
+
+** 53 POSIX SEMAPHORES
+*** 53.1 Overview
+*** 53.2 Named Semaphores
+**** 53.2.1 Opening a Named Semaphore
+**** 53.2.2 Closing a Semaphore
+**** 53.2.3 Removing a Named Semaphore
+*** 53.3 Semaphore Operations
+**** 53.3.1 Waiting on a Semaphore
+**** 53.3.2 Posting a Semaphore
+**** 53.3.3 Retrieving the Current Value of a Semaphore
+*** 53.4 Unnamed Semaphores
+**** 53.4.1 Initializing an Unnamed Semaphore
+**** 53.4.2 Destroying an Unnamed Semaphore
+*** 53.5 Comparisons with Other Synchronization Techniques
+*** 53.6 Semaphore Limits
+*** 53.7 Summary
+*** 53.8 Exercises
+
+** 54 P O S I X S H A RE D M E M O R Y
+*** 54.1 Overview
+*** 54.2 Creating Shared Memory Objects
+*** 54.3 Using Shared Memory Objects
+*** 54.4 Removing Shared Memory Objects
+*** 54.5 Comparisons Between Shared Memory APIs
+*** 54.6 Summary
+*** 54.7 Exercise
+
+** 55 F I L E L O C KI NG
+*** 55.1 Overview
+*** 55.2 File Locking with flock
+**** 55.2.1 Semantics of Lock Inheritance and Release
+**** 55.2.2 Limitations of flock
+*** 55.3 Record Locking with fcntl
+*** 55.3.1 Deadlock
+**** 55.3.2 Example: An Interactive Locking Program
+**** 55.3.3 Example: A Library of Locking Functions
+**** 55.3.4 Lock Limits and Performance
+**** 55.3.5 Semantics of Lock Inheritance and Release
+**** 55.3.6 Lock Starvation and Priority of Queued Lock Requests
+*** 55.4 Mandatory Locking
+*** 55.5 The /proc/locks File
+*** 55.6 Running Just One Instance of a Program
+*** 55.7 Older Locking Techniques
+*** 55.8 Summary
+*** 55.9 Exercises
+
+** 56 S O C K E T S: I N TR O D U C TIO N
+*** 56.1 Overview
+*** 56.2 Creating a Socket: socket
+*** 56.3 Binding a Socket to an Address: bind
+*** 56.4 Generic Socket Address Structures: struct sockaddr
+*** 56.5 Stream Sockets
+**** 56.5.1 Listening for Incoming Connections: listen
+**** 56.5.2 Accepting a Connection: accept
+**** 56.5.3 Connecting to a Peer Socket: connect
+**** 56.5.4 I/O on Stream Sockets
+**** 56.5.5 Connection Termination: close
+*** 56.6 Datagram Sockets
+**** 56.6.1 Exchanging Datagrams: recvfrom() and sendto
+**** 56.6.2 Using connect() with Datagram Sockets
+*** 56.7 Summary
+
+** 57 S O C K E T S: U N I X D O M A I N
+*** 57.1 UNIX Domain Socket Addresses: struct sockaddr_un
+*** 57.2 Stream Sockets in the UNIX Domain
+*** 57.3 Datagram Sockets in the UNIX Domain
+*** 57.4 UNIX Domain Socket Permissions
+*** 57.5 Creating a Connected Socket Pair: socketpair
+*** 57.6 The Linux Abstract Socket Namespace
+*** 57.7 Summary
+*** 57.8 Exercises
+
+** 58 S O C K E T S: F U N D A M E N T A L S O F TC P /I P NE TWO RK S
+*** 58.1 Internets
+*** 58.2 Networking Protocols and Layers
+*** 58.3 The Data-Link Layer
+*** 58.4 The Network Layer: IP
+*** 58.5 IP Addresses
+*** 58.6 The Transport Layer
+**** 58.6.1 Port Numbers
+**** 58.6.2 User Datagram Protocol (UDP
+**** 58.6.3 Transmission Control Protocol (TCP
+*** 58.7 Requests for Comments (RFCs
+*** 58.8 Summary
+
+** 59 S O C K E T S: I N TER N E T DO M A I N S
+*** 59.1 Internet Domain Sockets
+*** 59.2 Network Byte Order
+*** 59.3 Data Representation
+*** 59.4 Internet Socket Addresses
+*** 59.5 Overview of Host and Service Conversion Functions
+*** 59.6 The inet_pton() and inet_ntop() Functions
+*** 59.7 Client-Server Example (Datagram Sockets
+*** 59.8 Domain Name System (DNS
+*** 59.9 The /etc/services File
+*** 59.10 Protocol-Independent Host and Service Conversion
+**** 59.10.1 The getaddrinfo() Function
+**** 59.10.2 Freeing addrinfo Lists: freeaddrinfo
+**** 59.10.3 Diagnosing Errors: gai_strerror
+**** 59.10.4 The getnameinfo() Function
+*** 59.11 Client-Server Example (Stream Sockets
+*** 59.12 An Internet Domain Sockets Library
+*** 59.13 Obsolete APIs for Host and Service Conversions
+**** 59.13.1 The inet_aton() and inet_ntoa() Functions
+**** 59.13.2 The gethostbyname() and gethostbyaddr() Functions
+**** 59.13.3 The getservbyname() and getservbyport() Functions
+*** 59.14 UNIX Versus Internet Domain Sockets
+*** 59.15 Further Information
+*** 59.16 Summary
+*** 59.17 Exercises
+
+** 60 S O C K E T S: S E R VE R D E S I G N
+*** 60.1 Iterative and Concurrent Servers
+*** 60.2 An Iterative UDP echo Server
+*** 60.3 A Concurrent TCP echo Server
+*** 60.4 Other Concurrent Server Designs
+*** 60.5 The inetd (Internet Superserver) Daemon
+*** 60.6 Summary
+*** 60.7 Exercises
+
+** 61 SOCKETS: ADVANCED TOPICS
+*** 61.1 Partial Reads and Writes on Stream Sockets
+*** 61.2 The shutdown() System Call
+*** 61.3 Socket-Specific I/O System Calls: recv() and send
+*** 61.4 The sendfile() System Call
+*** 61.5 Retrieving Socket Addresses
+*** 61.6 A Closer Look at TCP
+**** 61.6.1 Format of a TCP Segment
+**** 61.6.2 TCP Sequence Numbers and Acknowledgements
+**** 61.6.3 TCP State Machine and State Transition Diagram
+**** 61.6.4 TCP Connection Establishment
+**** 61.6.5 TCP Connection Termination
+**** 61.6.6 Calling shutdown() on a TCP Socket
+**** 61.6.7 The TIME_WAIT State
+*** 61.7 Monitoring Sockets: netstat
+*** 61.8 Using tcpdump to Monitor TCP Traffic
+*** 61.9 Socket Options
+*** 61.10 The SO_REUSEADDR Socket Option
+*** 61.11 Inheritance of Flags and Options Across accept
+*** 61.12 TCP Versus UDP
+*** 61.13 Advanced Features
+**** 61.13.1 Out-of-Band Data
+**** 61.13.2 The sendmsg() and recvmsg() System Calls
+**** 61.13.3 Passing File Descriptors
+**** 61.13.4 Receiving Sender Credentials
+**** 61.13.5 Sequenced-Packet Sockets
+**** 61.13.6 SCTP and DCCP Transport-Layer Protocols
+*** 61.14 Summary
+*** 61.15 Exercises
+
+** 62 T E RM I NA L S
+*** 62.1 Overview
+*** 62.2 Retrieving and Modifying Terminal Attributes
+*** 62.3 The stty Command
+*** 62.4 Terminal Special Characters
+*** 62.5 Terminal Flags
+*** 62.6 Terminal I/O Modes
+**** 62.6.1 Canonical Mode
+**** 62.6.2 Noncanonical Mode
+**** 62.6.3 Cooked, Cbreak, and Raw Modes
+*** 62.7 Terminal Line Speed (Bit Rate
+*** 62.8 Terminal Line Control
+*** 62.9 Terminal Window Size
+*** 62.10 Terminal Identification
+*** 62.11 Summary
+*** 62.12 Exercises
+
+** 63 A L TER N A TI V E I /O M O D E L S
+*** 63.1 Overview
+**** 63.1.1 Level-Triggered and Edge-Triggered Notification
+**** 63.1.2 Employing Nonblocking I/O with Alternative I/O Models
+*** 63.2 I/O Multiplexing
+**** 63.2.1 The select() System Call
+**** 63.2.2 The poll() System Call
+**** 63.2.3 When Is a File Descriptor Ready
+**** 63.2.4 Comparison of select() and poll
+**** 63.2.5 Problems with select() and poll
+*** 63.3 Signal-Driven I/O
+**** 63.3.1 When Is “I/O Possible” Signaled
+**** 63.3.2 Refining the Use of Signal-Driven I/O
+*** 63.4 The epoll API
+**** 63.4.1 Creating an epoll Instance: epoll_create
+**** 63.4.2 Modifying the epoll Interest List: epoll_ctl
+**** 63.4.3 Waiting for Events: epoll_wait
+**** 63.4.4 A Closer Look at epoll Semantics
+**** 63.4.5 Performance of epoll Versus I/O Multiplexing
+**** 63.4.6 Edge-Triggered Notification
+*** 63.5 Waiting on Signals and File Descriptors
+**** 63.5.1 The pselect() System Call
+**** 63.5.2 The Self-Pipe Trick
+*** 63.6 Summary
+*** 63.7 Exercises
+
+** 64 P S E U D O T E RMI N A L S
+*** 64.1 Overview
+*** 64.2 UNIX 98 Pseudoterminals
+**** 64.2.1 Opening an Unused Master: posix_openpt
+**** 64.2.2 Changing Slave Ownership and Permissions: grantpt
+**** 64.2.3 Unlocking the Slave: unlockpt
+**** 64.2.4 Obtaining the Name of the Slave: ptsname
+*** 64.3 Opening a Master: ptyMasterOpen
+*** 64.4 Connecting Processes with a Pseudoterminal: ptyFork
+*** 64.5 Pseudoterminal I/O
+*** 64.6 Implementing script(1
+*** 64.7 Terminal Attributes and Window Size
+*** 64.8 BSD Pseudoterminals
+*** 64.9 Summary
+*** 64.10 Exercises
+
+--------------------------------
+
+A T RA C I NG SY S T E M C A L L S
+
+
+B PA RSING COMMA ND-L INE OPTIONS
+
+
+C CAS T IN G THE NULL P O I N TE R
+
+
+D KERNE L CONFIGURATION
+
+
+E F UR T H E R SOU R C E S O F I N F O R M A T I O N
+
+
+F S OLUTIONS TO SELECTED EXERCISES
+
+
+BIBLIOGRAPHY
+
+
+INDEX
+
+
+
+
+C o n t e n ts i n D e t a i l xxix
+

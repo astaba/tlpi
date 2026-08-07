@@ -6,7 +6,7 @@
  *
  * Listing 20.5: Temporarily blocking delivery of a signal.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h" 
 #include <signal.h>
 
 static void sanbox(void) {

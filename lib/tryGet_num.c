@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Mon Apr 13 20:37:24 +01 2026>
- * Time-stamp: <Fri Jun  5 08:51:03 +01 2026 by owner>
+ * Time-stamp: <Sat Jul 18 15:04:23 +01 2026 by owner>
  * Author    : Astar Bahouidi
  * Desc      : ~/coding/c_prog/tlpi/lib/tryGet_num.c -
  *
@@ -21,7 +21,7 @@
  *
  * Usage    : status = tryGetInt(argv[1], GN_GT_0, "port", &my_int);
  * ========================================================================= */
-#include "get_num.h"
+#include "tlpi_hdr.h"
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>

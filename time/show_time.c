@@ -16,7 +16,7 @@
  *      $ TZ=":CET" ./show_time
  *
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <locale.h>
 #include <time.h>
 

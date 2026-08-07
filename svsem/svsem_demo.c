@@ -8,7 +8,7 @@
  * Listing 47.1 A simple demonstration of System V semaphores.
  * ========================================================================= */
 #include "../lib/curr_time.h" /* Declaration of currTime() */
-#include "../lib/tlpi_hdr.h"  /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include "semun.h"            /* Definition of semun union */
 #include <sys/sem.h>
 #include <sys/stat.h>

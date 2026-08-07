@@ -6,7 +6,7 @@
  *
  * Listing 4.2 : Examples of the use of open()
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" // IWYU pragma: keep
+#include "tlpi_hdr.h" // IWYU pragma: keep
 #include <fcntl.h>
 
 void sanbox(void) {

@@ -1,15 +1,14 @@
 /* =========================================================================
  * Created on: <Thu May 14 15:38:30 +01 2026>
- * Time-stamp: <Thu May 14 16:04:15 +01 2026 by owner>
+ * Time-stamp: <Sun Jul 12 02:24:51 +01 2026 by owner>
  * Author    : Copyright (C) Michael Kerrisk, 2026.
  *             See the file COPYING.gpl-v3 for details.
  * Desc      : ~/coding/c_prog/tlpi/signals/t_kill.c -
  *
- * Listing 20.3:
- * Send a signal using kill(2) and analyze the return status of the
- * call.
+ * Listing 20.3: Send a signal using kill(2) and analyze the return
+ * status of the call.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"	/* IWYU pragma: keep */
+#include "tlpi_hdr.h" 	/* IWYU pragma: keep */
 #include <signal.h>
 
 int main(int argc, char *argv[]) {

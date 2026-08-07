@@ -10,7 +10,7 @@
  * condition variable.
  * See also [[file:prod_condvar.c]].
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include "pthread_wrappers.h"
 #include <stdbool.h>
 #include <time.h>

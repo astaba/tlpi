@@ -7,7 +7,7 @@
  * Exercise 59.3
  * A library of useful routines for sockets in the UNIX domain.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include "unix_sockets.h"
 
 /* Clear and populate a UNIX address struct.

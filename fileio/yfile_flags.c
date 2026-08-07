@@ -1,15 +1,13 @@
-/* Created on: Sat Jan 31 13:50:51 +01 2026 */
-/* Description: Section 5.3 Personal Practice */
-/* Purpose: Using the fcntl(2) to get open file status flags. */
-/*
-$ ./yfileflags 0 </dev/tty
-$ ./yfileflags 1 >tfile
-$ cat tfile
-$ ./yfileflags 2 2>tfile
-$ ./yfileflags 5 5<>tfile
-*/
-
-#include "../lib/tlpi_hdr.h" // IWYU pragma: keep
+/* =========================================================================
+ * Created on: <Sat Jan 31 13:50:51 +01 2026> 
+ * Time-stamp: <Sun Jun 21 21:08:45 +01 2026 by owner> 
+ * Author    : owner
+ * Desc      : ~/coding/c_prog/tlpi/fileio/yfile_flags.c -
+ *
+ * Personal Practice for Section 5.3
+ * Using the fcntl(2) to get open file status flags.
+ * ========================================================================= */
+#include "tlpi_hdr.h" // IWYU pragma: keep
 #include <fcntl.h>
 
 static inline int is_help(const char *h) {

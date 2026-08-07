@@ -1,25 +1,30 @@
-/* Created on : Fri Jan 30 05:15:00 +01 2026 */
-/* Description: Listing 4-3 practice draft. */
-/* Purpose    : Demonstrate the use of lseek(2) in conjunction with read(2) and
-                write(2) */
-/* Options list: */
-/* soffset: Seek to byte offset from the start of the file. */
-/* rlength: Read length bytes from the file, starting at the current file
- *          offset, and display them in text form. */
-/* Rlength: Read length bytes from the file, starting at the current file
- *          offset, and display them in hexadecimal. */
-/* wstr:    Write the string of characters specified in str at the current file
- *          offset. */
-/* WARN: For the experimental test: */
-/* Only pass one I/O option per call after s<offset> */
-/*
-  $ touch tfile                  # Create new, empty file
-  $ ./seek_io tfile s100000 wabc # Seek to offset 100,000, write “abc”
-  $ ls -l tfile                  # Check size of file
-  $ ./seek_io tfile s10000 R5    # Seek offset 10,000, read 5 bytes from hole
-*/
-
-#include "../lib/tlpi_hdr.h" // IWYU pragma: keep
+/* =========================================================================
+ * Created on: <Fri Jan 30 05:15:00 +01 2026>
+ * Time-stamp: <Sun Jun 21 18:50:28 +01 2026 by owner>
+ * Author    : owner
+ * Desc      : ~/coding/c_prog/tlpi/fileio/yseek_io.c -
+ *
+ * Listing 4.3 practice draft.
+ *
+ * Purpose : Demonstrate the use of lseek(2) in conjunction with
+ *                 read(2) and write(2)
+ * Options list:
+ * soffset: Seek to byte offset from the start of the file.
+ * rlength: Read length bytes from the file, starting at the current file
+ *          offset, and display them in text form.
+ * Rlength: Read length bytes from the file, starting at the current file
+ *          offset, and display them in hexadecimal.
+ * wstr:    Write the string of characters specified in str at the current file
+ *          offset.
+ * WARN: For the experimental test:
+ * Only pass one I/O option per call after s<offset>
+ *
+ *   $ touch tfile                  # Create new, empty file
+ *   $ ./seek_io tfile s100000 wabc # Seek to offset 100,000, write “abc”
+ *   $ ls -l tfile                  # Check size of file
+ *   $ ./seek_io tfile s10000 R5    # Seek offset 10,000, read 5 bytes from hole
+ * ========================================================================= */
+#include "tlpi_hdr.h" // IWYU pragma: keep
 #include <ctype.h>
 #include <fcntl.h>
 

@@ -9,7 +9,7 @@
  * command-line option (tee –a file), which causes tee to append text
  * to the end of a file if it already exists.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h" 
 #include <ctype.h>
 #include <fcntl.h>
 

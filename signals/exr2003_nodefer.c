@@ -1,22 +1,22 @@
 /* =========================================================================
  * Created on: <Sat May 16 20:25:35 +01 2026>
- * Time-stamp: <Sun May 17 19:06:56 +01 2026 by owner>
+ * Time-stamp: <Sun Jul 12 11:17:49 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/signals/exr2003_nodefer.c -
  *
  * Exercise 20.3: Write programs that verify the effect of the
- * SA_RESETHAND and SA_NODEFER flags when establishing a signal
- * handler with sigaction().
+ * SA_NODEFER flag when establishing a signal handler with
+ * sigaction().
  * See also [[file:exr2003_resethand.c]]
  * ========================================================================= */
 #define _GNU_SOURCE
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <signal.h>
 
 static volatile sig_atomic_t depth = 0;
 
 static void handler(int sig) {
-  /* UNSAFE: All printf() and exit() calls */
+  /* UNSAFE: All printf() and exit() calls are not async-signal-safe */
   int current_depth = depth;
   current_depth++;
   depth = current_depth;

@@ -19,7 +19,7 @@
  *
  * Test with [[file:exr3101_test.c]]
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h" 
 #include "exr3101_hdr.h"
 
 int one_time_init(oncer_t *control, void (*init)(void)) {

@@ -14,7 +14,7 @@
 
    Functions to process numeric command-line arguments.
 */
-#include "get_num.h"
+#include "tlpi_hdr.h"
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>

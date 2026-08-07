@@ -11,7 +11,7 @@
  * ========================================================================= */
 #define _GNU_SOURCE
 
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h" 
 #include <signal.h>
 
 /* sighandler_t routine; */

@@ -4,7 +4,7 @@
  * the atomic open(2) with O_APPEND. More explanations at end of file about the
  * phenomenon of race condition. */
 
-#include "../lib/tlpi_hdr.h" // IWYU pragma: keep
+#include "tlpi_hdr.h" // IWYU pragma: keep
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>

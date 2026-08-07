@@ -1,17 +1,14 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU Lesser General Public License as published   *
-* by the Free Software Foundation, either version 3 or (at your option)   *
-* any later version. This program is distributed without any warranty.    *
-* See the files COPYING.lgpl-v3 and COPYING.gpl-v3 for details.           *
-\*************************************************************************/
-
-/* Listing 3-1 */
-
-/* tlpi_hdr.h
-
+/* =========================================================================
+ * Created on: <Mon Apr 13 18:55:58 +01 2026>
+ * Time-stamp: <Sat Jul 18 15:04:23 +01 2026 by owner>
+ * Author    : Copyright (C) Michael Kerrisk, 2026.
+ *             See the file [[file:../COPYING.lgpl-v3]] and
+ *             [[file:../COPYING.gpl-v3]] for details.
+ * Desc      : ~/coding/c_prog/tlpi/lib/tlpi_hdr.h -
+ *
+ * Listing 3-1
+ * ========================================================================= */
+/*
    Standard header file used by nearly all of our example programs.
 */
 #ifndef TLPI_HDR_H
@@ -26,10 +23,82 @@
 #include <sys/types.h> /* Type definitions used by many programs */
 #include <unistd.h>    /* Prototypes for many system calls */
 
-#include "get_num.h" /* Declares our functions for handling numeric
-                           arguments (getInt(), getLong()) */
+/* ========================================================================= */
+/*
+  Listing 3.5 Header file for get_num.c.
 
-#include "error_functions.h" /* Declares our error-handling functions */
+  WARN: This 012 is Octal_12 not decimal_12: 012 == 10
+  NOTE: The use of Octal number has the great advantages of making
+  “visible” set binary bits: while keeping null all other octal
+  digits just increment EVENLY the target octal digit to set the
+  binary bit identified by offset from all the zeros in the
+  completely nullified least significant bits.
+*/
+
+#ifndef GET_NUM_H
+#define GET_NUM_H
+
+typedef enum { TGN_SUCCESS = 0, TGN_FAILURE = -1 } tgn_t;
+
+#define GN_NONNEG 01 /* Value must be >= 0 */
+#define GN_GT_0 02   /* Value must be > 0 */
+
+#define TGN_IGN_TRAILGB 010
+#define TGN_IGN_TRAILWS 020
+
+/* By default, integers are decimal */
+#define GN_ANY_BASE 0100 /* Can use any base - like strtol(3) */
+#define GN_BASE_8 0200   /* Value is expressed in octal */
+#define GN_BASE_16 0400  /* Value is expressed in hexadecimal */
+
+long long getLLong(const char *arg, int flags, const char *name);
+long getLong(const char *arg, int flags, const char *name);
+int getInt(const char *arg, int flags, const char *name);
+
+tgn_t tryGetLLong(const char *arg, int flags, const char *name, long long *out);
+tgn_t tryGetLong(const char *arg, int flags, const char *name, long *out);
+tgn_t tryGetInt(const char *arg, int flags, const char *name, int *out);
+
+tgn_t tryGetULLong(const char *arg, int flags, const char *name,
+                   unsigned long long *out);
+tgn_t tryGetULong(const char *arg, int flags, const char *name,
+                  unsigned long *out);
+tgn_t tryGetUInt(const char *arg, int flags, const char *name,
+                 unsigned int *out);
+
+#endif
+
+/*
+   Listing 3-2 Declares our error-handling functions
+*/
+
+#ifndef ERROR_FUNCTIONS_H
+#define ERROR_FUNCTIONS_H
+
+/* Error diagnostic routines */
+
+void systmWrn(const char *format, ...);
+
+#ifdef __GNUC__
+
+/* This macro stops 'gcc -Wall' complaining that "control reaches
+   end of non-void function" if we use the following functions to
+   terminate main() or some other non-void function. */
+
+#define NORETURN __attribute__((__noreturn__))
+#else
+#define NORETURN
+#endif
+
+void systmErr(const char *format, ...) NORETURN;
+void _systmerr(const char *format, ...) NORETURN;
+void nmsysErr(int errnum, const char *format, ...) NORETURN;
+void custmErr(const char *format, ...) NORETURN;
+void usageErr(const char *format, ...) NORETURN;
+void cmdLineErr(const char *format, ...) NORETURN;
+
+#endif
+/* ========================================================================= */
 
 /* Unfortunately some UNIX implementations define FALSE and TRUE -
    here we'll undefine them */

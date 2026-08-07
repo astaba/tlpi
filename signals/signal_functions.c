@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Thu May 14 17:01:59 +01 2026>
- * Time-stamp: <Sat May 23 18:52:35 +01 2026 by owner>
+ * Time-stamp: <Fri Jul 24 20:51:08 +01 2026 by owner>
  * Author    : Copyright (C) Michael Kerrisk, 2026.
  *             See the file COPYING.gpl-v3 for details.
  * Desc      : ~/coding/c_prog/tlpi/signals/signal_functions.c -
@@ -9,7 +9,7 @@
  * ========================================================================= */
 #define _GNU_SOURCE
 #include "signal_functions.h" /* Declares functions defined here */
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h"
 #include <signal.h>
 #include <string.h>
 

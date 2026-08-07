@@ -1,31 +1,22 @@
-/*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2026.                   *
-*                                                                         *
-* This program is free software. You may use, modify, and redistribute it *
-* under the terms of the GNU General Public License as published by the   *
-* Free Software Foundation, either version 3 or (at your option) any      *
-* later version. This program is distributed without any warranty.  See   *
-* the file COPYING.gpl-v3 for details.                                    *
-\*************************************************************************/
-
-/* Listing 6-3 */
-
-/* display_env.c
-
-   Display the process environment list.
-*/
+/* =========================================================================
+ * Created on: <Tue Aug 04 18:10:06 +01 2026>
+ * Time-stamp: <Tue Aug  4 18:10:56 +01 2026 by owner>
+ * Author    : Copyright (C) Michael Kerrisk, 2026.
+ *             See the file [file:../COPYING.gpl-v3] for details.
+ * Desc      : ~/coding/c_prog/tlpi/proc/display_env.c -
+ *
+ * Listing 6.3: Display the process environment list.
+ * ========================================================================= */
 #include "tlpi_hdr.h"
 
 extern char **environ;
-                /* Or define _GNU_SOURCE to get it from <unistd.h> */
+/* Or define _GNU_SOURCE to get it from <unistd.h> */
 
-int
-main(int argc, char *argv[])
-{
-    char **ep;
+int main(int argc, char *argv[]) {
+  char **ep;
 
-    for (ep = environ; *ep != NULL; ep++)
-        puts(*ep);
+  for (ep = environ; *ep != NULL; ep++)
+    puts(*ep);
 
-    exit(EXIT_SUCCESS);
+  exit(EXIT_SUCCESS);
 }

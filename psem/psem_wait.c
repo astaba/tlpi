@@ -11,7 +11,7 @@
  * On Linux, named semaphores are supported with kernel 2.6 or later,
  * and a glibc that provides the NPTL threading implementation.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <semaphore.h>
 
 int main(int argc, char *argv[]) {

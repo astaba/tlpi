@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Fri May 15 19:27:52 +01 2026>
- * Time-stamp: <Sat May 23 13:13:51 +01 2026 by owner>
+ * Time-stamp: <Sun Jul 12 10:45:38 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/signals/exr2001.c -
  *
@@ -10,7 +10,7 @@
  * [[file:sig_receiver.c]].
  * ========================================================================= */
 #define _GNU_SOURCE
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <signal.h>
 #include <stdbool.h>
 
@@ -83,13 +83,13 @@ int main(int argc, char *argv[argc + 1]) {
       systmErr("sigprocmask() failed");
   }
 
-  /* Wait indefinitely for arrival of signal SIGINT */
+  /* Wait indefinitely for arrival of SIGINT */
   while (gotSigint == false)
     pause();
   printf("[PID=%ld]%s: caught sig n°%d: break out of pause-loop\n", (long)pid,
          argv[0], SIGINT);
 
-  /* Check all signals caught */
+  /* Check all caught signals */
   for (n = 1; n < NSIG; n++)
     if (sigCnt[n] > 0)
       printf("[PID=%ld]%s: caught sig n°%d %d time%s\n", (long)pid, argv[0], n,

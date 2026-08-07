@@ -14,7 +14,7 @@
  * itself from making a call, pthread_join(tid, NULL), that is
  * equivalent to the above statement?
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <pthread.h>
 
 void *routine(void *arg);

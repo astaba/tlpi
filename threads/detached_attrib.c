@@ -8,7 +8,7 @@
  * Listing 29.2: An example of the use of POSIX thread attributes
  * (pthread_attr_t): creating a detached thread.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"	/* IWYU pragma: keep */
+#include "tlpi_hdr.h" 	/* IWYU pragma: keep */
 #include <pthread.h>
 
 static void *threadFunc(void *x) { return x; }

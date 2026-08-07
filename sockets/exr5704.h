@@ -7,7 +7,7 @@
 #include <sys/un.h>
 #include <sys/socket.h>
 #include <ctype.h>
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h" 
 
 #define BUF_SIZE 64
 #define PATH_A "/tmp/dummy_a"

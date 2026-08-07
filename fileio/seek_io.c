@@ -25,7 +25,7 @@
  *	     $ ./seek_io myfile wxyz s1 r2
  *
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <ctype.h>
 #include <fcntl.h>
 #include <sys/stat.h>

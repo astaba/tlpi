@@ -1,0 +1,15 @@
+#+TITLE: Processes
+#+AUTHOR: Astar Bahouidi
+#+DESCRIPTION: Chapters 24 to 28 The Linux Programming Interface by Michael Kerrisk
+#+STARTUP: showall
+
+* Table Of Contents                                                   :toc_2:
+- [[#process-chapters][Process Chapters]]
+
+* Process Chapters
+
+- [[file:CHAPTER_24.org][Chapter 24]]: Process Creation;
+- [[file:CHAPTER_25.org][Chapter 25]]: Process Termination;
+- [[file:CHAPTER_26.org][Chapter 26]]: Monitoring Child Processes;
+- [[file:CHAPTER_27.org][Chapter 27]]: Program Execution;
+- [[file:CHAPTER_28.org][Chapter 28]]: Further Details on Process Creation and Program Execution;

@@ -9,7 +9,7 @@
  * method. As a consequence, updates are sometimes lost.
  * See also [[file:thread_incr_mutex.c]].
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include "pthread_wrappers.h"
 
 void *thread_routine(void *agr);

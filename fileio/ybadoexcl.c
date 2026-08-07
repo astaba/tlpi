@@ -1,7 +1,12 @@
-/* Created on: Fri Jan 30 16:24:57 +01 2026 */
-/* Description: Practice draft for bad_exclusive_open.c */
-
-#include "../lib/tlpi_hdr.h" // IWYU pragma: keep
+/* =========================================================================
+ * Created on: <Fri Jan 30 16:24:57 +01 2026>
+ * Time-stamp: <Sun Jun 21 21:08:55 +01 2026 by owner>
+ * Author    : owner
+ * Desc      : ~/coding/c_prog/tlpi/fileio/ybadoexcl.c -
+ *
+ * Description: Practice draft for bad_exclusive_open.c
+ * ========================================================================= */
+#include "tlpi_hdr.h" // IWYU pragma: keep
 #include <fcntl.h>
 #include <sys/stat.h>
 

@@ -1,21 +1,21 @@
 /* =========================================================================
  * Created on: <Sat May 16 20:23:26 +01 2026>
- * Time-stamp: <Sun May 17 19:06:56 +01 2026 by owner>
+ * Time-stamp: <Sun Jul 12 11:16:52 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/signals/exr2003_resethand.c -
  *
  * Exercise 20.3: Write programs that verify the effect of the
- * SA_RESETHAND and SA_NODEFER flags when establishing a signal
- * handler with sigaction().
+ * SA_RESETHAND flag when establishing a signal handler with
+ * sigaction().
  * See also [[file:exr2003_nodefer.c]]
  * ========================================================================= */
 #define _GNU_SOURCE
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <signal.h>
 
 static void handler(int sig) {
   printf("[SIGINT_HANDLER]: Caught sig n°%d. The fire next time\n",
-         sig); /* UNSAFE: */
+         sig); /* UNSAFE: pritnf() is not async-signal-safe */
   return;
 }
 

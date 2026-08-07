@@ -10,7 +10,7 @@
  * service name. Note that getservbyname() is now obsolete; new
  * programs should use getaddrinfo().
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <netdb.h>
 
 int main(int argc, char *argv[]) {

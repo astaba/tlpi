@@ -8,7 +8,7 @@
  * regular file that contains holes (sequences of null bytes), also
  * creates corresponding holes in the target file.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h" 
 #include <fcntl.h>
 
 #define BFSIZE 8192

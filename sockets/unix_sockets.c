@@ -9,7 +9,7 @@
  * A package of useful routines for UNIX domain sockets.
  * ========================================================================= */
 #include "unix_sockets.h"    /* Declares functions defined here */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 
 /* Build a UNIX domain socket address structure for 'path', returning
    it in 'addr'. Returns -1 on success, or 0 on error. */

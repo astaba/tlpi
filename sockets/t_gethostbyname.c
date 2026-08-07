@@ -13,7 +13,7 @@
 #define _USE_IRS
 #endif
 #define _BSD_SOURCE          /* To get hstrerror() declaration from <netdb.h> */
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>

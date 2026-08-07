@@ -1,6 +1,6 @@
 /* =========================================================================
  * Created on: <Sat May 16 12:31:52 +01 2026>
- * Time-stamp: <Sat May 23 00:43:47 +01 2026 by owner>
+ * Time-stamp: <Sat Jul 18 14:10:55 +01 2026 by owner>
  * Author    : owner
  * Desc      : ~/coding/c_prog/tlpi/signals/exr2002.c -
  *
@@ -9,7 +9,7 @@
  * sees (catches) the signal.
  * ========================================================================= */
 #define _GNU_SOURCE
-#include "../lib/tlpi_hdr.h" /* IWYU pragma: keep */
+#include "tlpi_hdr.h" /* IWYU pragma: keep */
 #include <signal.h>
 
 static void handler(int sig) {

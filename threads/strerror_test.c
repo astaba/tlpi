@@ -10,7 +10,7 @@
  * DEPRECATED:WONTFIX: sys_nerr and sys_errlist are removed from glibc
  * 2.32 on.  This code won't compile.
  * ========================================================================= */
-#include "../lib/tlpi_hdr.h"
+#include "tlpi_hdr.h" 
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h> /* Get declaration of strerror() */
